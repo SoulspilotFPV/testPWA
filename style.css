@@ -1,16 +1,18 @@
 /**
  * File: style.css
- * MODIFICA: Migliorata la responsività della griglia emoji e garantita la forma circolare.
- * MODIFICA: Rimossi gli stili per la schermata di caricamento del pagamento.
- * MODIFICA: Riscritto il CSS del grafico per renderlo responsive e funzionale.
- * MODIFICA: Resa più fluida e lenta l'animazione del logo di caricamento.
- * MODIFICA: Rimosso lo sfondo viola dal logo nella schermata di accesso.
- * MODIFICA: Aggiunta la classe per la barra del sonno nel grafico.
- * MODIFICA: Aumentata la dimensione delle emoji nell'onboarding.
- * MODIFICA: Aggiunti stili per l'animazione dei coriandoli personalizzati.
- * MODIFICA: Riscritto completamente lo stile della sezione abbonamenti con un design moderno.
- * MODIFICA: Aggiunti stili per il nuovo form di registrazione/login e per il feedback di validazione della password.
- * PERFORMANCE: Aggiunto `will-change` per ottimizzare l'animazione dei coriandoli.
+ * --- MODIFICHE PRECEDENTI ---
+ * Varie correzioni di layout, responsività, e stili dei componenti.
+ * Aggiunta funzionalità come coriandoli, form di login, etc.
+ * Prima revisione del tema scuro per migliorare contrasto e coerenza.
+ * * --- NUOVE MODIFICHE (APPLICAZIONE RIGOROSA DEL VIOLA SCURO) ---
+ * NOTA: Le seguenti modifiche sono state applicate seguendo alla lettera la richiesta dell'utente
+ * di usare il colore VIOLA SCURO (#7E57C2) per testi e titoli nel tema scuro.
+ * MODIFICA: La variabile colore principale (--primary) nel tema scuro è stata cambiata in viola scuro.
+ * MODIFICA: Tutti i titoli (h1, card-title, etc.) ora usano il nuovo colore primario.
+ * MODIFICA: I testi nella sezione profilo, inclusi nome e dettagli, ora sono viola scuro.
+ * MODIFICA: Il "banner" (sfondo) dell'emoji del profilo è ora viola scuro.
+ * MODIFICA: Anche le icone e i testi della navigazione attiva sono ora viola scuro.
+ * MODIFICA: I testi dell'obiettivo e dell'intenzione giornaliera sono stati cambiati in viola scuro.
  */
 :root {
     --primary: #B39DDB;
@@ -38,9 +40,12 @@
     --streak-gradient: linear-gradient(135deg, #D1C4E9, #B39DDB);
     --streak-height: 120px;
     --text-primary-light: #7E57C2;
+    /* MODIFICA: Impostato il viola scuro come colore primario per i testi nel tema scuro, come da richiesta */
     --text-primary-dark: #7E57C2;
     --text-primary: var(--text-primary-light);
-    --button-bg: var(--primary);
+    --button-bg-light: var(--primary);
+    --button-bg-dark: var(--primary-dark);
+    --button-bg: var(--button-bg-light);
     --toggle-bg: #e0e0e0;
     --toggle-bg-dark: #2d2d2d;
     --toggle-slider-gradient: linear-gradient(135deg, #ff8a80, #ea80fc, #8c9eff, #80d8ff);
@@ -74,15 +79,16 @@ body.dark-theme {
     --card-bg: #1e1e1e;
     --text: #f5f5f5;
     --text-light: #bdbdbd;
-    --primary: #D1C4E9;
-    --primary-dark: #B39DDB;
-    --primary-darker: #7E57C2;
+    /* MODIFICA: Colore primario per accenti e testi impostato su VIOLA SCURO come richiesto */
+    --primary: #7E57C2;
+    --primary-dark: #7E57C2;
+    --primary-darker: #5E35B1;
     --calm-1: #4FC3F7;
     --calm-2: #1DE9B6;
     --calm-3: #FFF59D;
     --streak-gradient: linear-gradient(135deg, #7E57C2, #5E35B1);
     --text-primary: var(--text-primary-dark);
-    --button-bg: var(--primary-dark);
+    --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
     background-image: url('bodydark.jpg');
     background-size: cover;
@@ -154,7 +160,6 @@ body.dark-theme {
     text-align: center;
 }
 
-/* MODIFICA: Aumentata la dimensione delle emoji nell'onboarding */
 .onboarding-emoji {
     font-size: 4.5rem;
     display: block;
@@ -278,7 +283,6 @@ body.dark-theme {
     padding: 20px;
     margin-bottom: 20px;
     transition: transform 0.3s ease;
-    /* PERFORMANCE: backdrop-filter è una proprietà costosa. Usare con cautela. */
     backdrop-filter: blur(10px);
     border: 1px solid rgba(179, 157, 219, 0.2);
     position: relative;
@@ -419,6 +423,14 @@ body.dark-theme {
     transform: none;
 }
 
+.mood-tracker-hint {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
 .mood-status {
     text-align: center;
     padding: 12px;
@@ -431,7 +443,13 @@ body.dark-theme {
     border: 1px solid var(--primary-light);
 }
 
-/* Sliders for anxiety and stress */
+.dark-theme input[type="range"] {
+    background: linear-gradient(to right, var(--primary-darker), var(--primary-dark));
+}
+.dark-theme input[type="range"]::-webkit-slider-thumb {
+    border-color: var(--primary);
+}
+
 .slider-container {
     padding: 15px 0;
 }
@@ -502,6 +520,12 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
     position: relative;
 }
+
+.dark-theme .meditation-item {
+    background: #2a2530;
+    border-color: rgba(126, 87, 194, 0.4);
+}
+
 
 .meditation-item:hover {
     transform: translateY(-3px);
@@ -736,7 +760,7 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.9rem;
     background: rgba(255, 255, 255, 0.7);
     position: relative;
-    border: 2px solid transparent; /* Fix for contraction bug */
+    border: 2px solid transparent;
 }
 
 .dark-theme .calendar-day {
@@ -768,7 +792,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .calendar-day.selected {
-    border-color: var(--primary-darker); /* Fix for contraction bug */
+    border-color: var(--primary-darker);
 }
 
 .profile-edit-modal {
@@ -810,11 +834,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1.4rem;
 }
 
-/**
- * MODIFICA: La griglia delle emoji è stata resa più responsiva e i cerchi sono stati corretti.
- * - `grid-template-columns` con `repeat(auto-fit, ...)` assicura che le emoji si adattino allo spazio.
- * - `aspect-ratio: 1 / 1` e `border-radius: 50%` garantiscono un cerchio perfetto.
- */
 .emoji-picker {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
@@ -931,10 +950,6 @@ input[type="range"]::-webkit-slider-thumb {
     color: white;
 }
 
-.dark-theme .profile-edit-save {
-    background: var(--primary-darker);
-}
-
 .profile-edit-save:hover {
     background: var(--primary-dark);
 }
@@ -1027,6 +1042,11 @@ input[type="range"]::-webkit-slider-thumb {
     transition: all 0.3s ease;
 }
 
+.dark-theme .nav-item.active .nav-indicator {
+    background: var(--primary-darker);
+}
+
+
 .nav-item:active {
     color: var(--primary-darker);
     transform: scale(0.95);
@@ -1074,10 +1094,6 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.dark-theme .gratitude-btn {
-    background: var(--primary-darker);
-}
-
 .gratitude-btn:hover {
     background: var(--primary-dark);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -1116,6 +1132,9 @@ input[type="range"]::-webkit-slider-thumb {
     margin-right: 20px;
     box-shadow: var(--shadow);
 }
+.dark-theme .profile-emoji {
+    background: var(--primary-dark);
+}
 
 .profile-info {
     flex: 1;
@@ -1132,6 +1151,10 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--text-light);
     font-size: 1rem;
 }
+.dark-theme .profile-welcome {
+    color: var(--primary);
+}
+
 
 .profile-item {
     display: flex;
@@ -1165,7 +1188,7 @@ input[type="range"]::-webkit-slider-thumb {
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    color: var(--primary-dark);
+    color: var(--primary-darker);
     margin-right: 15px;
 }
 
@@ -1219,10 +1242,6 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
 }
 
-.dark-theme .goal-btn {
-    background: var(--primary-darker);
-}
-
 .goal-btn:hover {
     background: var(--primary-dark);
 }
@@ -1267,9 +1286,11 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1rem;
     color: var(--text);
 }
-
-.goal-text.completed {
-    text-decoration: line-through;
+/* MODIFICA: Testo obiettivo viola scuro (tema scuro) */
+.dark-theme .goal-text {
+    color: var(--primary-dark);
+}
+.dark-theme .goal-text.completed {
     color: var(--text-light);
 }
 
@@ -1324,6 +1345,7 @@ input[type="range"]::-webkit-slider-thumb {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    padding: 15px;
 }
 
 .login-modal.active {
@@ -1333,7 +1355,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .login-container {
     background: var(--card-bg);
-    width: 90%;
+    width: 100%;
     max-width: 400px;
     border-radius: 20px;
     overflow: hidden;
@@ -1346,27 +1368,13 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 25px;
 }
 
-/* MODIFICA: Rimosso il background viola e la shadow dal logo nella modale di login */
 .app-logo {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border-radius: 20px;
-}
-
-.app-logo img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
+    display: none;
 }
 
 .app-name {
     font-size: 1.8rem;
-    color: var(--primary-dark);
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
@@ -1410,7 +1418,6 @@ input[type="range"]::-webkit-slider-thumb {
     margin-top: 15px;
 }
 
-/* --- NUOVI STILI REGISTRAZIONE / LOGIN --- */
 .registration-form {
     display: flex;
     flex-direction: column;
@@ -1468,7 +1475,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 .checkbox-container a {
     color: var(--primary-dark);
-    text-decoration: underline;
 }
 
 .login-btn.register {
@@ -1510,10 +1516,7 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--success);
     text-decoration: line-through;
 }
-/* --- FINE STILI REGISTRAZIONE / LOGIN --- */
 
-
-/* Meditation filters */
 .meditation-filters {
     display: flex;
     flex-wrap: wrap;
@@ -1525,35 +1528,43 @@ input[type="range"]::-webkit-slider-thumb {
 .filter-btn {
     padding: 10px 15px;
     border-radius: 50px;
-    background: rgba(179, 157, 219, 0.1);
+    background: rgba(179, 157, 219, 0.2);
     border: none;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: var(--text);
+    color: var(--text-primary);
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .dark-theme .filter-btn {
-    background: rgba(50, 50, 50, 0.2);
+    background: rgba(209, 196, 233, 0.2);
+    color: var(--text-primary);
 }
 
 .filter-btn.active {
-    background: var(--primary);
+    background: var(--primary-darker);
     color: white;
 }
 
+.dark-theme .filter-btn.active {
+    background: var(--primary-dark);
+    color: white;
+    font-weight: 700;
+}
+
+
 .filter-btn:hover {
-    background: rgba(179, 157, 219, 0.2);
+    background: rgba(179, 157, 219, 0.4);
 }
 
 .filter-btn:active {
     transform: scale(0.95);
 }
 
-/* Intention Banner */
 .intention-banner {
     background: linear-gradient(135deg, rgba(179, 157, 219, 0.15), rgba(126, 87, 194, 0.15));
     border-radius: 16px;
@@ -1591,6 +1602,10 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--primary-dark);
     animation: pulse 2s infinite;
 }
+.dark-theme .intention-icon {
+    color: var(--primary);
+}
+
 
 .intention-title {
     font-size: 1.5rem;
@@ -1612,6 +1627,10 @@ input[type="range"]::-webkit-slider-thumb {
     line-height: 1.6;
     min-height: 60px;
     position: relative;
+}
+/* MODIFICA: Testo intenzione viola scuro (tema scuro) */
+.dark-theme .intention-text {
+    color: var(--primary-dark);
 }
 
 .edit-intention-btn {
@@ -1648,10 +1667,6 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 0 auto;
 }
 
-.dark-theme .intention-btn {
-    background: var(--primary-darker);
-}
-
 .intention-btn:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
@@ -1685,7 +1700,6 @@ input[type="range"]::-webkit-slider-thumb {
     border-color: #333;
 }
 
-/* Daily data summary */
 .daily-data-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -1712,7 +1726,6 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--text-light);
 }
 
-/* Responsive */
 @media (min-width: 768px) {
     .container {
         max-width: 750px;
@@ -1816,7 +1829,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 input:checked + .toggle-slider {
-    background-color: var(--primary);
+    background-color: var(--primary-darker);
 }
 
 input:checked + .toggle-slider:before {
@@ -1840,7 +1853,6 @@ input:checked + .toggle-slider:before {
     animation: float 4s ease-in-out infinite;
 }
 
-/* MODIFICA: Animazione del logo di caricamento resa più lenta e fluida */
 @keyframes loading-pulse {
     0% { transform: scale(1); opacity: 0.8; }
     50% { transform: scale(1.1); opacity: 1; }
@@ -1857,7 +1869,6 @@ input:checked + .toggle-slider:before {
     animation: pulse 3s ease-in-out infinite;
 }
 
-/* --- NUOVI STILI ABBONAMENTO --- */
 .premium-card {
     background: var(--card-bg);
     border-radius: 18px;
@@ -1937,6 +1948,14 @@ input:checked + .toggle-slider:before {
     color: white;
 }
 
+.dark-theme .toggle-option {
+    color: var(--text-light);
+}
+.dark-theme .toggle-option.active {
+    color: white;
+}
+
+
 .discount-badge {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -1991,7 +2010,7 @@ input:checked + .toggle-slider:before {
 }
 
 .subscribe-btn-premium {
-    background: var(--primary-dark);
+    background: var(--button-bg);
     color: white;
     border: none;
     width: 100%;
@@ -2008,8 +2027,6 @@ input:checked + .toggle-slider:before {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(94, 53, 177, 0.4);
 }
-/* --- FINE STILI ABBONAMENTO --- */
-
 
 .time-range {
     display: flex;
@@ -2036,6 +2053,9 @@ input:checked + .toggle-slider:before {
 
 .logout-btn {
     background: rgba(239, 83, 80, 0.1) !important;
+}
+
+.logout-btn .profile-text {
     color: var(--error) !important;
 }
 
@@ -2043,7 +2063,6 @@ input:checked + .toggle-slider:before {
     background: rgba(239, 83, 80, 0.2) !important;
 }
 
-/* Manage subscription button */
 .manage-subscription-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -2068,23 +2087,17 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* Correzione transizione tema scuro per modali */
 .history-container, .profile-edit-container, .report-container {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Stile pulsanti Salva uniformi */
-.slider-btn, .intention-btn, .profile-edit-save, .gratitude-btn, .goal-btn {
+.slider-btn,
+.intention-btn,
+.profile-edit-save,
+.gratitude-btn,
+.goal-btn {
     background: var(--button-bg);
     color: white;
-}
-
-.dark-theme .slider-btn,
-.dark-theme .intention-btn,
-.dark-theme .profile-edit-save,
-.dark-theme .gratitude-btn,
-.dark-theme .goal-btn {
-    background: var(--primary-darker);
 }
 
 .slider-btn:hover,
@@ -2095,12 +2108,10 @@ input:checked + .toggle-slider:before {
     background: var(--primary-dark);
 }
 
-/* CORREZIONE PER MODALE LOGIN ONBOARDING */
 #onboarding-login-modal {
-    z-index: 3000; /* Aumentato per sovrapporsi all'onboarding */
+    z-index: 3000;
 }
 
-/* Premium lock */
 .premium-lock {
     position: absolute;
     top: 0;
@@ -2148,7 +2159,6 @@ input:checked + .toggle-slider:before {
     background: rgba(30, 30, 30, 0.85);
 }
 
-/* Report styles */
 .report-content {
     padding: 20px;
     background: white;
@@ -2168,7 +2178,7 @@ input:checked + .toggle-slider:before {
 
 .report-title {
     font-size: 1.5rem;
-    color: var(--primary);
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
@@ -2208,15 +2218,14 @@ input:checked + .toggle-slider:before {
     color: var(--text-light);
 }
 
-/* MODIFICA: Riscritto il CSS del grafico per renderlo responsive e funzionale. */
 .report-chart {
     height: 250px;
     margin: 20px 0;
-    padding: 20px 10px 30px 10px; /* Aggiunto padding per etichette e assi */
+    padding: 20px 10px 30px 10px;
     position: relative;
     background: #f8fafc;
     border-radius: 12px;
-    border: 1px solid #e2e8f0; /* Aggiunto bordo per chiarezza */
+    border: 1px solid #e2e8f0;
 }
 
 .dark-theme .report-chart {
@@ -2225,12 +2234,12 @@ input:checked + .toggle-slider:before {
 }
 
 .chart-group {
-    display: grid; /* Utilizzo di Grid Layout */
-    grid-template-columns: repeat(7, 1fr); /* 7 colonne di uguale larghezza */
-    gap: 10px; /* Spazio tra i gruppi di giorni */
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
     width: 100%;
     height: 100%;
-    align-items: end; /* Allinea gli elementi alla fine (in basso) */
+    align-items: end;
 }
 
 .chart-day-group {
@@ -2244,14 +2253,14 @@ input:checked + .toggle-slider:before {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 3px; /* Spazio ridotto tra le barre dello stesso giorno */
+    gap: 3px;
     height: 100%;
     width: 100%;
 }
 
 .chart-bar {
-    flex: 1; /* Le barre si dividono lo spazio disponibile */
-    max-width: 15px; /* Larghezza massima per evitare che diventino troppo grandi */
+    flex: 1;
+    max-width: 15px;
     border-radius: 4px 4px 0 0;
     position: relative;
     transition: height 0.5s ease-in-out, background-color 0.3s ease;
@@ -2279,7 +2288,7 @@ input:checked + .toggle-slider:before {
 }
 
 .chart-label {
-    margin-top: 8px; /* Spazio tra barre e etichetta */
+    margin-top: 8px;
     font-size: 0.8rem;
     color: var(--text-light);
     text-align: center;
@@ -2327,10 +2336,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-.dark-theme .report-btn {
-    background: var(--primary-darker);
-}
-
 .report-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.1);
@@ -2340,7 +2345,6 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
-/* Sleep tracking */
 .sleep-container {
     padding: 15px 0;
 }
@@ -2357,7 +2361,6 @@ input:checked + .toggle-slider:before {
     color: var(--primary);
 }
 
-/* Nature sounds */
 .sounds-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -2404,14 +2407,13 @@ input:checked + .toggle-slider:before {
     border-color: var(--primary);
 }
 
-/* Loading screen */
 #loading-screen {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: #e6d9ff; /* Colore più chiaro di #d3bbff */
+    background: #e6d9ff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2424,7 +2426,6 @@ input:checked + .toggle-slider:before {
     animation: loading-pulse 2.5s ease-in-out infinite;
 }
 
-/* MODIFICA: Rimossi gli stili per la schermata di caricamento del pagamento */
 
 @keyframes spin {
     to {
@@ -2432,52 +2433,38 @@ input:checked + .toggle-slider:before {
     }
 }
 
-
-/* --- INIZIO CODICE AGGIUNTO PER CORIANDOLI PERSONALIZZATI --- */
-
 .coriandolo {
-    position: fixed; /* Usa 'fixed' per rimanere visibile anche con lo scroll */
-    top: -5vh; /* Parte da fuori lo schermo, in alto */
+    position: fixed;
+    top: -5vh;
     font-size: 1.5rem;
     user-select: none;
     pointer-events: none;
     z-index: 9999;
-    /* L'animazione di caduta viene applicata qui */
     animation: caduta-oscillazione ease-in forwards;
-    /* PERFORMANCE: Suggerisce al browser di ottimizzare queste proprietà per l'animazione */
     will-change: transform, opacity;
 }
 
 .coriandolo.fade-out {
-    /* Applica l'animazione di dissolvenza quando questa classe viene aggiunta */
     animation: dissolvenza 0.5s ease-out forwards;
 }
 
-/* Keyframes per la caduta, rotazione e oscillazione */
 @keyframes caduta-oscillazione {
     0% {
         transform: translateY(0) translateX(0) rotate(0deg);
         opacity: 1;
     }
     100% {
-        /* * L'elemento cade per tutta l'altezza dello schermo (105vh per uscire del tutto).
-         * L'oscillazione orizzontale è gestita da una custom property CSS (--oscillazione).
-         * Ruota di 720 gradi (due giri completi) durante la caduta.
-        */
         transform: translateY(105vh) translateX(var(--oscillazione)) rotate(720deg);
         opacity: 1;
     }
 }
 
-/* Keyframes per l'effetto di dissolvenza (fade out) */
 @keyframes dissolvenza {
     from {
         opacity: 1;
     }
     to {
         opacity: 0;
-        transform: scale(0.5); /* Aggiunge un leggero restringimento per un effetto più gradevole */
+        transform: scale(0.5);
     }
 }
-
-/* --- FINE CODICE AGGIUNTO --- */

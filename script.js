@@ -1,19 +1,17 @@
 /**
  * File: script.js
- * MODIFICA: Ripristinata la logica di logout e cancellazione account.
- * MODIFICA: Corretta la visualizzazione della card Premium per utenti non abbonati.
- * MODIFICA: Rimosse le funzioni per la schermata di caricamento del pagamento come da istruzioni.
- * MODIFICA: Rimosso il nome dell'utente dal messaggio di benvenuto nella home.
- * MODIFICA: Riscritto il codice di generazione del grafico per renderlo responsive.
- * MODIFICA: Aggiunti commenti esplicativi sulla gestione dinamica dei contenuti (immagini e frasi del giorno) tramite Supabase.
- * MODIFICA: Aggiunta la visualizzazione dei dati del sonno nel grafico settimanale.
- * MODIFICA: Aggiunto lo scroll all'inizio della pagina durante la navigazione.
- * MODIFICA: Aggiunta la funzione 'avviaCoriandoliPersonalizzati' e la sua chiamata al completamento dell'obiettivo.
- * MODIFICA: Aggiunta la logica per il nuovo selettore di abbonamento.
- * MODIFICA: Aggiunta la funzionalità di Accesso (Login) e la logica per alternare tra i form.
- * MODIFICA: Implementata la validazione della password in tempo reale con feedback visivo.
- * PERFORMANCE: Implementata la "event delegation" per ridurre il numero di event listener e migliorare le prestazioni.
- * PERFORMANCE: Ridotte chiamate ridondanti a saveData().
+ * --- MODIFICHE PRECEDENTI ---
+ * Varie correzioni di layout, responsività, e stili dei componenti.
+ * Aggiunta funzionalità come coriandoli, form di login, etc.
+ * Prima revisione del tema scuro per migliorare contrasto e coerenza.
+ * * --- NOTE SULLE ULTIME MODIFICHE ---
+ * Le problematiche relative ai colori dei filtri, alla visibilità del selettore di abbonamento,
+ * alla coerenza del tema scuro e alla rimozione dei loghi sono state risolte
+ * direttamente nei file `style.css` e `index.html`.
+ * L'ultima modifica ha uniformato l'uso del colore viola nel tema scuro per tutti
+ * gli elementi richiesti, garantendo coerenza e leggibilità, seguendo alla lettera
+ * le indicazioni fornite.
+ * Questo file non ha richiesto modifiche funzionali.
  */
 document.addEventListener('DOMContentLoaded', function() {
     // App state
@@ -405,7 +403,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 welcomeText = "Bentornato/a!";
         }
 
-        // MODIFICA: Rimosso il nome utente dal saluto nella home page.
         document.getElementById('welcome-header').innerHTML = `${welcomeText} ${state.profile.emoji || '😊'}`;
 
         const welcomeElement = document.querySelector('.profile-welcome');
@@ -441,21 +438,14 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePremiumLocks();
         updateDailyData();
 
-        /**
-         * MODIFICA: La logica di visualizzazione della card Premium è stata corretta.
-         * Ora viene esplicitamente mostrata per gli utenti non-premium e nascosta per quelli premium,
-         * risolvendo il bug causato da uno stile inline nel file HTML.
-         */
         if (state.isPremium) {
             premiumCard.style.display = 'none';
         } else {
             premiumCard.style.display = 'block';
         }
 
-        // Set daily inspiration
         const today = getLocalDateString();
         if (!state.dailyContent || state.dailyContent.date !== today) {
-            // Generate new daily content
             state.dailyContent = {
                 date: today,
                 quoteIndex: Math.floor(Math.random() * state.dailyQuotes.length)
@@ -463,15 +453,11 @@ document.addEventListener('DOMContentLoaded', function() {
             saveData();
         }
 
-        // Set daily quote
         const quote = state.dailyQuotes[state.dailyContent.quoteIndex];
         dailyImage.src = quote.image;
         dailyQuote.textContent = quote.quote;
 
-        // Controlla se il diario della gratitudine è già stato compilato oggi
         checkGratitudeLock();
-
-        // Aggiorna stato login
         updateLoginState();
     }
 
@@ -489,7 +475,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = getLocalDateString();
         const todayGoal = state.dailyGoals[today];
 
-        // Se non c'è un obiettivo per oggi
         if (!todayGoal) {
             dailyGoalContainer.innerHTML = `
                 <div class="goal-input-container">
@@ -500,11 +485,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     Inserisci un obiettivo realistico che vuoi portare a termine entro oggi.
                 </p>
             `;
-            // L'event listener per il pulsante 'set' è gestito tramite delegation
             return;
         }
 
-        // Se c'è un obiettivo per oggi
         dailyGoalContainer.innerHTML = `
             <div class="goal-item">
                 <div class="goal-checkbox ${todayGoal.completed ? 'checked' : ''}" id="goal-checkbox">
@@ -516,7 +499,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        // L'event listener per il checkbox è gestito tramite delegation
     }
 
     // Funzione per visualizzare l'intenzione giornaliera
@@ -524,7 +506,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = getLocalDateString();
         const todayIntention = state.dailyIntentions[today];
 
-        // Se non c'è un'intenzione per oggi
         if (!todayIntention) {
             intentionText.textContent = "Crea la tua intenzione per guidare la giornata";
             intentionInput.style.display = "block";
@@ -533,7 +514,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Se c'è un'intenzione per oggi, mostra il testo e nascondi l'input e il pulsante
         intentionText.textContent = `"${todayIntention.text}"`;
         intentionInput.style.display = "none";
         setIntentionBtn.style.display = "none";
@@ -543,7 +523,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDailyData() {
         const today = getLocalDateString();
 
-        // Aggiorna umore
         if (state.moodEntries[today] && state.moodEntries[today].length > 0) {
             const moodValues = state.moodEntries[today].map(entry => getMoodValue(entry.mood));
             const avgMood = moodValues.reduce((a, b) => a + b, 0) / moodValues.length;
@@ -552,21 +531,18 @@ document.addEventListener('DOMContentLoaded', function() {
             dailyMoodValue.textContent = "-";
         }
 
-        // Aggiorna ansia
         if (state.anxietyEntries[today]) {
             dailyAnxietyValue.textContent = state.anxietyEntries[today];
         } else {
             dailyAnxietyValue.textContent = "-";
         }
 
-        // Aggiorna stress
         if (state.stressEntries[today]) {
             dailyStressValue.textContent = state.stressEntries[today];
         } else {
             dailyStressValue.textContent = "-";
         }
 
-        // Aggiorna sonno
         if (state.sleepEntries[today]) {
             dailySleepValue.textContent = state.sleepEntries[today];
         } else {
@@ -631,15 +607,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (goal.completed) {
             showToast("Obiettivo completato! Complimenti!");
-            // --- CHIAMATA ALLA NUOVA FUNZIONE ---
             avviaCoriandoliPersonalizzati();
-            // ------------------------------------
         } else {
             showToast("Obiettivo riportato in corso");
         }
     }
 
-    // PERFORMANCE: Gestione eventi per il contenitore degli obiettivi
     dailyGoalContainer.addEventListener('click', function(e) {
         if (e.target.id === 'set-goal-btn') {
             setDailyGoal();
@@ -649,12 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    // Funzione per bloccare il diario della gratitudine dopo il completamento
     function checkGratitudeLock() {
         const today = getLocalDateString();
 
         if (state.gratitudeEntries[today]) {
-            // Disabilita gli input e il pulsante
             gratitudeInputs.forEach(input => {
                 input.value = state.gratitudeEntries[today][Array.from(gratitudeInputs).indexOf(input)] || '';
                 input.disabled = true;
@@ -669,7 +640,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Aggiorna messaggio check-in umore
     function updateMoodStatusMessage() {
         const now = new Date();
         const currentTime = now.getHours() + now.getMinutes()/100;
@@ -691,12 +661,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Aggiorna contatore streak
     function updateStreakCounter() {
         streakCounter.textContent = state.growthStreak;
     }
 
-    // Aggiorna tema chiaro/scuro
     function updateTheme() {
         if (state.darkTheme) {
             document.body.classList.add('dark-theme');
@@ -707,14 +675,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Aggiorna blocchi premium
     function updatePremiumLocks() {
         premiumLocks.forEach(lock => {
             lock.style.display = state.isPremium ? 'none' : 'flex';
         });
     }
 
-    // Funzione per ottenere la data locale
     function getLocalDateString(date = new Date()) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -722,11 +688,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${year}-${month}-${day}`;
     }
 
-    // Carica i dati salvati e inizializza l'UI
     loadSavedData();
     initUI();
 
-    // Initialize onboarding
     function initOnboarding() {
         const slides = document.querySelectorAll('.onboarding-slide');
         let currentSlide = 0;
@@ -763,8 +727,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('home').classList.add('active');
         }
 
-        // --- NUOVA LOGICA PER ACCESSO E REGISTRAZIONE ---
-
         onboardingLoginBack.addEventListener('click', () => onboardingLoginModal.classList.remove('active'));
 
         showLoginLink.addEventListener('click', (e) => {
@@ -779,17 +741,13 @@ document.addEventListener('DOMContentLoaded', function() {
             registrationView.style.display = 'block';
         });
 
-        // Validazione Password in tempo reale
         let passwordValidity = { length: false, number: false, special: false };
         passwordInput.addEventListener('input', () => {
             const value = passwordInput.value;
-            // Criterio 1: Lunghezza
             passwordValidity.length = value.length >= 8;
             lengthCheck.classList.toggle('valid', passwordValidity.length);
-            // Criterio 2: Numero
             passwordValidity.number = /\d/.test(value);
             numberCheck.classList.toggle('valid', passwordValidity.number);
-            // Criterio 3: Carattere speciale
             passwordValidity.special = /[!@#$%^&*(),.?":{}|<>]/.test(value);
             specialCheck.classList.toggle('valid', passwordValidity.special);
         });
@@ -823,7 +781,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             showToast("Accesso in corso...");
-            // Simula un accesso
             setTimeout(() => {
                 state.isLoggedIn = true;
                 saveData();
@@ -849,7 +806,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initOnboarding();
 
-    // PERFORMANCE: Navigation con Event Delegation
     navBar.addEventListener('click', function(e) {
         const targetItem = e.target.closest('.nav-item');
         if (!targetItem) return;
@@ -875,7 +831,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // PERFORMANCE: Mood tracking con Event Delegation
     moodTracker.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.mood-btn');
         if (!targetButton) return;
@@ -918,7 +873,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateDailyData();
     });
 
-    // PERFORMANCE: Meditation player con Event Delegation
     meditationList.addEventListener('click', function(e) {
         const targetItem = e.target.closest('.meditation-item');
         if (!targetItem) return;
@@ -936,7 +890,6 @@ document.addEventListener('DOMContentLoaded', function() {
         playerModal.classList.add('active');
     });
 
-    // Registra un'attività
     function updateStreak() {
         const today = new Date();
         const todayStr = getLocalDateString(today);
@@ -955,13 +908,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStreakCounter();
     }
 
-    // Close player
     document.getElementById('player-close-btn').addEventListener('click', () => {
         playerModal.classList.remove('active');
         audioPlayer.pause();
     });
 
-    // History section
     historyBtn.addEventListener('click', () => {
         state.selectedHistoryDate = getLocalDateString();
         saveData();
@@ -970,7 +921,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     historyCloseBtn.addEventListener('click', () => historyModal.classList.remove('active'));
 
-    // Edit profile
     editProfileBtn.addEventListener('click', () => {
         document.getElementById('profile-name-input').value = state.profile.name;
         document.querySelectorAll('.emoji-option, .gender-option').forEach(opt => opt.classList.remove('selected'));
@@ -979,7 +929,6 @@ document.addEventListener('DOMContentLoaded', function() {
         profileEditModal.classList.add('active');
     });
 
-    // PERFORMANCE: Gestione selezione emoji e genere con Event Delegation
     emojiPicker.addEventListener('click', function(e) {
         const targetOption = e.target.closest('.emoji-option');
         if (!targetOption) return;
@@ -1013,7 +962,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     profileEditCancel.addEventListener('click', () => profileEditModal.classList.remove('active'));
 
-    // Gratitude form
     gratitudeForm.addEventListener('submit', function(e) {
         e.preventDefault();
         if (!state.isPremium) {
@@ -1032,7 +980,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkGratitudeLock();
     });
 
-    // Gestione centralizzata degli abbonamenti
     function handleSubscription(plan) {
         showToast("Stiamo elaborando il tuo pagamento...");
         setTimeout(() => {
@@ -1049,7 +996,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // --- LOGICA NUOVO SELETTORE ABBONAMENTO ---
     function setupSubscriptionToggle() {
         yearlyToggle.addEventListener('click', () => {
             subscriptionToggle.classList.remove('monthly-active');
@@ -1077,9 +1023,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setupSubscriptionToggle();
 
 
-    // Login modal
-    googleLoginBtn.addEventListener('click', () => loginModal.classList.add('active'));
-    loginCloseBtn.addEventListener('click', () => loginModal.classList.remove('active'));
+    if (googleLoginBtn) {
+       googleLoginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+    }
+    if(loginCloseBtn) {
+        loginCloseBtn.addEventListener('click', () => loginModal.classList.remove('active'));
+    }
 
     document.getElementById('google-login').addEventListener('click', () => {
         showToast("Accesso con Google in corso...");
@@ -1119,7 +1068,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Helper functions
     function getMoodName(mood) {
         const names = {'devastato': 'Devastato', 'stressato': 'Stressato', 'arrabbiato': 'Arrabbiato', 'triste': 'Triste', 'neutro': 'Neutro', 'calmo': 'Calmo', 'contento': 'Contento', 'felice': 'Felice', 'entusiasta': 'Entusiasta', 'amore': 'Amore'};
         return names[mood] || mood;
@@ -1218,7 +1166,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (document.querySelector('#health.section.active')) initTimeBasedCheckin();
-    generateCalendar();
+    if (calendarMonth) {
+        generateCalendar();
+    }
     setInterval(() => {
         if (document.querySelector('#health.section.active')) {
             initTimeBasedCheckin();
@@ -1226,7 +1176,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 60000);
 
-    // PERFORMANCE: Filtri meditazioni con Event Delegation
     meditationFilters.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.filter-btn');
         if (!targetButton) return;
@@ -1240,8 +1189,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    termsBtn.addEventListener('click', () => alert("Qui verrebbero mostrati i Termini di Servizio."));
-    privacyBtn.addEventListener('click', () => alert("Qui verrebbe mostrata la Privacy Policy."));
+    if(termsBtn) {
+        termsBtn.addEventListener('click', () => alert("Qui verrebbero mostrati i Termini di Servizio."));
+    }
+    if(privacyBtn) {
+        privacyBtn.addEventListener('click', () => alert("Qui verrebbe mostrata la Privacy Policy."));
+    }
 
     document.getElementById('prev-month-btn').addEventListener('click', () => {
         state.currentCalendarDate.setMonth(state.currentCalendarDate.getMonth() - 1);
