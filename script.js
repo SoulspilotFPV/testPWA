@@ -1,23 +1,27 @@
 /**
  * File: script.js
- * --- MODIFICHE PRECEDENTI ---
- * Varie correzioni di layout, responsività, e stili dei componenti.
- * Aggiunta funzionalità come coriandoli, form di login, etc.
- * Prima revisione del tema scuro per migliorare contrasto e coerenza.
- * * --- NOTE SULLE ULTIME MODIFICHE ---
- * Le problematiche relative ai colori dei filtri, alla visibilità del selettore di abbonamento,
- * alla coerenza del tema scuro e alla rimozione dei loghi sono state risolte
- * direttamente nei file `style.css` e `index.html`.
- * L'ultima modifica ha uniformato l'uso del colore viola nel tema scuro per tutti
- * gli elementi richiesti, garantendo coerenza e leggibilità, seguendo alla lettera
- * le indicazioni fornite.
- * Questo file non ha richiesto modifiche funzionali.
+ * --- NOTE SULLE ULTIME MODIFICHE ---
+ * MODIFICA: Aggiunto l'audio per la nuova meditazione "Lasciare andare" (ID 23).
+ * MODIFICA: Riscritto il rendering HTML dello storico ('updateHistoryDisplay') per implementare il nuovo design più pulito e integrato.
+ * MODIFICA: Unificato il check-in di umore, ansia e stress in un unico banner.
+ * MODIFICA: Aggiornata la struttura dati per 'anxietyEntries' e 'stressEntries' per supportare registrazioni multiple giornaliere.
+ * MODIFICA: Rifattorizzata la logica di salvataggio in una nuova funzione 'saveCombinedCheckin'.
+ * MODIFICA: Assicurato il corretto reset dei check-in dopo la mezzanotte.
+ * MODIFICA: Aggiunta logica per il refresh automatico dei contenuti giornalieri.
+ * MODIFICA: Il messaggio di check-in umore scompare dopo la registrazione.
+ * MODIFICA: Gli obiettivi nel report settimanale sono mostrati come "X/7".
+ * MODIFICA: Aggiunto un nuovo modale per accorpare le impostazioni dell'account.
+ * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
+ * MODIFICA: Il flusso logico dell'onboarding in JavaScript non è stato modificato, in quanto le modifiche sono state puramente a livello di contenuti HTML.
  */
 document.addEventListener('DOMContentLoaded', function() {
     // App state
     const state = {
         onboardingCompleted: false,
         currentMeditation: null,
+        currentSelectedMood: null,
         moodEntries: {},
         gratitudeEntries: {},
         dailyGoals: {},
@@ -70,24 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
         meditationHistory: {},
         lastAccessDate: null,
         streakUpdatedToday: false,
-        /**
-         * NOTA PER L'INTEGRAZIONE CON SUPABASE:
-         * La tua idea di usare link diretti per le immagini e le frasi è ottima e rappresenta la best practice.
-         * Ti permette di aggiornare i contenuti dinamicamente senza dover modificare il codice del sito.
-         * * 1. Carica le immagini in un bucket di Supabase Storage (es. un bucket chiamato 'assets_pubblici/immagini_giornaliere').
-         * 2. Crea una tabella in Supabase (es. 'daily_content') con colonne come 'id', 'quote_text', 'author', 'image_filename'.
-         * 3. In questa tabella, inserisci le frasi e, nella colonna 'image_filename', solo il nome del file (es. 'daily1.jpg').
-         *
-         * L'array 'dailyQuotes' qui sotto diventerebbe obsoleto. Al suo posto, creeresti una funzione asincrona
-         * per caricare i dati da Supabase all'avvio dell'app.
-         * * Esempio di come apparirebbe l'oggetto dati con URL da Supabase:
-         * {
-         * image: "https://<id-progetto>.supabase.co/storage/v1/object/public/assets_pubblici/immagini_giornaliere/daily1.jpg",
-         * quote: "La pace viene da dentro. Non cercarla fuori. - Buddha"
-         * }
-         * * Questo approccio è scalabile e ti dà pieno controllo sui contenuti mostrati agli utenti ogni giorno.
-         * Puoi seguire lo stesso principio per le meditazioni e i suoni, come hai giustamente intuito.
-         */
         dailyQuotes: [
             { image: "daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
             { image: "daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
@@ -100,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { image: "daily9.jpg", quote: "🌊 Sii come l'acqua: adattati, fluttua e scorri. - Bruce Lee" },
             { image: "daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
         ],
-        termsAcceptedAt: null
+        termsAcceptedAt: null,
+        loadedDate: null
     };
 
     // Percorsi dei file audio
@@ -126,7 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
         19: 'https://assets.mixkit.co/sfx/preview/mixkit-waves-ambience-1184.mp3',
         20: 'https://assets.mixkit.co/sfx/preview/mixkit-night-ambience-427.mp3',
         21: 'https://assets.mixkit.co/sfx/preview/mixkit-thunder-ambience-1191.mp3',
-        22: 'https://assets.mixkit.co/sfx/preview/mixkit-river-stream-water-1240.mp3'
+        22: 'https://assets.mixkit.co/sfx/preview/mixkit-river-stream-water-1240.mp3',
+        23: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3'
     };
 
     const soundFiles = {
@@ -171,32 +159,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextBtn3 = document.getElementById('next-btn3');
     const nextBtn4 = document.getElementById('next-btn4');
     const logoutBtn = document.getElementById('logout-btn');
-    const termsBtn = document.getElementById('terms-btn');
-    const privacyBtn = document.getElementById('privacy-btn');
     const themeToggleInput = document.getElementById('theme-toggle-input');
     const themeToggleProfile = document.getElementById('theme-toggle-profile');
     const streakCounter = document.getElementById('streak-counter');
     const genderOptionsContainer = document.querySelector('.gender-options');
     const emojiPicker = document.querySelector('.emoji-picker');
-    const deleteAccountBtn = document.getElementById('delete-account-btn');
     const anxietySlider = document.getElementById('anxiety-slider');
     const anxietyValue = document.getElementById('anxiety-value');
-    const saveAnxietyBtn = document.getElementById('save-anxiety');
     const stressSlider = document.getElementById('stress-slider');
     const stressValue = document.getElementById('stress-value');
-    const saveStressBtn = document.getElementById('save-stress');
     const sleepSlider = document.getElementById('sleep-slider');
     const sleepValue = document.getElementById('sleep-value');
-    const saveSleepBtn = document.getElementById('save-sleep');
+    const saveSleepBtn = document.getElementById('save-sleep-btn');
     const onboardingLoginModal = document.getElementById('onboarding-login-modal');
-    const onboardingLoginBack = document.getElementById('onboarding-login-back');
     const reportCloseBtn = document.getElementById('report-close-btn');
     const premiumCard = document.getElementById('premium-card');
     const generateReportBtn = document.getElementById('generate-report-btn');
     const loginCloseBtn = document.getElementById('login-close-btn');
     const premiumLocks = document.querySelectorAll('.premium-lock');
     const premiumLockBtns = document.querySelectorAll('.premium-lock-btn');
-    const manageSubscriptionBtn = document.getElementById('manage-subscription-btn');
     const downloadReportBtn = document.getElementById('download-report-btn');
     const shareReportBtn = document.getElementById('share-report-btn');
     const reportContent = document.getElementById('report-content');
@@ -210,14 +191,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const setIntentionBtn = document.getElementById('set-intention-btn');
     const intentionText = document.getElementById('intention-text');
 
-    // --- Nuovi selettori per abbonamento ---
+    const saveCombinedCheckinBtn = document.getElementById('save-combined-checkin-btn');
+
+    const accountSettingsModal = document.getElementById('account-settings-modal');
+    const accountSettingsBtn = document.getElementById('account-settings-btn');
+    const accountSettingsCloseBtn = document.getElementById('account-settings-close-btn');
+    const manageSubscriptionBtn = document.getElementById('manage-subscription-btn');
+    const termsBtn = document.getElementById('terms-btn');
+    const privacyBtn = document.getElementById('privacy-btn');
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+
     const yearlyToggle = document.getElementById('yearly-toggle');
     const monthlyToggle = document.getElementById('monthly-toggle');
     const subscriptionToggle = document.querySelector('.subscription-toggle');
     const yearlyPlan = document.getElementById('yearly-plan');
     const monthlyPlan = document.getElementById('monthly-plan');
 
-    // --- NUOVI SELETTORI PER REGISTRAZIONE / ACCESSO ---
     const registrationForm = document.getElementById('registration-form');
     const loginForm = document.getElementById('login-form');
     const registrationView = document.getElementById('registration-view');
@@ -233,12 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const lengthCheck = document.getElementById('length-check');
     const numberCheck = document.getElementById('number-check');
     const specialCheck = document.getElementById('special-check');
-
-
-    // Initialize Supabase
-    // const supabaseUrl = 'https://your-supabase-url.supabase.co';
-    // const supabaseKey = 'your-supabase-key';
-    // const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Carica i dati salvati da localStorage
     function loadSavedData() {
@@ -385,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzione per aggiornare il messaggio di benvenuto in base al genere
     function updateWelcomeMessage() {
         let welcomeText = "";
 
@@ -429,6 +411,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize UI
     function initUI() {
+        state.loadedDate = getLocalDateString();
+
         document.querySelector('.profile-name').textContent = state.profile.name;
         document.querySelector('.profile-emoji').textContent = state.profile.emoji;
         updateWelcomeMessage();
@@ -461,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateLoginState();
     }
 
-    // Aggiorna stato login/logout
     function updateLoginState() {
         if (state.isLoggedIn) {
             logoutBtn.style.display = 'flex';
@@ -470,7 +453,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzione per visualizzare l'obiettivo giornaliero
     function renderDailyGoal() {
         const today = getLocalDateString();
         const todayGoal = state.dailyGoals[today];
@@ -501,7 +483,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Funzione per visualizzare l'intenzione giornaliera
     function renderDailyIntention() {
         const today = getLocalDateString();
         const todayIntention = state.dailyIntentions[today];
@@ -519,10 +500,10 @@ document.addEventListener('DOMContentLoaded', function() {
         setIntentionBtn.style.display = "none";
     }
 
-    // Funzione per aggiornare i dati giornalieri
     function updateDailyData() {
         const today = getLocalDateString();
 
+        // Calcolo media Umore
         if (state.moodEntries[today] && state.moodEntries[today].length > 0) {
             const moodValues = state.moodEntries[today].map(entry => getMoodValue(entry.mood));
             const avgMood = moodValues.reduce((a, b) => a + b, 0) / moodValues.length;
@@ -531,18 +512,25 @@ document.addEventListener('DOMContentLoaded', function() {
             dailyMoodValue.textContent = "-";
         }
 
-        if (state.anxietyEntries[today]) {
-            dailyAnxietyValue.textContent = state.anxietyEntries[today];
+        // Calcolo media Ansia
+        if (state.anxietyEntries[today] && state.anxietyEntries[today].length > 0) {
+            const anxietyValues = state.anxietyEntries[today].map(entry => parseInt(entry.value));
+            const avgAnxiety = anxietyValues.reduce((a, b) => a + b, 0) / anxietyValues.length;
+            dailyAnxietyValue.textContent = avgAnxiety.toFixed(1);
         } else {
             dailyAnxietyValue.textContent = "-";
         }
 
-        if (state.stressEntries[today]) {
-            dailyStressValue.textContent = state.stressEntries[today];
+        // Calcolo media Stress
+        if (state.stressEntries[today] && state.stressEntries[today].length > 0) {
+            const stressValues = state.stressEntries[today].map(entry => parseInt(entry.value));
+            const avgStress = stressValues.reduce((a, b) => a + b, 0) / stressValues.length;
+            dailyStressValue.textContent = avgStress.toFixed(1);
         } else {
             dailyStressValue.textContent = "-";
         }
 
+        // Valore Sonno
         if (state.sleepEntries[today]) {
             dailySleepValue.textContent = state.sleepEntries[today];
         } else {
@@ -550,7 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzione per impostare l'obiettivo giornaliero
     function setDailyGoal() {
         const input = document.getElementById('goal-input');
         if (!input) return;
@@ -573,7 +560,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast("Obiettivo impostato!");
     }
 
-    // Funzione per impostare l'intenzione giornaliera
     function setDailyIntention() {
         const input = document.getElementById('intention-input');
         const intentionTextValue = input.value.trim();
@@ -594,7 +580,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast("Intenzione fissata!");
     }
 
-    // Funzione per segnare l'obiettivo come completato
     function toggleGoalCompletion() {
         const today = getLocalDateString();
         const goal = state.dailyGoals[today];
@@ -643,21 +628,26 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateMoodStatusMessage() {
         const now = new Date();
         const currentTime = now.getHours() + now.getMinutes()/100;
-        let currentWindow = null;
-        for (const window of state.timeWindows) {
-            if (currentTime >= window.start && currentTime <= window.end) {
-                currentWindow = window;
-                break;
-            }
+        const today = getLocalDateString();
+        const moodStatus = document.querySelector('.mood-status');
+
+        if (!moodStatus) return;
+
+        const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
+
+        const hasLoggedInCurrentWindow = state.moodEntries[today]?.some(e => e.window === currentWindow?.id);
+
+        if (hasLoggedInCurrentWindow) {
+            moodStatus.style.display = 'none';
+            return;
         }
 
-        const moodStatus = document.querySelector('.mood-status');
-        if (moodStatus) {
-            if (currentWindow) {
-                moodStatus.innerHTML = `È ora per il tuo check-in ${currentWindow.name.toLowerCase()}!`;
-            } else {
-                moodStatus.innerHTML = `I check-in sono disponibili dalle 7:00 alle 23:59`;
-            }
+        moodStatus.style.display = 'block';
+
+        if (currentWindow) {
+            moodStatus.innerHTML = `È ora per il tuo check-in della ${currentWindow.name.toLowerCase()}!`;
+        } else {
+            moodStatus.innerHTML = `I check-in sono disponibili dalle 7:00 alle 23:59`;
         }
     }
 
@@ -690,6 +680,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadSavedData();
     initUI();
+
+    function checkDateAndReload() {
+        if (document.visibilityState === 'visible') {
+            const today = getLocalDateString();
+            if (today !== state.loadedDate) {
+                window.location.reload();
+            }
+        }
+    }
+
+    document.addEventListener('visibilitychange', checkDateAndReload);
+
 
     function initOnboarding() {
         const slides = document.querySelectorAll('.onboarding-slide');
@@ -726,8 +728,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('onboarding').style.display = 'none';
             document.getElementById('home').classList.add('active');
         }
-
-        onboardingLoginBack.addEventListener('click', () => onboardingLoginModal.classList.remove('active'));
 
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -835,14 +835,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetButton = e.target.closest('.mood-btn');
         if (!targetButton) return;
 
+        state.currentSelectedMood = targetButton.dataset.mood;
+
+        moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+        targetButton.classList.add('selected');
+    });
+
+    function saveCombinedCheckin() {
         if (!state.isPremium) {
             showToast("Questa funzionalità richiede un abbonamento Premium");
             return;
         }
 
-        const mood = targetButton.dataset.mood;
+        if (!state.currentSelectedMood) {
+            showToast("Per favore, seleziona un'emoji per il tuo umore");
+            return;
+        }
+
         const now = new Date();
-        const currentTime = now.getHours() + now.getMinutes()/100;
+        const currentTime = now.getHours() + now.getMinutes() / 100;
+        const today = getLocalDateString();
         const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
 
         if (!currentWindow) {
@@ -850,8 +862,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const today = getLocalDateString();
         if (!state.moodEntries[today]) state.moodEntries[today] = [];
+        if (!state.anxietyEntries[today]) state.anxietyEntries[today] = [];
+        if (!state.stressEntries[today]) state.stressEntries[today] = [];
 
         const hasLoggedIn = state.moodEntries[today].some(e => e.window === currentWindow.id);
         if (hasLoggedIn) {
@@ -859,19 +872,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        state.moodEntries[today].push({ mood, window: currentWindow.id });
-        showToast(`Umore registrato: ${getMoodName(mood)} ${getMoodEmoji(mood)}`);
+        state.moodEntries[today].push({ mood: state.currentSelectedMood, window: currentWindow.id });
+        state.anxietyEntries[today].push({ value: anxietySlider.value, window: currentWindow.id });
+        state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
 
-        moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.disabled = true);
+        showToast(`Check-in della ${currentWindow.name} registrato!`);
+        initTimeBasedCheckin();
+        updateMoodStatusMessage();
+        updateDailyData();
 
         if (!state.streakUpdatedToday) {
             updateStreak();
             state.streakUpdatedToday = true;
         }
 
+        state.currentSelectedMood = null;
+        moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
         saveData();
-        updateDailyData();
-    });
+    }
+
+    saveCombinedCheckinBtn.addEventListener('click', saveCombinedCheckin);
 
     meditationList.addEventListener('click', function(e) {
         const targetItem = e.target.closest('.meditation-item');
@@ -1049,6 +1069,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     });
 
+    accountSettingsBtn.addEventListener('click', () => accountSettingsModal.classList.add('active'));
+    accountSettingsCloseBtn.addEventListener('click', () => accountSettingsModal.classList.remove('active'));
+
+    manageSubscriptionBtn.addEventListener('click', () => {
+        showToast("Reindirizzamento per la gestione dell'abbonamento...");
+        window.open('https://dashboard.stripe.com/', '_blank');
+    });
+
+    termsBtn.addEventListener('click', () => alert("Qui verrebbero mostrati i Termini di Servizio."));
+    privacyBtn.addEventListener('click', () => alert("Qui verrebbe mostrata la Privacy Policy."));
+
     deleteAccountBtn.addEventListener('click', function() {
         const isConfirmed = confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile e cancellerà tutti i tuoi dati.");
         if (isConfirmed) {
@@ -1092,21 +1123,41 @@ document.addEventListener('DOMContentLoaded', function() {
         saveData();
 
         const moodEntries = state.moodEntries[selectedDate] || [];
+        const anxietyEntries = state.anxietyEntries[selectedDate] || [];
+        const stressEntries = state.stressEntries[selectedDate] || [];
         const gratitudeEntries = state.gratitudeEntries[selectedDate] || [];
         const dailyGoal = state.dailyGoals[selectedDate] || null;
 
-        moodHistoryContainer.innerHTML = moodEntries.length > 0 ? moodEntries.map(entry => `
-            <div class="mood-history-item" style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                <div style="font-size: 2rem; margin-right: 15px;">${getMoodEmoji(entry.mood)}</div>
-                <div>
-                    <div>${getMoodName(entry.mood)}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-light);">${state.timeWindows.find(w => w.id === entry.window).name}</div>
-                </div>
-            </div>
-        `).join('') : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
+        let moodHistoryHTML = '';
+        state.timeWindows.forEach(window => {
+            const moodEntry = moodEntries.find(e => e.window === window.id);
+            if (moodEntry) {
+                const anxietyEntry = anxietyEntries.find(e => e.window === window.id);
+                const stressEntry = stressEntries.find(e => e.window === window.id);
 
+                moodHistoryHTML += `
+                    <div class="mood-history-item">
+                        <div class="mood-history-emoji">${getMoodEmoji(moodEntry.mood)}</div>
+                        <div class="mood-history-details">
+                            <div class="mood-history-mood-name">${getMoodName(moodEntry.mood)}</div>
+                            <div class="mood-history-window">${window.name}</div>
+                        </div>
+                        <div class="mood-history-stats">
+                            <div class="mood-history-stat">
+                                <div class="stat-label-history">Ansia</div>
+                                <div class="stat-value-history">${anxietyEntry ? anxietyEntry.value : '-'}</div>
+                            </div>
+                             <div class="mood-history-stat">
+                                <div class="stat-label-history">Stress</div>
+                                <div class="stat-value-history">${stressEntry ? stressEntry.value : '-'}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        moodHistoryContainer.innerHTML = moodHistoryHTML || '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
         gratitudeHistoryContainer.innerHTML = gratitudeEntries.length > 0 ? `<ol style="padding-left: 20px; margin-top: 10px;">${gratitudeEntries.map(entry => `<li style="margin-bottom: 8px;">${entry}</li>`).join('')}</ol>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
-
         goalHistoryContainer.innerHTML = dailyGoal ? `
             <div class="goal-history-item">
                 <div class="goal-history-icon ${dailyGoal.completed ? 'completed' : 'not-completed'}">${dailyGoal.completed ? '✓' : '✗'}</div>
@@ -1114,8 +1165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="font-weight: ${dailyGoal.completed ? 'normal' : 'bold'}">${dailyGoal.text}</div>
                     <div style="font-size: 0.85rem; color: var(--text-light);">${dailyGoal.completed ? '🎯 Completato' : '🎯 Non completato'}</div>
                 </div>
-            </div>
-        ` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
+            </div>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
     }
 
     function generateCalendar() {
@@ -1155,14 +1205,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         const currentTime = now.getHours() + now.getMinutes()/100;
         const today = getLocalDateString();
+
         const moodButtons = moodTracker.querySelectorAll('.mood-btn');
         const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
-        if (!currentWindow) {
-            moodButtons.forEach(btn => btn.disabled = true);
-            return;
+
+        let isDisabled = true;
+        if (currentWindow) {
+            const hasLoggedIn = state.moodEntries[today]?.some(e => e.window === currentWindow.id);
+            if (!hasLoggedIn) {
+                isDisabled = false;
+            }
         }
-        const hasLoggedIn = state.moodEntries[today]?.some(e => e.window === currentWindow.id);
-        moodButtons.forEach(btn => btn.disabled = hasLoggedIn);
+
+        moodButtons.forEach(btn => btn.disabled = isDisabled);
+        anxietySlider.disabled = isDisabled;
+        stressSlider.disabled = isDisabled;
+        saveCombinedCheckinBtn.disabled = isDisabled;
     }
 
     if (document.querySelector('#health.section.active')) initTimeBasedCheckin();
@@ -1189,13 +1247,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    if(termsBtn) {
-        termsBtn.addEventListener('click', () => alert("Qui verrebbero mostrati i Termini di Servizio."));
-    }
-    if(privacyBtn) {
-        privacyBtn.addEventListener('click', () => alert("Qui verrebbe mostrata la Privacy Policy."));
-    }
-
     document.getElementById('prev-month-btn').addEventListener('click', () => {
         state.currentCalendarDate.setMonth(state.currentCalendarDate.getMonth() - 1);
         generateCalendar();
@@ -1206,28 +1257,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     anxietySlider.addEventListener('input', function() { anxietyValue.textContent = this.value; });
-    saveAnxietyBtn.addEventListener('click', () => {
-        if (!state.isPremium) { showToast("Funzionalità Premium richiesta"); return; }
-        const today = getLocalDateString();
-        if (state.anxietyEntries[today]) { showToast("Hai già registrato l'ansia oggi"); return; }
-        state.anxietyEntries[today] = anxietySlider.value;
-        saveData();
-        showToast("Ansia registrata: " + anxietySlider.value);
-        updateDailyData();
-    });
-
     stressSlider.addEventListener('input', function() { stressValue.textContent = this.value; });
-    saveStressBtn.addEventListener('click', () => {
-        if (!state.isPremium) { showToast("Funzionalità Premium richiesta"); return; }
-        const today = getLocalDateString();
-        if (state.stressEntries[today]) { showToast("Hai già registrato lo stress oggi"); return; }
-        state.stressEntries[today] = stressSlider.value;
-        saveData();
-        showToast("Stress registrato: " + stressSlider.value);
-        updateDailyData();
-    });
-
     sleepSlider.addEventListener('input', function() { sleepValue.textContent = this.value; });
+
     saveSleepBtn.addEventListener('click', () => {
         if (!state.isPremium) { showToast("Funzionalità Premium richiesta"); return; }
         const today = getLocalDateString();
@@ -1243,15 +1275,11 @@ document.addEventListener('DOMContentLoaded', function() {
         reportModal.classList.add('active');
     });
     reportCloseBtn.addEventListener('click', () => reportModal.classList.remove('active'));
-    manageSubscriptionBtn.addEventListener('click', () => {
-        showToast("Reindirizzamento per la gestione dell'abbonamento...");
-        window.open('https://dashboard.stripe.com/', '_blank');
-    });
 
     function generateWeeklyReport() {
         const today = new Date();
         let moodSum = 0, moodCount = 0, anxietySum = 0, anxietyCount = 0, stressSum = 0, stressCount = 0;
-        let sleepSum = 0, sleepCount = 0, meditationCount = 0, gratitudeCount = 0, goalCompletionRate = 0;
+        let sleepSum = 0, sleepCount = 0, gratitudeCount = 0, goalCompletionCount = 0;
         const moodData = [], anxietyData = [], stressData = [], sleepData = [], dates = [];
         const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 
@@ -1261,23 +1289,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const dateStr = getLocalDateString(date);
             dates.push(daysOfWeek[date.getDay()]);
 
-            if (state.moodEntries[dateStr]) {
+            if (state.moodEntries[dateStr] && state.moodEntries[dateStr].length > 0) {
                 const avgMood = state.moodEntries[dateStr].map(e => getMoodValue(e.mood)).reduce((a, b) => a + b, 0) / state.moodEntries[dateStr].length;
                 moodSum += avgMood; moodCount++; moodData.push(avgMood);
             } else { moodData.push(null); }
-            if (state.anxietyEntries[dateStr]) { anxietySum += parseInt(state.anxietyEntries[dateStr]); anxietyCount++; anxietyData.push(parseInt(state.anxietyEntries[dateStr])); } else { anxietyData.push(null); }
-            if (state.stressEntries[dateStr]) { stressSum += parseInt(state.stressEntries[dateStr]); stressCount++; stressData.push(parseInt(state.stressEntries[dateStr])); } else { stressData.push(null); }
-            if (state.sleepEntries[dateStr]) { sleepSum += parseInt(state.sleepEntries[dateStr]); sleepCount++; sleepData.push(parseInt(state.sleepEntries[dateStr])); } else { sleepData.push(null); }
+            if (state.anxietyEntries[dateStr] && state.anxietyEntries[dateStr].length > 0) {
+                const avgAnxiety = state.anxietyEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.anxietyEntries[dateStr].length;
+                anxietySum += avgAnxiety; anxietyCount++; anxietyData.push(avgAnxiety);
+            } else { anxietyData.push(null); }
+            if (state.stressEntries[dateStr] && state.stressEntries[dateStr].length > 0) {
+                const avgStress = state.stressEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.stressEntries[dateStr].length;
+                stressSum += avgStress; stressCount++; stressData.push(avgStress);
+            } else { stressData.push(null); }
+            if (state.sleepEntries[dateStr]) {
+                sleepSum += parseInt(state.sleepEntries[dateStr]);
+                sleepCount++;
+                sleepData.push(parseInt(state.sleepEntries[dateStr]));
+            } else { sleepData.push(null); }
             if (state.gratitudeEntries[dateStr]) gratitudeCount++;
-            if (state.dailyGoals[dateStr]?.completed) goalCompletionRate++;
+            if (state.dailyGoals[dateStr]?.completed) goalCompletionCount++;
         }
 
         const avgMood = moodCount > 0 ? (moodSum / moodCount).toFixed(1) : 'N/D';
         const avgAnxiety = anxietyCount > 0 ? (anxietySum / anxietyCount).toFixed(1) : 'N/D';
         const avgStress = stressCount > 0 ? (stressSum / stressCount).toFixed(1) : 'N/D';
         const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : 'N/D';
-        const goalRate = Math.round((goalCompletionRate / 7) * 100);
 
+        // MODIFICA: La generazione dell'HTML è stata aggiornata per rimuovere l'asse Y e le linee della griglia.
         reportContent.innerHTML = `
             <div class="report-header"><h2 class="report-title">Resoconto Settimanale</h2></div>
             <div class="report-stats">
@@ -1286,21 +1324,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="report-stat"><div class="stat-value">${avgStress}</div><div class="stat-label">Stress</div></div>
                 <div class="report-stat"><div class="stat-value">${avgSleep}</div><div class="stat-label">Sonno</div></div>
                 <div class="report-stat"><div class="stat-value">${gratitudeCount}</div><div class="stat-label">Gratitudini</div></div>
-                <div class="report-stat"><div class="stat-value">${goalRate}%</div><div class="stat-label">Obiettivi</div></div>
+                <div class="report-stat"><div class="stat-value">${goalCompletionCount}/7</div><div class="stat-label">Obiettivi</div></div>
             </div>
-            <div class="report-chart">
-                <div class="chart-group">
-                    ${dates.map((date, index) => `
-                        <div class="chart-day-group">
-                            <div class="chart-bars">
-                                <div class="chart-bar mood-bar" style="height: ${moodData[index] ? (moodData[index] / 10) * 100 + '%' : '0%'};" title="Umore: ${moodData[index] || 'N/D'}"></div>
-                                <div class="chart-bar anxiety-bar" style="height: ${anxietyData[index] ? (anxietyData[index] / 10) * 100 + '%' : '0%'};" title="Ansia: ${anxietyData[index] || 'N/D'}"></div>
-                                <div class="chart-bar stress-bar" style="height: ${stressData[index] ? (stressData[index] / 10) * 100 + '%' : '0%'};" title="Stress: ${stressData[index] || 'N/D'}"></div>
-                                <div class="chart-bar sleep-bar" style="height: ${sleepData[index] ? (sleepData[index] / 10) * 100 + '%' : '0%'};" title="Sonno: ${sleepData[index] || 'N/D'}"></div>
+            <div class="report-chart-area">
+                <div class="report-chart">
+                    <div class="chart-group">
+                        ${dates.map((date, index) => `
+                            <div class="chart-day-group">
+                                <div class="chart-bars">
+                                    <div class="chart-bar mood-bar" style="height: ${moodData[index] ? (moodData[index] / 10) * 100 + '%' : '0%'};" title="Umore: ${moodData[index] ? moodData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar anxiety-bar" style="height: ${anxietyData[index] ? (anxietyData[index] / 10) * 100 + '%' : '0%'};" title="Ansia: ${anxietyData[index] ? anxietyData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar stress-bar" style="height: ${stressData[index] ? (stressData[index] / 10) * 100 + '%' : '0%'};" title="Stress: ${stressData[index] ? stressData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar sleep-bar" style="height: ${sleepData[index] ? (sleepData[index] / 10) * 100 + '%' : '0%'};" title="Sonno: ${sleepData[index] || 'N/D'}"></div>
+                                </div>
+                                <div class="chart-label">${date}</div>
                             </div>
-                            <div class="chart-label">${date}</div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
                 </div>
             </div>
             <div class="chart-legend">

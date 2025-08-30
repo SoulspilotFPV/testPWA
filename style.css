@@ -1,23 +1,38 @@
 /**
  * File: style.css
- * --- MODIFICHE PRECEDENTI ---
- * Varie correzioni di layout, responsività, e stili dei componenti.
- * Aggiunta funzionalità come coriandoli, form di login, etc.
- * Prima revisione del tema scuro per migliorare contrasto e coerenza.
- * * --- NUOVE MODIFICHE (APPLICAZIONE RIGOROSA DEL VIOLA SCURO) ---
- * NOTA: Le seguenti modifiche sono state applicate seguendo alla lettera la richiesta dell'utente
- * di usare il colore VIOLA SCURO (#7E57C2) per testi e titoli nel tema scuro.
- * MODIFICA: La variabile colore principale (--primary) nel tema scuro è stata cambiata in viola scuro.
- * MODIFICA: Tutti i titoli (h1, card-title, etc.) ora usano il nuovo colore primario.
- * MODIFICA: I testi nella sezione profilo, inclusi nome e dettagli, ora sono viola scuro.
- * MODIFICA: Il "banner" (sfondo) dell'emoji del profilo è ora viola scuro.
- * MODIFICA: Anche le icone e i testi della navigazione attiva sono ora viola scuro.
- * MODIFICA: I testi dell'obiettivo e dell'intenzione giornaliera sono stati cambiati in viola scuro.
+ * --- NOTE SULLE ULTIME MODIFICHE ---
+ * MODIFICA: Risolto il problema di visualizzazione del cerchio di selezione dell'emoji aumentando il padding del contenitore.
+ * MODIFICA: Cambiato il colore del testo dell'intenzione giornaliera in bianco nel tema scuro per una migliore leggibilità.
+ * MODIFICA: Ridisegnata completamente la visualizzazione dello storico per un layout più pulito e integrato.
+ * MODIFICA: Unito i check-in di umore, ansia e stress in un unico banner per coerenza.
+ * MODIFICA: Aggiunti stili per il nuovo banner combinato (#combined-checkin-card).
+ * MODIFICA: Assicurata la responsività del nuovo banner su dispositivi mobili.
+ * MODIFICA: Aggiunto uno stile 'selected' per l'emoji dell'umore cliccata.
+ * MODIFICA: Implementato un workaround per rendere lo sfondo fisso su tutti i dispositivi mobili.
+ * MODIFICA: Corretto e unificato il colore dei filtri delle meditazioni in tema chiaro.
+ * MODIFICA: Lo sfondo dell'input per la modifica del nome ora è coerente con il tema (chiaro/scuro).
+ * MODIFICA: La palette viola scuro (#7E57C2) è stata applicata a tutti gli elementi testuali e di accento nel tema scuro, come da richiesta.
+ * MODIFICA: Centrato correttamente il modale di login/registrazione su tutti i dispositivi.
+ * MODIFICA: Ridotta la dimensione del badge "Risparmia il 40%" su schermi piccoli per evitare overflow.
+ * MODIFICA: Aggiunta scala numerica e linee guida al grafico del report per migliorarne la leggibilità.
+ * MODIFICA: Il suggerimento per lo scroll delle emoji è ora nascosto su desktop.
+ * MODIFICA: Corretto il colore hover del pulsante "Annulla" nel tema scuro.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * MODIFICA: Scurito il colore del testo primario per migliorare il contrasto e l'accessibilità.
+ * MODIFICA: Impostato il colore di sfondo dell'onboarding su #D3bbff come richiesto.
+ * MODIFICA: Aggiunto un border-radius al logo nella schermata di caricamento per un aspetto smussato.
+ * MODIFICA: Rimossi l'asse Y (numeri) e le linee della griglia dal grafico del report settimanale.
+ * MODIFICA: Migliorata la spaziatura nel blocco "Intenzione Giornaliera" per coerenza visiva.
+ * MODIFICA: Rimosso lo stile per .slider-btn, dato che i bottoni ora usano .gratitude-btn.
+ * MODIFICA: Ridisegnato completamente l'onboarding per essere più centrato, con emoji più vicine al testo e contenuti aggiornati.
+ * MODIFICA: Aggiunto uno stile coerente per il pulsante "Genera Report" (.primary-action-btn).
+ * MODIFICA: Ridisegnato il modale delle impostazioni dell'account per un design più pulito e dedicato.
  */
 :root {
     --primary: #B39DDB;
     --primary-light: #D1C4E9;
-    --primary-dark: #7E57C2;
+    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
+    --primary-dark: #5E35B1;
     --primary-darker: #5E35B1;
     --background: #F5F5F5;
     --card-bg: #FFFFFF;
@@ -39,8 +54,8 @@
     --journey-3: #FFAB91;
     --streak-gradient: linear-gradient(135deg, #D1C4E9, #B39DDB);
     --streak-height: 120px;
-    --text-primary-light: #7E57C2;
-    /* MODIFICA: Impostato il viola scuro come colore primario per i testi nel tema scuro, come da richiesta */
+    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
+    --text-primary-light: #5E35B1;
     --text-primary-dark: #7E57C2;
     --text-primary: var(--text-primary-light);
     --button-bg-light: var(--primary);
@@ -49,6 +64,7 @@
     --toggle-bg: #e0e0e0;
     --toggle-bg-dark: #2d2d2d;
     --toggle-slider-gradient: linear-gradient(135deg, #ff8a80, #ea80fc, #8c9eff, #80d8ff);
+    --filter-bg-light: #E9E4F0;
 }
 
 * {
@@ -59,19 +75,39 @@
     touch-action: manipulation;
 }
 
+html {
+    height: 100%;
+}
 body {
-    background: var(--background);
-    color: var(--text);
-    line-height: 1.6;
-    padding-bottom: 100px;
-    min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.5s ease, color 0.5s ease;
+    min-height: 100%;
+    position: relative;
+    background-color: var(--background);
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
     background-image: url('bodylight.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+}
+body.dark-theme::before {
+    background-image: url('bodydark.jpg');
+}
+
+
+body {
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 100px;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.5s ease, color 0.5s ease;
 }
 
 body.dark-theme {
@@ -79,7 +115,6 @@ body.dark-theme {
     --card-bg: #1e1e1e;
     --text: #f5f5f5;
     --text-light: #bdbdbd;
-    /* MODIFICA: Colore primario per accenti e testi impostato su VIOLA SCURO come richiesto */
     --primary: #7E57C2;
     --primary-dark: #7E57C2;
     --primary-darker: #5E35B1;
@@ -90,34 +125,31 @@ body.dark-theme {
     --text-primary: var(--text-primary-dark);
     --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
-    background-image: url('bodydark.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
 }
 
-/* Onboarding Section */
+/* --- MODIFICA: Stili onboarding ridisegnati --- */
 #onboarding {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: #D3bbff;
     color: white;
     z-index: 2000;
-    display: flex;
-    flex-direction: column;
+    display: flex; /* Centratura verticale e orizzontale */
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
     transition: transform 0.5s ease-in-out;
+    padding: 20px;
 }
 
 .onboarding-container {
-    max-width: 600px;
+    max-width: 500px; /* Larghezza massima per il contenuto */
+    width: 100%;
     margin: 0 auto;
-    padding: 20px;
     text-align: center;
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -127,91 +159,41 @@ body.dark-theme {
 .onboarding-slide {
     display: none;
     animation: fadeIn 0.5s ease-out;
+    width: 100%;
 }
 
 .onboarding-slide.active {
     display: block;
 }
 
-.onboarding-logo {
-    width: 120px;
-    height: 120px;
-    border-radius: 24px;
-    margin-bottom: 30px;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-lg);
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.onboarding-logo img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-}
-
 .onboarding-title {
-    font-size: 2.2rem;
-    margin-bottom: 20px;
+    font-size: 2rem;
     font-weight: 700;
     text-align: center;
+    color: var(--primary-darker);
+    line-height: 1.3;
 }
 
 .onboarding-emoji {
-    font-size: 4.5rem;
+    font-size: 4rem; /* Dimensione emoji ridotta per un look più pulito */
     display: block;
-    margin-bottom: 15px;
+    margin-bottom: 15px; /* Spazio tra emoji e testo */
 }
 
 .onboarding-text {
     font-size: 1.1rem;
-    margin-bottom: 30px;
-    max-width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.8;
+    margin: 20px auto 30px;
+    max-width: 95%;
+    line-height: 1.7;
     text-align: center;
-}
-
-.terms-agreement {
-    text-align: center;
-    margin: 20px 0;
-}
-
-.terms-agreement p {
-    font-size: 0.9rem;
-}
-
-.terms-agreement a {
-    color: white;
-    text-decoration: underline;
-}
-
-.terms-checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0;
-    font-size: 0.9rem;
-}
-
-.terms-checkbox input {
-    margin-right: 10px;
-}
-
-.terms-checkbox label {
-    cursor: default;
-    pointer-events: none;
+    color: var(--text);
 }
 
 .onboarding-btn {
     background: white;
     color: var(--primary-dark);
     border: none;
-    padding: 15px 30px;
+    padding: 15px 40px;
     border-radius: 50px;
     font-size: 1.1rem;
     font-weight: 700;
@@ -219,8 +201,7 @@ body.dark-theme {
     transition: all 0.3s ease;
     margin-top: 20px;
     box-shadow: var(--shadow-lg);
-    display: block;
-    margin: 0 auto;
+    display: inline-block;
 }
 
 .onboarding-btn:disabled {
@@ -232,6 +213,7 @@ body.dark-theme {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
+/* --- Fine Stili onboarding --- */
 
 .container {
     max-width: 100%;
@@ -371,12 +353,31 @@ body.dark-theme {
     opacity: 0.9;
 }
 
+#combined-checkin-card .checkin-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#combined-checkin-card .combined-slider {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(179, 157, 219, 0.2);
+}
+
+#combined-checkin-card .mood-tracker {
+    margin-bottom: 0;
+}
+
+
 .mood-tracker {
     display: flex;
     justify-content: space-between;
     margin: 15px 0;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding: 5px 0;
     scrollbar-width: thin;
     scrollbar-color: var(--primary-light) transparent;
 }
@@ -392,7 +393,7 @@ body.dark-theme {
 
 .mood-btn {
     background: none;
-    border: none;
+    border: 2px solid transparent;
     font-size: 2.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -412,22 +413,25 @@ body.dark-theme {
     background: rgba(209, 196, 233, 0.2);
 }
 
-.mood-btn:active, .mood-btn.active {
-    background: var(--primary-darker);
+.mood-btn.selected {
     transform: scale(1.1);
+    border-color: var(--primary);
+    background: rgba(209, 196, 233, 0.3);
 }
 
 .mood-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+    background: none !important;
+    border-color: transparent !important;
 }
 
 .mood-tracker-hint {
     text-align: center;
     font-size: 0.85rem;
     color: var(--text-light);
-    margin-top: -10px;
+    margin-top: -5px;
     margin-bottom: 15px;
 }
 
@@ -488,18 +492,6 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     border: 2px solid var(--primary);
-}
-
-.slider-btn {
-    background: var(--button-bg);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
 }
 
 .meditation-list {
@@ -686,13 +678,18 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--text);
 }
 
+.dark-theme .history-close:hover {
+    background: #3e3e3e;
+    color: #f5f5f5;
+}
+
 .history-close:active {
     background: #e2e8f0;
     transform: scale(0.9);
 }
 
 .history-section {
-    margin-bottom: 30px;
+    margin-top: 25px;
 }
 
 .history-section-title {
@@ -702,6 +699,55 @@ input[type="range"]::-webkit-slider-thumb {
     padding-bottom: 8px;
     border-bottom: 2px solid var(--primary-light);
 }
+
+.mood-history-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 5px;
+    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
+}
+.mood-history-item:last-child {
+    border-bottom: none;
+}
+.mood-history-emoji {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+.mood-history-details {
+    flex-grow: 1;
+}
+.mood-history-mood-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+.mood-history-window {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+.mood-history-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.mood-history-stat {
+    text-align: center;
+}
+.stat-label-history {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+.stat-value-history {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text);
+}
+.dark-theme .stat-value-history {
+    color: var(--text);
+}
+
 
 .calendar-navigation {
     display: flex;
@@ -945,6 +991,10 @@ input[type="range"]::-webkit-slider-thumb {
     background: #e2e8f0;
 }
 
+.dark-theme .profile-edit-cancel:hover {
+    background: #3e3e3e;
+}
+
 .profile-edit-save {
     background: var(--button-bg);
     color: white;
@@ -1092,6 +1142,7 @@ input[type="range"]::-webkit-slider-thumb {
     margin-top: 10px;
     font-size: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .gratitude-btn:hover {
@@ -1286,7 +1337,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1rem;
     color: var(--text);
 }
-/* MODIFICA: Testo obiettivo viola scuro (tema scuro) */
 .dark-theme .goal-text {
     color: var(--primary-dark);
 }
@@ -1445,6 +1495,7 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--text);
     font-size: 1rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
 }
 
 .dark-theme .form-input {
@@ -1455,7 +1506,7 @@ input[type="range"]::-webkit-slider-thumb {
 .form-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(179, 157, 219, 0.3);
+    box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.3);
 }
 
 .checkbox-container {
@@ -1528,7 +1579,7 @@ input[type="range"]::-webkit-slider-thumb {
 .filter-btn {
     padding: 10px 15px;
     border-radius: 50px;
-    background: rgba(179, 157, 219, 0.2);
+    background: var(--filter-bg-light);
     border: none;
     font-size: 0.9rem;
     cursor: pointer;
@@ -1595,8 +1646,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .intention-icon {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
+    font-size: 3rem;
+    margin-bottom: 10px;
     position: relative;
     z-index: 1;
     color: var(--primary-dark);
@@ -1610,6 +1661,7 @@ input[type="range"]::-webkit-slider-thumb {
 .intention-title {
     font-size: 1.5rem;
     font-weight: 700;
+    /* MODIFICA: Spaziatura migliorata */
     margin-bottom: 15px;
     color: var(--text-primary);
     position: relative;
@@ -1620,17 +1672,17 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1.2rem;
     font-weight: 500;
     font-style: italic;
-    margin-bottom: 25px;
+    /* MODIFICA: Spaziatura migliorata */
+    margin-bottom: 20px;
     position: relative;
     z-index: 1;
     color: var(--text);
     line-height: 1.6;
-    min-height: 60px;
+    min-height: 50px;
     position: relative;
 }
-/* MODIFICA: Testo intenzione viola scuro (tema scuro) */
 .dark-theme .intention-text {
-    color: var(--primary-dark);
+    color: var(--text);
 }
 
 .edit-intention-btn {
@@ -1680,7 +1732,8 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1.1rem;
     background: rgba(255, 255, 255, 0.8);
     width: 100%;
-    margin: 15px 0;
+    /* MODIFICA: Spaziatura migliorata */
+    margin-bottom: 20px;
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
@@ -1765,6 +1818,9 @@ input[type="range"]::-webkit-slider-thumb {
 
     .emoji-option {
         font-size: 1.8rem;
+    }
+    .mood-tracker-hint {
+        display: none;
     }
 }
 
@@ -2063,27 +2119,27 @@ input:checked + .toggle-slider:before {
     background: rgba(239, 83, 80, 0.2) !important;
 }
 
-.manage-subscription-btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    display: block;
-    text-align: center;
-    margin-top: 15px;
+.delete-btn {
+    background: rgba(239, 83, 80, 0.1) !important;
+}
+.delete-btn .profile-text {
+    color: var(--error) !important;
+}
+.delete-btn:hover {
+    background: rgba(239, 83, 80, 0.2) !important;
 }
 
-.manage-subscription-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
 
 @media (max-width: 480px) {
     .premium-title {
         font-size: 1.4rem;
+    }
+    .discount-badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+    }
+    .toggle-option {
+        font-size: 0.85rem;
     }
 }
 
@@ -2218,19 +2274,36 @@ input:checked + .toggle-slider:before {
     color: var(--text-light);
 }
 
-.report-chart {
+.report-chart-area {
+    display: flex;
     height: 250px;
     margin: 20px 0;
-    padding: 20px 10px 30px 10px;
-    position: relative;
     background: #f8fafc;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
+    padding: 20px 10px 30px 10px;
 }
-
-.dark-theme .report-chart {
+.dark-theme .report-chart-area {
     background: #2d2d2d;
     border-color: #3e3e3e;
+}
+
+/* MODIFICA: Asse Y (numeri) del grafico rimosso */
+.chart-yaxis {
+    display: none;
+}
+
+.report-chart {
+    flex-grow: 1;
+    position: relative;
+}
+
+/* MODIFICA: Linee della griglia del grafico rimosse */
+.chart-grid-line {
+    display: none;
+}
+.dark-theme .chart-grid-line {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .chart-group {
@@ -2240,6 +2313,8 @@ input:checked + .toggle-slider:before {
     width: 100%;
     height: 100%;
     align-items: end;
+    position: relative;
+    z-index: 1;
 }
 
 .chart-day-group {
@@ -2424,6 +2499,8 @@ input:checked + .toggle-slider:before {
     width: 100px;
     height: 100px;
     animation: loading-pulse 2.5s ease-in-out infinite;
+    /* MODIFICA: Aggiunto arrotondamento per un look da icona app */
+    border-radius: 22.5%;
 }
 
 
@@ -2468,3 +2545,157 @@ input:checked + .toggle-slider:before {
         transform: scale(0.5);
     }
 }
+
+/* --- MODIFICA: Stili per il pulsante "Genera Report" --- */
+.primary-action-btn {
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 15px auto;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(94, 53, 177, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.primary-action-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(94, 53, 177, 0.3);
+}
+
+.primary-action-btn:active {
+    transform: scale(0.98);
+}
+/* --- Fine Stili pulsante --- */
+
+
+/* --- MODIFICA: Stili per il modale delle impostazioni ridisegnato --- */
+.settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-end; /* Allineato in basso */
+    justify-content: center;
+    z-index: 1001; /* Sopra altri modali */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.settings-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.settings-modal.active .settings-container {
+    transform: translateY(0); /* Animazione in entrata */
+}
+
+.settings-container {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px 20px 0 0; /* Angoli arrotondati solo in alto */
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    transform: translateY(100%); /* Parte da fuori schermo */
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+    text-align: center;
+}
+
+.settings-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    width: 100%;
+}
+
+.settings-close {
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    position: absolute; /* Posizionato a destra */
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: var(--background);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.dark-theme .settings-item {
+    background: #2d2d2d;
+}
+
+.settings-item:hover {
+    background: var(--primary-light);
+}
+.dark-theme .settings-item:hover {
+    background: rgba(126, 87, 194, 0.3);
+}
+
+.settings-item:active {
+    transform: scale(0.97);
+}
+
+.settings-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin-right: 15px;
+}
+
+.settings-text {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.dark-theme .settings-text {
+    color: var(--text);
+}
+
+.settings-item.delete-btn .settings-text {
+    color: var(--error);
+}
+/* --- Fine Stili modale impostazioni --- */

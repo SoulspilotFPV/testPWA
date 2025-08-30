@@ -20,31 +20,42 @@
     <section id="onboarding" class="section active">
         <div class="onboarding-container">
             <div class="onboarding-slide active" id="slide1">
-                <h1 class="onboarding-title"><span class="onboarding-emoji">👋</span><br>Benvenuto in Vivi Consapevolmente</h1>
+                <h1 class="onboarding-title">
+                    <span class="onboarding-emoji">👋</span>
+                    Benvenuto in<br>Vivi Consapevolmente
+                </h1>
                 <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e vivere una vita più equilibrata.</p>
-                <button class="onboarding-btn" id="next-btn1">Avanti</button>
+                <button class="onboarding-btn" id="next-btn1">Inizia il Viaggio</button>
             </div>
 
             <div class="onboarding-slide" id="slide2">
-                <h1 class="onboarding-title"><span class="onboarding-emoji">🧘‍♀️</span><br>Meditazioni Guidate</h1>
-                <p class="onboarding-text">Esplora la nostra libreria di meditazioni guidate per ogni momento della tua giornata. Dal risveglio consapevole al rilassamento serale.</p>
+                <h1 class="onboarding-title">
+                    <span class="onboarding-emoji">🧘‍♀️</span>
+                    Meditazioni Guidate
+                </h1>
+                <p class="onboarding-text">Esplora la nostra libreria di meditazioni e suoni della natura per trovare calma e concentrazione in ogni momento.</p>
                 <button class="onboarding-btn" id="next-btn2">Avanti</button>
             </div>
 
             <div class="onboarding-slide" id="slide3">
-                <h1 class="onboarding-title"><span class="onboarding-emoji">🌱</span><br>Percorsi di Crescita</h1>
-                <p class="onboarding-text">Segui i nostri percorsi strutturati per sviluppare nuove abitudini, gestire l'ansia e migliorare la concentrazione passo dopo passo.</p>
-                <button class="onboarding-btn" id="next-btn3">Avanti</button>
+                 <h1 class="onboarding-title">
+                    <span class="onboarding-emoji">🌱</span>
+                    Il Tuo Spazio di Crescita
+                </h1>
+                <p class="onboarding-text">Monitora il tuo umore, tieni un diario della gratitudine e fissa obiettivi giornalieri per migliorare il tuo benessere, giorno dopo giorno.</p>
+                <button class="onboarding-btn" id="next-btn3">Continua</button>
             </div>
 
             <div class="onboarding-slide" id="slide4">
-                <h1 class="onboarding-title"><span class="onboarding-emoji">🔐</span><br>Crea un Account per Iniziare</h1>
-                <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e accedere a tutte le funzionalità.</p>
-                <button class="onboarding-btn" id="next-btn4">Crea il tuo account</button>
+                <h1 class="onboarding-title">
+                    <span class="onboarding-emoji">🔐</span>
+                    Crea un Account
+                </h1>
+                <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e accedere a tutte le funzionalità esclusive.</p>
+                <button class="onboarding-btn" id="next-btn4">Crea o Accedi</button>
             </div>
         </div>
     </section>
-
     <div class="login-modal" id="onboarding-login-modal">
         <div class="login-container">
 
@@ -105,10 +116,6 @@
                 </form>
                  <p class="toggle-form-link">Non hai un account? <a href="#" id="show-register-link">Registrati</a></p>
             </div>
-
-            <button class="login-close" id="onboarding-login-back">
-                <i class="fas fa-arrow-left"></i> Torna indietro
-            </button>
         </div>
     </div>
 
@@ -236,6 +243,18 @@
                     <div class="meditation-info">
                         <div class="meditation-title">Respiro consapevole</div>
                         <div class="meditation-desc">Calma immediata attraverso il respiro</div>
+                    </div>
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+
+                <div class="meditation-item" data-id="23" data-title="Lasciare andare" data-duration="10 min" data-tags="sera,ansia">
+                    <div class="meditation-info">
+                        <div class="meditation-title">Lasciare andare</div>
+                        <div class="meditation-desc">Libera la mente e il corpo dalle tensioni</div>
                     </div>
                     <div class="premium-lock">
                         <button class="premium-lock-btn" data-target="premium-card">
@@ -504,10 +523,14 @@
                 <p>Prenditi cura del tuo benessere fisico e mentale</p>
             </div>
 
-            <div class="card">
+            <div class="card" id="combined-checkin-card">
                 <div class="card-title">
-                    <span>😊 Check-in Umore</span>
+                    <span>☀️ Check-in Benessere</span>
                 </div>
+
+                <div class="mood-status">È ora per il tuo check-in!</div>
+
+                <label class="checkin-label">Come ti senti in questo momento?</label>
                 <div class="mood-tracker">
                     <button class="mood-btn" data-mood="devastato">😭</button>
                     <button class="mood-btn" data-mood="stressato">😩</button>
@@ -521,9 +544,28 @@
                     <button class="mood-btn" data-mood="amore">😍</button>
                 </div>
                 <p class="mood-tracker-hint">Scorri per vedere tutte le 10 emoji</p>
-                <div class="mood-status">
-                    È ora per il tuo check-in del pomeriggio!
+
+                <div class="slider-container combined-slider">
+                    <label for="anxiety-slider" class="checkin-label">Livello di Ansia</label>
+                    <div class="slider-value" id="anxiety-value">5</div>
+                    <input type="range" min="1" max="10" value="5" class="anxiety-slider" id="anxiety-slider">
+                    <div class="slider-labels">
+                        <span>Basso</span>
+                        <span>Alto</span>
+                    </div>
                 </div>
+
+                <div class="slider-container combined-slider">
+                    <label for="stress-slider" class="checkin-label">Livello di Stress</label>
+                    <div class="slider-value" id="stress-value">5</div>
+                    <input type="range" min="1" max="10" value="5" class="stress-slider" id="stress-slider">
+                    <div class="slider-labels">
+                        <span>Basso</span>
+                        <span>Alto</span>
+                    </div>
+                </div>
+                <button class="gratitude-btn" id="save-combined-checkin-btn">Salva Check-in</button>
+
                 <div class="premium-lock">
                     <button class="premium-lock-btn" data-target="premium-card">
                         <i class="fas fa-lock"></i> Sblocca con Premium
@@ -543,47 +585,7 @@
                         <span>Ottimo</span>
                     </div>
                 </div>
-                <button class="slider-btn" id="save-sleep">Salva</button>
-                <div class="premium-lock">
-                    <button class="premium-lock-btn" data-target="premium-card">
-                        <i class="fas fa-lock"></i> Sblocca con Premium
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <span>😰 Check-in Ansia</span>
-                </div>
-                <div class="slider-container">
-                    <div class="slider-value" id="anxiety-value">5</div>
-                    <input type="range" min="1" max="10" value="5" class="anxiety-slider" id="anxiety-slider">
-                    <div class="slider-labels">
-                        <span>Basso</span>
-                        <span>Alto</span>
-                    </div>
-                </div>
-                <button class="slider-btn" id="save-anxiety">Salva</button>
-                <div class="premium-lock">
-                    <button class="premium-lock-btn" data-target="premium-card">
-                        <i class="fas fa-lock"></i> Sblocca con Premium
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <span>😥 Check-in Stress</span>
-                </div>
-                <div class="slider-container">
-                    <div class="slider-value" id="stress-value">5</div>
-                    <input type="range" min="1" max="10" value="5" class="stress-slider" id="stress-slider">
-                    <div class="slider-labels">
-                        <span>Basso</span>
-                        <span>Alto</span>
-                    </div>
-                </div>
-                <button class="slider-btn" id="save-stress">Salva</button>
+                <button class="gratitude-btn" id="save-sleep-btn">Salva</button>
                 <div class="premium-lock">
                     <button class="premium-lock-btn" data-target="premium-card">
                         <i class="fas fa-lock"></i> Sblocca con Premium
@@ -635,11 +637,11 @@
                     <div class="profile-text">Modifica profilo</div>
                 </div>
 
-                <div class="profile-item" id="manage-subscription-btn">
+                <div class="profile-item" id="account-settings-btn">
                     <div class="profile-icon">
-                        <i class="fas fa-credit-card"></i>
+                        <i class="fas fa-cog"></i>
                     </div>
-                    <div class="profile-text">Gestisci Abbonamento</div>
+                    <div class="profile-text">Impostazioni Account</div>
                 </div>
 
                 <div class="profile-item" id="theme-toggle-profile">
@@ -658,27 +660,6 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </div>
                     <div class="profile-text">Esci</div>
-                </div>
-
-                <div class="profile-item" id="terms-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="profile-text">Termini di Servizio</div>
-                </div>
-
-                <div class="profile-item" id="privacy-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <div class="profile-text">Privacy Policy</div>
-                </div>
-
-                <div class="profile-item" id="delete-account-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                    <div class="profile-text">Elimina il mio account</div>
                 </div>
             </div>
 
@@ -765,10 +746,12 @@
             <div class="calendar-container" id="calendar">
                 </div>
 
-            <button class="slider-btn" id="generate-report-btn" style="margin: 15px auto; display: block;">📊 Genera Report</button>
+            <button class="primary-action-btn" id="generate-report-btn">
+                <i class="fas fa-chart-pie"></i> Genera Report Settimanale
+            </button>
 
             <div class="history-section">
-                <div class="history-section-title">Umore Registrato</div>
+                <div class="history-section-title">Check-in Benessere</div>
                 <div class="card" id="mood-history-container">
                     </div>
             </div>
@@ -787,13 +770,39 @@
         </div>
     </div>
 
+    <div class="settings-modal" id="account-settings-modal">
+        <div class="settings-container">
+            <div class="settings-header">
+                <div class="settings-title">Impostazioni</div>
+                <button class="settings-close" id="account-settings-close-btn">&times;</button>
+            </div>
+            <div class="settings-list">
+                <div class="settings-item" id="manage-subscription-btn">
+                    <div class="settings-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="settings-text">Gestisci Abbonamento</div>
+                </div>
+                <div class="settings-item" id="terms-btn">
+                    <div class="settings-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="settings-text">Termini di Servizio</div>
+                </div>
+                <div class="settings-item" id="privacy-btn">
+                    <div class="settings-icon"><i class="fas fa-lock"></i></div>
+                    <div class="settings-text">Privacy Policy</div>
+                </div>
+                <div class="settings-item delete-btn" id="delete-account-btn">
+                    <div class="settings-icon"><i class="fas fa-trash-alt"></i></div>
+                    <div class="settings-text">Elimina il mio account</div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="profile-edit-modal" id="profile-edit-modal">
         <div class="profile-edit-container">
             <h2 class="profile-edit-title">Modifica Profilo</h2>
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nome</label>
-                <input type="text" class="profile-edit-input" id="profile-name-input" placeholder="Il tuo nome" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem;">
+                <input type="text" class="form-input" id="profile-name-input" placeholder="Il tuo nome">
             </div>
 
             <div class="gender-selection">
