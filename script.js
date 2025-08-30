@@ -15,6 +15,7 @@
  * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
  * MODIFICA: Il flusso logico dell'onboarding in JavaScript non è stato modificato, in quanto le modifiche sono state puramente a livello di contenuti HTML.
+ * MODIFICA: [BUGFIX] Rimossa la variabile `intentionContainer` non utilizzata per pulizia del codice.
  */
 document.addEventListener('DOMContentLoaded', function() {
     // App state
@@ -143,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const gratitudeHistoryContainer = document.getElementById('gratitude-history-container');
     const goalHistoryContainer = document.getElementById('goal-history-container');
     const dailyGoalContainer = document.getElementById('daily-goal-container');
-    const intentionContainer = document.getElementById('intention-container');
     const monthlySubscribeBtn = document.getElementById('monthly-subscribe');
     const annualSubscribeBtn = document.getElementById('annual-subscribe');
     const googleLoginBtn = document.getElementById('google-login');
@@ -1315,7 +1315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const avgStress = stressCount > 0 ? (stressSum / stressCount).toFixed(1) : 'N/D';
         const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : 'N/D';
 
-        // MODIFICA: La generazione dell'HTML è stata aggiornata per rimuovere l'asse Y e le linee della griglia.
         reportContent.innerHTML = `
             <div class="report-header"><h2 class="report-title">Resoconto Settimanale</h2></div>
             <div class="report-stats">

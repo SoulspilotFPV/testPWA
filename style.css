@@ -27,11 +27,12 @@
  * MODIFICA: Ridisegnato completamente l'onboarding per essere più centrato, con emoji più vicine al testo e contenuti aggiornati.
  * MODIFICA: Aggiunto uno stile coerente per il pulsante "Genera Report" (.primary-action-btn).
  * MODIFICA: Ridisegnato il modale delle impostazioni dell'account per un design più pulito e dedicato.
+ * MODIFICA: [BUGFIX] Rimossa una parentesi graffa extra a fine file che poteva bloccare il rendering su mobile.
+ * MODIFICA: [BUGFIX] Sostituito lo sfondo con `body::before` con un `div` dedicato per massima compatibilità mobile.
  */
 :root {
     --primary: #B39DDB;
     --primary-light: #D1C4E9;
-    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --primary-dark: #5E35B1;
     --primary-darker: #5E35B1;
     --background: #F5F5F5;
@@ -54,7 +55,6 @@
     --journey-3: #FFAB91;
     --streak-gradient: linear-gradient(135deg, #D1C4E9, #B39DDB);
     --streak-height: 120px;
-    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --text-primary-light: #5E35B1;
     --text-primary-dark: #7E57C2;
     --text-primary: var(--text-primary-light);
@@ -83,8 +83,9 @@ body {
     position: relative;
     background-color: var(--background);
 }
-body::before {
-    content: '';
+
+/* MODIFICA: Nuovo metodo per lo sfondo, più robusto per i dispositivi mobili */
+.background-layer {
     position: fixed;
     top: 0;
     left: 0;
@@ -94,12 +95,12 @@ body::before {
     background-image: url('bodylight.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-}
-body.dark-theme::before {
-    background-image: url('bodydark.jpg');
 }
 
+body.dark-theme .background-layer {
+    background-image: url('bodydark.jpg');
+}
+/* Fine modifica sfondo */
 
 body {
     color: var(--text);
@@ -127,7 +128,7 @@ body.dark-theme {
     --toggle-bg: var(--toggle-bg-dark);
 }
 
-/* --- MODIFICA: Stili onboarding ridisegnati --- */
+/* --- Stili onboarding ridisegnati --- */
 #onboarding {
     position: fixed;
     top: 0;
@@ -2288,7 +2289,6 @@ input:checked + .toggle-slider:before {
     border-color: #3e3e3e;
 }
 
-/* MODIFICA: Asse Y (numeri) del grafico rimosso */
 .chart-yaxis {
     display: none;
 }
@@ -2298,7 +2298,6 @@ input:checked + .toggle-slider:before {
     position: relative;
 }
 
-/* MODIFICA: Linee della griglia del grafico rimosse */
 .chart-grid-line {
     display: none;
 }
@@ -2499,7 +2498,6 @@ input:checked + .toggle-slider:before {
     width: 100px;
     height: 100px;
     animation: loading-pulse 2.5s ease-in-out infinite;
-    /* MODIFICA: Aggiunto arrotondamento per un look da icona app */
     border-radius: 22.5%;
 }
 
@@ -2546,7 +2544,7 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* --- MODIFICA: Stili per il pulsante "Genera Report" --- */
+/* --- Stili per il pulsante "Genera Report" --- */
 .primary-action-btn {
     background: var(--button-bg);
     color: white;
@@ -2579,7 +2577,7 @@ input:checked + .toggle-slider:before {
 /* --- Fine Stili pulsante --- */
 
 
-/* --- MODIFICA: Stili per il modale delle impostazioni ridisegnato --- */
+/* --- Stili per il modale delle impostazioni ridisegnato --- */
 .settings-modal {
     position: fixed;
     top: 0;
