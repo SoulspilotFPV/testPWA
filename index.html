@@ -20,29 +20,35 @@
     <section id="onboarding" class="section active">
         <div class="onboarding-container">
             <div class="onboarding-slide active" id="slide1">
-                <div class="onboarding-title">
-                    <span class="onboarding-emoji">👋</span>
-                    <h1>Benvenuto in Vivi Consapevolmente</h1>
+                <div class="onboarding-content">
+                    <h1 class="onboarding-title">
+                        <span class="onboarding-emoji">👋</span>
+                        Benvenuto in Vivi Consapevolmente
+                    </h1>
+                    <p class="onboarding-text">L'app pensata per essere il tuo spazio personale di crescita e benessere quotidiano.</p>
                 </div>
-                <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e vivere una vita più equilibrata.</p>
-                <button class="onboarding-btn" id="next-btn1">Inizia il Viaggio</button>
+                <button class="onboarding-btn" id="next-btn1">Inizia il percorso</button>
             </div>
 
             <div class="onboarding-slide" id="slide2">
-                <div class="onboarding-title">
-                    <span class="onboarding-emoji">🌱</span>
-                    <h1>Il Tuo Spazio di Crescita Personale</h1>
+                <div class="onboarding-content">
+                    <h1 class="onboarding-title">
+                        <span class="onboarding-emoji">🌱</span>
+                        Il Tuo Percorso di Miglioramento
+                    </h1>
+                    <p class="onboarding-text">Esplora meditazioni, traccia il tuo umore e fissa obiettivi. Ogni strumento è pensato per aiutarti a coltivare la consapevolezza.</p>
                 </div>
-                <p class="onboarding-text">Traccia il tuo umore, pratica la gratitudine e medita. Ogni strumento è pensato per aiutarti a fiorire e a comprendere meglio te stesso.</p>
                 <button class="onboarding-btn" id="next-btn2">Continua</button>
             </div>
 
             <div class="onboarding-slide" id="slide3">
-                <div class="onboarding-title">
-                    <span class="onboarding-emoji">🔐</span>
-                    <h1>Crea un Account per Iniziare</h1>
+                 <div class="onboarding-content">
+                    <h1 class="onboarding-title">
+                        <span class="onboarding-emoji">🔐</span>
+                        Crea un Account per Iniziare
+                    </h1>
+                    <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e accedere a tutte le funzionalità in modo sicuro.</p>
                 </div>
-                <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e sbloccare tutte le funzionalità per il tuo benessere.</p>
                 <button class="onboarding-btn" id="next-btn3">Crea o Accedi</button>
             </div>
         </div>
@@ -735,11 +741,12 @@
             </div>
 
             <div class="calendar-container" id="calendar">
-            </div>
+                </div>
 
             <button class="gratitude-btn" id="generate-report-btn">
                 <i class="fas fa-chart-pie"></i> Genera Report
             </button>
+
             <div class="history-section">
                 <div class="history-section-title">Check-in Benessere</div>
                 <div class="card" id="mood-history-container">
@@ -766,30 +773,28 @@
                 <div class="history-title">Impostazioni Account</div>
                 <button class="history-close" id="account-settings-close-btn">&times;</button>
             </div>
-            <div class="account-settings-content">
-                <div class="account-settings-list">
-                    <a href="#" class="account-settings-item" id="manage-subscription-btn">
-                        <i class="fas fa-credit-card icon"></i>
-                        <span>Gestisci Abbonamento</span>
-                        <i class="fas fa-chevron-right arrow"></i>
-                    </a>
-                    <a href="#" class="account-settings-item" id="terms-btn">
-                        <i class="fas fa-file-alt icon"></i>
-                        <span>Termini di Servizio</span>
-                        <i class="fas fa-chevron-right arrow"></i>
-                    </a>
-                    <a href="#" class="account-settings-item" id="privacy-btn">
-                        <i class="fas fa-lock icon"></i>
-                        <span>Privacy Policy</span>
-                        <i class="fas fa-chevron-right arrow"></i>
-                    </a>
-                    <a href="#" class="account-settings-item destructive" id="delete-account-btn">
-                        <i class="fas fa-trash-alt icon"></i>
-                        <span>Elimina il mio account</span>
-                        <i class="fas fa-chevron-right arrow"></i>
-                    </a>
-                </div>
-            </div>
+            <ul class="account-settings-list">
+                <li class="account-settings-item" id="manage-subscription-btn">
+                    <div class="settings-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="settings-text">Gestisci Abbonamento</div>
+                    <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+                </li>
+                <li class="account-settings-item" id="terms-btn">
+                    <div class="settings-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="settings-text">Termini di Servizio</div>
+                    <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+                </li>
+                <li class="account-settings-item" id="privacy-btn">
+                    <div class="settings-icon"><i class="fas fa-lock"></i></div>
+                    <div class="settings-text">Privacy Policy</div>
+                    <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+                </li>
+                <li class="account-settings-item delete-btn" id="delete-account-btn">
+                    <div class="settings-icon"><i class="fas fa-trash-alt"></i></div>
+                    <div class="settings-text">Elimina il mio account</div>
+                    <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="profile-edit-modal" id="profile-edit-modal">
