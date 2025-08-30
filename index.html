@@ -20,34 +20,33 @@
     <section id="onboarding" class="section active">
         <div class="onboarding-container">
             <div class="onboarding-slide active" id="slide1">
-                <h1 class="onboarding-title">
+                <div class="onboarding-title">
                     <span class="onboarding-emoji">👋</span>
-                    <span>Benvenuto in Vivi Consapevolmente</span>
-                </h1>
-                <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e riscoprire il tuo equilibrio interiore.</p>
+                    <h1>Benvenuto in Vivi Consapevolmente</h1>
+                </div>
+                <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e vivere una vita più equilibrata.</p>
                 <button class="onboarding-btn" id="next-btn1">Inizia il Viaggio</button>
             </div>
 
             <div class="onboarding-slide" id="slide2">
-                <h1 class="onboarding-title">
-                    <span class="onboarding-emoji">🧘‍♀️</span>
-                    <span>Migliora Te Stesso</span>
-                </h1>
-                <p class="onboarding-text">Esplora meditazioni guidate, tieni traccia del tuo umore e fissa obiettivi quotidiani per un percorso di crescita personale completo.</p>
-                <button class="onboarding-btn" id="next-btn2">Avanti</button>
+                <div class="onboarding-title">
+                    <span class="onboarding-emoji">🌱</span>
+                    <h1>Il Tuo Spazio di Crescita Personale</h1>
+                </div>
+                <p class="onboarding-text">Traccia il tuo umore, pratica la gratitudine e medita. Ogni strumento è pensato per aiutarti a fiorire e a comprendere meglio te stesso.</p>
+                <button class="onboarding-btn" id="next-btn2">Continua</button>
             </div>
 
-            <div class="onboarding-slide" id="slide4">
-                <h1 class="onboarding-title">
+            <div class="onboarding-slide" id="slide3">
+                <div class="onboarding-title">
                     <span class="onboarding-emoji">🔐</span>
-                    <span>Salva i Tuoi Progressi</span>
-                </h1>
-                <p class="onboarding-text">Crea un account gratuito per salvare i tuoi dati, sincronizzarli su più dispositivi e non perdere mai i tuoi progressi.</p>
-                <button class="onboarding-btn" id="next-btn4">Crea un Account / Accedi</button>
+                    <h1>Crea un Account per Iniziare</h1>
+                </div>
+                <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e sbloccare tutte le funzionalità per il tuo benessere.</p>
+                <button class="onboarding-btn" id="next-btn3">Crea o Accedi</button>
             </div>
         </div>
     </section>
-
     <div class="login-modal" id="onboarding-login-modal">
         <div class="login-container">
 
@@ -736,12 +735,11 @@
             </div>
 
             <div class="calendar-container" id="calendar">
-                </div>
+            </div>
 
-            <button class="intention-btn" id="generate-report-btn">
+            <button class="gratitude-btn" id="generate-report-btn">
                 <i class="fas fa-chart-pie"></i> Genera Report
             </button>
-
             <div class="history-section">
                 <div class="history-section-title">Check-in Benessere</div>
                 <div class="card" id="mood-history-container">
@@ -769,35 +767,31 @@
                 <button class="history-close" id="account-settings-close-btn">&times;</button>
             </div>
             <div class="account-settings-content">
-                <div class="profile-item" id="manage-subscription-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <div class="profile-text">Gestisci Abbonamento</div>
-                </div>
-                <div class="profile-item" id="terms-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="profile-text">Termini di Servizio</div>
-                </div>
-                <div class="profile-item" id="privacy-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <div class="profile-text">Privacy Policy</div>
-                </div>
-                <div class="profile-item delete-btn" id="delete-account-btn">
-                    <div class="profile-icon">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                    <div class="profile-text">Elimina il mio account</div>
+                <div class="account-settings-list">
+                    <a href="#" class="account-settings-item" id="manage-subscription-btn">
+                        <i class="fas fa-credit-card icon"></i>
+                        <span>Gestisci Abbonamento</span>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </a>
+                    <a href="#" class="account-settings-item" id="terms-btn">
+                        <i class="fas fa-file-alt icon"></i>
+                        <span>Termini di Servizio</span>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </a>
+                    <a href="#" class="account-settings-item" id="privacy-btn">
+                        <i class="fas fa-lock icon"></i>
+                        <span>Privacy Policy</span>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </a>
+                    <a href="#" class="account-settings-item destructive" id="delete-account-btn">
+                        <i class="fas fa-trash-alt icon"></i>
+                        <span>Elimina il mio account</span>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-
-
     <div class="profile-edit-modal" id="profile-edit-modal">
         <div class="profile-edit-container">
             <h2 class="profile-edit-title">Modifica Profilo</h2>

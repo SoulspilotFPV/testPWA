@@ -127,7 +127,12 @@ body.dark-theme {
     --toggle-bg: var(--toggle-bg-dark);
 }
 
-/* --- MODIFICA ONBOARDING: Stili aggiornati per un layout più pulito e centrato --- */
+/* --- NUOVA MODIFICA ONBOARDING: INIZIO ---
+  - Stili completamente riscritti per un layout moderno, centrato e responsive.
+  - Utilizzo di Flexbox per garantire un perfetto allineamento verticale e orizzontale.
+  - Migliorata la tipografia e la spaziatura per una leggibilità ottimale su tutti i dispositivi.
+  - Assicurato che l'emoji e il titolo siano visivamente collegati.
+*/
 #onboarding {
     position: fixed;
     top: 0;
@@ -137,18 +142,18 @@ body.dark-theme {
     background: #D3bbff;
     color: white;
     z-index: 2000;
-    display: flex;
-    flex-direction: column;
+    display: flex; /* Utilizzo di flex per centrare il container principale */
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
     transition: transform 0.5s ease-in-out;
+    padding: 20px;
 }
 
 .onboarding-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
+    max-width: 500px;
+    width: 100%;
     text-align: center;
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -165,55 +170,36 @@ body.dark-theme {
     display: block;
 }
 
-.onboarding-logo {
-    width: 120px;
-    height: 120px;
-    border-radius: 24px;
-    margin-bottom: 30px;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-lg);
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.onboarding-logo img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-}
-
 .onboarding-title {
-    font-size: 2.2rem;
-    margin-bottom: 20px;
-    font-weight: 700;
-    text-align: center;
-    color: var(--primary-darker);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px; /* Spazio tra emoji e testo */
+    gap: 15px; /* Spazio tra emoji e titolo */
+    margin-bottom: 25px;
+    color: var(--primary-darker);
+}
+
+.onboarding-title h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .onboarding-emoji {
     font-size: 4.5rem;
-    display: inline-block;
-    margin-bottom: 0;
+    line-height: 1;
 }
 
 .onboarding-text {
     font-size: 1.1rem;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     max-width: 90%;
     margin-left: auto;
     margin-right: auto;
-    line-height: 1.8;
-    text-align: center;
+    line-height: 1.7;
     color: var(--text);
 }
-/* --- FINE MODIFICA ONBOARDING --- */
+/* --- NUOVA MODIFICA ONBOARDING: FINE --- */
 
 .terms-agreement {
     text-align: center;
@@ -256,10 +242,9 @@ body.dark-theme {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 20px;
     box-shadow: var(--shadow-lg);
-    display: block;
-    margin: 0 auto;
+    display: inline-block;
+    min-width: 200px;
 }
 
 .onboarding-btn:disabled {
@@ -1206,6 +1191,10 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .gratitude-btn:hover {
@@ -1227,9 +1216,9 @@ input[type="range"]::-webkit-slider-thumb {
     gap: 8px;
 }
 
-/* --- MODIFICA: Stile per il pulsante "Genera Report" per coerenza --- */
+/* --- NUOVA MODIFICA: Stile per il pulsante "Genera Report" per coerenza --- */
 #generate-report-btn {
-    display: block;
+    display: flex;
     margin: 20px auto 0;
     width: auto;
     padding-left: 30px;
@@ -1915,6 +1904,12 @@ input[type="range"]::-webkit-slider-thumb {
     .profile-emoji {
         margin-right: 0;
         margin-bottom: 15px;
+    }
+    .onboarding-title h1 {
+        font-size: 1.8rem;
+    }
+    .onboarding-emoji {
+        font-size: 4rem;
     }
 }
 
@@ -2618,37 +2613,77 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* --- MODIFICA MODALE IMPOSTAZIONI ACCOUNT --- */
+/* --- NUOVA MODIFICA MODALE IMPOSTAZIONI ACCOUNT: INIZIO ---
+  - Stili completamente nuovi per un design pulito e moderno, simile a un menu nativo.
+  - Sostituiti gli stili basati su .profile-item con una classe .account-settings-item più specifica.
+  - Aggiunto un separatore tra gli elementi e un effetto hover per un feedback visivo chiaro.
+  - Stile "distruttivo" (rosso) per l'opzione di eliminazione account.
+*/
 .account-settings-container {
     background: var(--card-bg);
     width: 90%;
     max-width: 500px;
     border-radius: 20px;
     box-shadow: var(--shadow-lg);
-    padding: 25px;
+    padding: 15px;
     max-height: 85vh;
     overflow-y: auto;
     margin: 20px;
     border: 1px solid rgba(179, 157, 219, 0.2);
 }
 
-#account-settings-modal .account-settings-content .profile-item {
-    background: transparent;
-    box-shadow: none;
-    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
-    margin-bottom: 0;
-    border-radius: 0;
-    padding-left: 5px;
-    padding-right: 5px;
+.account-settings-list {
+    display: flex;
+    flex-direction: column;
 }
 
-#account-settings-modal .account-settings-content .profile-item:last-child {
+.account-settings-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 15px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.dark-theme .account-settings-item {
+    border-bottom-color: #3e3e3e;
+}
+
+.account-settings-item:last-child {
     border-bottom: none;
 }
 
-#account-settings-modal .account-settings-content .profile-item:hover {
-    background: rgba(209, 196, 233, 0.1);
-    transform: none;
-    box-shadow: none;
+.account-settings-item:hover {
+    background-color: rgba(209, 196, 233, 0.1);
 }
-/* --- FINE MODIFICA --- */
+
+.account-settings-item .icon {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    width: 30px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+.account-settings-item span {
+    flex-grow: 1;
+}
+
+.account-settings-item .arrow {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.account-settings-item.destructive .icon,
+.account-settings-item.destructive span {
+    color: var(--error);
+}
+
+.dark-theme .account-settings-item.destructive .icon,
+.dark-theme .account-settings-item.destructive span {
+    color: #ff8a80;
+}
+/* --- NUOVA MODIFICA MODALE IMPOSTAZIONI ACCOUNT: FINE --- */

@@ -14,35 +14,33 @@
  * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
  * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
- * MODIFICA: Rimosso lo slide "Percorsi di Crescita" dall'onboarding (modifica già presente e qui verificata). La sezione è stata ridisegnata per focus sull'auto-miglioramento.
- * MODIFICA: Implementata una nuova logica per la schermata di caricamento che garantisce una visualizzazione minima di 1.5s e attende il `window.onload`.
+ * MODIFICA: Rimosso lo slide "Percorsi di Crescita" dall'onboarding e aggiornata la logica di navigazione.
+ * MODIFICA (NUOVO): Implementata una logica di caricamento con `window.onload` che garantisce una visualizzazione minima di 1.5 secondi del logo.
+ * MODIFICA (NUOVO): Aggiornata la logica di navigazione dell'onboarding (`initOnboarding`) per rispecchiare la nuova struttura a 3 slide.
+ * MODIFICA (NUOVO): Semplificata la navigazione dell'onboarding per un flusso più intuitivo.
  */
-
-// --- MODIFICA: Logica di caricamento con minimo 1.5s e window.onload ---
-// Questa nuova logica assicura che la schermata di caricamento sia visibile per
-// almeno 1.5 secondi e attende che tutte le risorse della pagina (immagini, etc.)
-// siano caricate prima di scomparire, come richiesto.
-const loadStartTime = performance.now();
-window.addEventListener('load', () => {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        const timeElapsed = performance.now() - loadStartTime;
-        const remainingTime = 1500 - timeElapsed;
-
-        setTimeout(() => {
-            // Aggiunto un effetto fade-out per una transizione più fluida
-            loadingScreen.style.transition = 'opacity 0.5s ease-out';
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500); // Durata della transizione
-        }, Math.max(0, remainingTime));
-    }
-});
-// --- FINE MODIFICA ---
-
-
 document.addEventListener('DOMContentLoaded', function() {
+    // --- NUOVA MODIFICA: LOGICA DI CARICAMENTO ---
+    // Gestisce la schermata di caricamento, assicurando che sia visibile per almeno 1.5 secondi.
+    // Utilizza window.onload per attendere il caricamento completo della pagina.
+    const loadingScreen = document.getElementById('loading-screen');
+    const minLoadingTime = 1500; // 1.5 secondi
+    const startTime = Date.now();
+
+    window.onload = () => {
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = minLoadingTime - elapsedTime;
+
+        if (remainingTime > 0) {
+            setTimeout(() => {
+                if (loadingScreen) loadingScreen.style.display = 'none';
+            }, remainingTime);
+        } else {
+            if (loadingScreen) loadingScreen.style.display = 'none';
+        }
+    };
+    // --- FINE MODIFICA ---
+
     // App state
     const state = {
         onboardingCompleted: false,
@@ -182,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileEditSave = document.getElementById('profile-edit-save');
     const nextBtn1 = document.getElementById('next-btn1');
     const nextBtn2 = document.getElementById('next-btn2');
-    const nextBtn4 = document.getElementById('next-btn4');
+    const nextBtn3 = document.getElementById('next-btn3'); // Riferimento al nuovo terzo bottone
     const logoutBtn = document.getElementById('logout-btn');
     const themeToggleInput = document.getElementById('theme-toggle-input');
     const themeToggleProfile = document.getElementById('theme-toggle-profile');
@@ -716,105 +714,122 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('visibilitychange', checkDateAndReload);
 
-
+    // --- NUOVA MODIFICA: LOGICA ONBOARDING ---
+    // Aggiornata la logica di navigazione per gestire il nuovo flusso a 3 slide.
+    // Semplificata la gestione degli eventi per una maggiore leggibilità.
     function initOnboarding() {
         const slides = document.querySelectorAll('.onboarding-slide');
         let currentSlide = 0;
 
         function showSlide(index) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            if (slides[index]) {
-                slides[index].classList.add('active');
-            }
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
             currentSlide = index;
         }
 
-        // MODIFICA ONBOARDING: Aggiornata la logica di navigazione dopo la rimozione dello slide "Percorsi".
         if (nextBtn1) nextBtn1.addEventListener('click', () => showSlide(1));
         if (nextBtn2) nextBtn2.addEventListener('click', () => showSlide(2));
-
-        if (nextBtn4) {
-            nextBtn4.addEventListener('click', () => onboardingLoginModal.classList.add('active'));
+        if (nextBtn3) {
+            nextBtn3.addEventListener('click', () => {
+                if (onboardingLoginModal) onboardingLoginModal.classList.add('active');
+            });
         }
 
         function finishOnboarding() {
             state.onboardingCompleted = true;
             saveData();
-            document.getElementById('onboarding').style.transform = 'translateY(-100%)';
-
-            setTimeout(() => {
-                document.getElementById('onboarding').style.display = 'none';
-                document.getElementById('home').classList.add('active');
-                document.querySelector('[data-target="home"]').classList.add('active');
-                profileEditModal.classList.add('active');
-            }, 500);
+            const onboardingElement = document.getElementById('onboarding');
+            if (onboardingElement) {
+                onboardingElement.style.transform = 'translateY(-100%)';
+                setTimeout(() => {
+                    onboardingElement.style.display = 'none';
+                    document.getElementById('home').classList.add('active');
+                    document.querySelector('[data-target="home"]').classList.add('active');
+                    if (profileEditModal) profileEditModal.classList.add('active');
+                }, 500);
+            }
         }
 
         if (state.onboardingCompleted) {
-            document.getElementById('onboarding').style.display = 'none';
-            document.getElementById('home').classList.add('active');
+            const onboardingElement = document.getElementById('onboarding');
+            if (onboardingElement) onboardingElement.style.display = 'none';
+            const homeElement = document.getElementById('home');
+            if (homeElement) homeElement.classList.add('active');
         }
 
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            registrationView.style.display = 'none';
-            loginView.style.display = 'block';
-        });
-
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginView.style.display = 'none';
-            registrationView.style.display = 'block';
-        });
-
-        let passwordValidity = { length: false, number: false, special: false };
-        passwordInput.addEventListener('input', () => {
-            const value = passwordInput.value;
-            passwordValidity.length = value.length >= 8;
-            lengthCheck.classList.toggle('valid', passwordValidity.length);
-            passwordValidity.number = /\d/.test(value);
-            numberCheck.classList.toggle('valid', passwordValidity.number);
-            passwordValidity.special = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-            specialCheck.classList.toggle('valid', passwordValidity.special);
-        });
-
-        function isPasswordValid() {
-            return passwordValidity.length && passwordValidity.number && passwordValidity.special;
+        if (showLoginLink) {
+            showLoginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                registrationView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
         }
 
-        termsCheckboxRegister.addEventListener('change', function() {
-            registerBtn.disabled = !this.checked;
-        });
+        if (showRegisterLink) {
+            showRegisterLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginView.style.display = 'none';
+                registrationView.style.display = 'block';
+            });
+        }
 
-        registrationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!isPasswordValid()) {
-                showToast("La password non rispetta i criteri di sicurezza.");
-                return;
+        if (passwordInput) {
+            let passwordValidity = { length: false, number: false, special: false };
+            passwordInput.addEventListener('input', () => {
+                const value = passwordInput.value;
+                passwordValidity.length = value.length >= 8;
+                lengthCheck.classList.toggle('valid', passwordValidity.length);
+                passwordValidity.number = /\d/.test(value);
+                numberCheck.classList.toggle('valid', passwordValidity.number);
+                passwordValidity.special = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+                specialCheck.classList.toggle('valid', passwordValidity.special);
+            });
+
+            function isPasswordValid() {
+                return passwordValidity.length && passwordValidity.number && passwordValidity.special;
             }
-            showToast("Registrazione in corso...");
 
-            setTimeout(() => {
-                state.isLoggedIn = true;
-                state.termsAcceptedAt = new Date().toISOString();
-                saveData();
-                updateLoginState();
-                finishOnboarding();
-                onboardingLoginModal.classList.remove('active');
-            }, 1500);
-        });
+            if (termsCheckboxRegister) {
+                termsCheckboxRegister.addEventListener('change', function() {
+                    registerBtn.disabled = !this.checked;
+                });
+            }
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast("Accesso in corso...");
-            setTimeout(() => {
-                state.isLoggedIn = true;
-                saveData();
-                updateLoginState();
-                finishOnboarding();
-                onboardingLoginModal.classList.remove('active');
-            }, 1500);
-        });
+            if (registrationForm) {
+                registrationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!isPasswordValid()) {
+                        showToast("La password non rispetta i criteri di sicurezza.");
+                        return;
+                    }
+                    showToast("Registrazione in corso...");
+
+                    setTimeout(() => {
+                        state.isLoggedIn = true;
+                        state.termsAcceptedAt = new Date().toISOString();
+                        saveData();
+                        updateLoginState();
+                        finishOnboarding();
+                        if (onboardingLoginModal) onboardingLoginModal.classList.remove('active');
+                    }, 1500);
+                });
+            }
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast("Accesso in corso...");
+                setTimeout(() => {
+                    state.isLoggedIn = true;
+                    saveData();
+                    updateLoginState();
+                    finishOnboarding();
+                    if (onboardingLoginModal) onboardingLoginModal.classList.remove('active');
+                }, 1500);
+            });
+        }
 
         if (termsLinkRegister) {
             termsLinkRegister.addEventListener('click', (e) => {
@@ -829,6 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    // --- FINE MODIFICA ONBOARDING ---
 
     initOnboarding();
 
