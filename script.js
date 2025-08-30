@@ -12,17 +12,37 @@
  * MODIFICA: Gli obiettivi nel report settimanale sono mostrati come "X/7".
  * MODIFICA: Aggiunto un nuovo modale per accorpare le impostazioni dell'account.
  * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
- * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
- * MODIFICA: Il flusso logico dell'onboarding in JavaScript non è stato modificato, in quanto le modifiche sono state puramente a livello di contenuti HTML.
  * --- NUOVE MODIFICHE IMPLEMENTATE ---
- * MODIFICA: Corretto il bug del caricamento infinito su mobile. La nuova logica usa 'window.onload' per assicurarsi che tutti gli asset siano caricati prima di nascondere la schermata di avvio.
- * MODIFICA: Garantita una visualizzazione minima di 1.5 secondi della schermata di caricamento per un'esperienza utente più fluida e consistente.
+ * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
+ * MODIFICA: Rimosso lo slide "Percorsi di Crescita" dall'onboarding (modifica già presente e qui verificata). La sezione è stata ridisegnata per focus sull'auto-miglioramento.
+ * MODIFICA: Implementata una nuova logica per la schermata di caricamento che garantisce una visualizzazione minima di 1.5s e attende il `window.onload`.
  */
-document.addEventListener('DOMContentLoaded', function() {
-    // MODIFICA: Registra il tempo di inizio per calcolare la durata minima del caricamento.
-    const startTime = Date.now();
-    const loadingScreen = document.getElementById('loading-screen');
 
+// --- MODIFICA: Logica di caricamento con minimo 1.5s e window.onload ---
+// Questa nuova logica assicura che la schermata di caricamento sia visibile per
+// almeno 1.5 secondi e attende che tutte le risorse della pagina (immagini, etc.)
+// siano caricate prima di scomparire, come richiesto.
+const loadStartTime = performance.now();
+window.addEventListener('load', () => {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        const timeElapsed = performance.now() - loadStartTime;
+        const remainingTime = 1500 - timeElapsed;
+
+        setTimeout(() => {
+            // Aggiunto un effetto fade-out per una transizione più fluida
+            loadingScreen.style.transition = 'opacity 0.5s ease-out';
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500); // Durata della transizione
+        }, Math.max(0, remainingTime));
+    }
+});
+// --- FINE MODIFICA ---
+
+
+document.addEventListener('DOMContentLoaded', function() {
     // App state
     const state = {
         onboardingCompleted: false,
@@ -162,7 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileEditSave = document.getElementById('profile-edit-save');
     const nextBtn1 = document.getElementById('next-btn1');
     const nextBtn2 = document.getElementById('next-btn2');
-    const nextBtn3 = document.getElementById('next-btn3');
     const nextBtn4 = document.getElementById('next-btn4');
     const logoutBtn = document.getElementById('logout-btn');
     const themeToggleInput = document.getElementById('theme-toggle-input');
@@ -704,13 +723,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function showSlide(index) {
             slides.forEach(slide => slide.classList.remove('active'));
-            slides[index].classList.add('active');
+            if (slides[index]) {
+                slides[index].classList.add('active');
+            }
             currentSlide = index;
         }
 
+        // MODIFICA ONBOARDING: Aggiornata la logica di navigazione dopo la rimozione dello slide "Percorsi".
         if (nextBtn1) nextBtn1.addEventListener('click', () => showSlide(1));
         if (nextBtn2) nextBtn2.addEventListener('click', () => showSlide(2));
-        if (nextBtn3) nextBtn3.addEventListener('click', () => showSlide(3));
 
         if (nextBtn4) {
             nextBtn4.addEventListener('click', () => onboardingLoginModal.classList.add('active'));
@@ -1384,11 +1405,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // MODIFICA: Rimossa la vecchia logica di setTimeout
-    // setTimeout(() => {
-    //     loadingScreen.style.display = 'none';
-    // }, 1500);
-
     setIntentionBtn.addEventListener('click', setDailyIntention);
 
     function avviaCoriandoliPersonalizzati() {
@@ -1417,25 +1433,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }, { once: true });
         }
     }
-
-    // MODIFICA: Aggiunta la nuova logica di caricamento con window.onload
-    // Questa funzione nasconde la schermata di caricamento solo dopo che la pagina è completamente
-    // carica (immagini, css, etc.) e garantisce che sia visibile per almeno 1.5 secondi.
-    window.onload = function() {
-        const elapsedTime = Date.now() - startTime;
-        const minLoadingTime = 1500;
-        const remainingTime = minLoadingTime - elapsedTime;
-
-        const hideLoadingScreen = () => {
-            if (loadingScreen) {
-                loadingScreen.style.display = 'none';
-            }
-        };
-
-        if (remainingTime > 0) {
-            setTimeout(hideLoadingScreen, remainingTime);
-        } else {
-            hideLoadingScreen();
-        }
-    };
 });

@@ -22,40 +22,32 @@
             <div class="onboarding-slide active" id="slide1">
                 <h1 class="onboarding-title">
                     <span class="onboarding-emoji">👋</span>
-                    Benvenuto in<br>Vivi Consapevolmente
+                    <span>Benvenuto in Vivi Consapevolmente</span>
                 </h1>
-                <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e vivere una vita più equilibrata.</p>
+                <p class="onboarding-text">Il tuo compagno quotidiano per coltivare la consapevolezza, ridurre lo stress e riscoprire il tuo equilibrio interiore.</p>
                 <button class="onboarding-btn" id="next-btn1">Inizia il Viaggio</button>
             </div>
 
             <div class="onboarding-slide" id="slide2">
                 <h1 class="onboarding-title">
                     <span class="onboarding-emoji">🧘‍♀️</span>
-                    Meditazioni Guidate
+                    <span>Migliora Te Stesso</span>
                 </h1>
-                <p class="onboarding-text">Esplora la nostra libreria di meditazioni e suoni della natura per trovare calma e concentrazione in ogni momento.</p>
+                <p class="onboarding-text">Esplora meditazioni guidate, tieni traccia del tuo umore e fissa obiettivi quotidiani per un percorso di crescita personale completo.</p>
                 <button class="onboarding-btn" id="next-btn2">Avanti</button>
-            </div>
-
-            <div class="onboarding-slide" id="slide3">
-                 <h1 class="onboarding-title">
-                    <span class="onboarding-emoji">🌱</span>
-                    Il Tuo Spazio di Crescita
-                </h1>
-                <p class="onboarding-text">Monitora il tuo umore, tieni un diario della gratitudine e fissa obiettivi giornalieri per migliorare il tuo benessere, giorno dopo giorno.</p>
-                <button class="onboarding-btn" id="next-btn3">Continua</button>
             </div>
 
             <div class="onboarding-slide" id="slide4">
                 <h1 class="onboarding-title">
                     <span class="onboarding-emoji">🔐</span>
-                    Crea un Account
+                    <span>Salva i Tuoi Progressi</span>
                 </h1>
-                <p class="onboarding-text">Registrati per salvare i tuoi progressi, sincronizzare i dati e accedere a tutte le funzionalità esclusive.</p>
-                <button class="onboarding-btn" id="next-btn4">Crea o Accedi</button>
+                <p class="onboarding-text">Crea un account gratuito per salvare i tuoi dati, sincronizzarli su più dispositivi e non perdere mai i tuoi progressi.</p>
+                <button class="onboarding-btn" id="next-btn4">Crea un Account / Accedi</button>
             </div>
         </div>
     </section>
+
     <div class="login-modal" id="onboarding-login-modal">
         <div class="login-container">
 
@@ -746,8 +738,8 @@
             <div class="calendar-container" id="calendar">
                 </div>
 
-            <button class="primary-action-btn" id="generate-report-btn">
-                <i class="fas fa-chart-pie"></i> Genera Report Settimanale
+            <button class="intention-btn" id="generate-report-btn">
+                <i class="fas fa-chart-pie"></i> Genera Report
             </button>
 
             <div class="history-section">
@@ -770,32 +762,42 @@
         </div>
     </div>
 
-    <div class="settings-modal" id="account-settings-modal">
-        <div class="settings-container">
-            <div class="settings-header">
-                <div class="settings-title">Impostazioni</div>
-                <button class="settings-close" id="account-settings-close-btn">&times;</button>
+    <div class="history-modal" id="account-settings-modal">
+        <div class="account-settings-container">
+            <div class="history-header">
+                <div class="history-title">Impostazioni Account</div>
+                <button class="history-close" id="account-settings-close-btn">&times;</button>
             </div>
-            <div class="settings-list">
-                <div class="settings-item" id="manage-subscription-btn">
-                    <div class="settings-icon"><i class="fas fa-credit-card"></i></div>
-                    <div class="settings-text">Gestisci Abbonamento</div>
+            <div class="account-settings-content">
+                <div class="profile-item" id="manage-subscription-btn">
+                    <div class="profile-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="profile-text">Gestisci Abbonamento</div>
                 </div>
-                <div class="settings-item" id="terms-btn">
-                    <div class="settings-icon"><i class="fas fa-file-alt"></i></div>
-                    <div class="settings-text">Termini di Servizio</div>
+                <div class="profile-item" id="terms-btn">
+                    <div class="profile-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="profile-text">Termini di Servizio</div>
                 </div>
-                <div class="settings-item" id="privacy-btn">
-                    <div class="settings-icon"><i class="fas fa-lock"></i></div>
-                    <div class="settings-text">Privacy Policy</div>
+                <div class="profile-item" id="privacy-btn">
+                    <div class="profile-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="profile-text">Privacy Policy</div>
                 </div>
-                <div class="settings-item delete-btn" id="delete-account-btn">
-                    <div class="settings-icon"><i class="fas fa-trash-alt"></i></div>
-                    <div class="settings-text">Elimina il mio account</div>
+                <div class="profile-item delete-btn" id="delete-account-btn">
+                    <div class="profile-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="profile-text">Elimina il mio account</div>
                 </div>
             </div>
         </div>
     </div>
+
+
     <div class="profile-edit-modal" id="profile-edit-modal">
         <div class="profile-edit-container">
             <h2 class="profile-edit-title">Modifica Profilo</h2>
