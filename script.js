@@ -15,8 +15,28 @@
  * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
  * MODIFICA: Il flusso logico dell'onboarding in JavaScript non è stato modificato, in quanto le modifiche sono state puramente a livello di contenuti HTML.
- * MODIFICA: [BUGFIX] Rimossa la variabile `intentionContainer` non utilizzata per pulizia del codice.
+ * MODIFICA: Risolto il bug del caricamento infinito su mobile sostituendo il `setTimeout` con l'evento `window.onload` per nascondere la schermata di caricamento.
  */
+
+// MODIFICA: La logica per nascondere la schermata di caricamento è stata spostata qui,
+// fuori dall'evento DOMContentLoaded, per essere più affidabile.
+function hideLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        // Avvia la transizione di dissolvenza
+        loadingScreen.style.opacity = '0';
+        // Imposta un timer per nascondere completamente l'elemento dopo la fine della transizione
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 500); // Questa durata deve corrispondere a quella della transizione nel CSS
+    }
+}
+
+// Ascolta l'evento 'load', che si attiva solo quando TUTTE le risorse della pagina
+// (immagini, CSS, ecc.) sono state caricate. Questo è molto più robusto di un timer fisso.
+window.addEventListener('load', hideLoadingScreen);
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // App state
     const state = {
@@ -144,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const gratitudeHistoryContainer = document.getElementById('gratitude-history-container');
     const goalHistoryContainer = document.getElementById('goal-history-container');
     const dailyGoalContainer = document.getElementById('daily-goal-container');
+    const intentionContainer = document.getElementById('intention-container');
     const monthlySubscribeBtn = document.getElementById('monthly-subscribe');
     const annualSubscribeBtn = document.getElementById('annual-subscribe');
     const googleLoginBtn = document.getElementById('google-login');
@@ -185,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const dailyAnxietyValue = document.getElementById('daily-anxiety-value');
     const dailyStressValue = document.getElementById('daily-stress-value');
     const dailySleepValue = document.getElementById('daily-sleep-value');
-    const loadingScreen = document.getElementById('loading-screen');
     const calendarMonth = document.getElementById('calendar-month');
     const intentionInput = document.getElementById('intention-input');
     const setIntentionBtn = document.getElementById('set-intention-btn');
@@ -1315,6 +1335,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const avgStress = stressCount > 0 ? (stressSum / stressCount).toFixed(1) : 'N/D';
         const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : 'N/D';
 
+        // MODIFICA: La generazione dell'HTML è stata aggiornata per rimuovere l'asse Y e le linee della griglia.
         reportContent.innerHTML = `
             <div class="report-header"><h2 class="report-title">Resoconto Settimanale</h2></div>
             <div class="report-stats">
@@ -1378,9 +1399,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // MODIFICA: Rimosso il vecchio timer per nascondere la schermata di caricamento.
+    // La nuova logica è in cima al file e usa window.onload.
+    /*
     setTimeout(() => {
         loadingScreen.style.display = 'none';
     }, 1500);
+    */
 
     setIntentionBtn.addEventListener('click', setDailyIntention);
 
