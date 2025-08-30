@@ -12,32 +12,17 @@
  * MODIFICA: Gli obiettivi nel report settimanale sono mostrati come "X/7".
  * MODIFICA: Aggiunto un nuovo modale per accorpare le impostazioni dell'account.
  * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
- * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
  * MODIFICA: Il flusso logico dell'onboarding in JavaScript non è stato modificato, in quanto le modifiche sono state puramente a livello di contenuti HTML.
- * MODIFICA: Risolto il bug del caricamento infinito su mobile sostituendo il `setTimeout` con l'evento `window.onload` per nascondere la schermata di caricamento.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * MODIFICA: Corretto il bug del caricamento infinito su mobile. La nuova logica usa 'window.onload' per assicurarsi che tutti gli asset siano caricati prima di nascondere la schermata di avvio.
+ * MODIFICA: Garantita una visualizzazione minima di 1.5 secondi della schermata di caricamento per un'esperienza utente più fluida e consistente.
  */
-
-// MODIFICA: La logica per nascondere la schermata di caricamento è stata spostata qui,
-// fuori dall'evento DOMContentLoaded, per essere più affidabile.
-function hideLoadingScreen() {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        // Avvia la transizione di dissolvenza
-        loadingScreen.style.opacity = '0';
-        // Imposta un timer per nascondere completamente l'elemento dopo la fine della transizione
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-        }, 500); // Questa durata deve corrispondere a quella della transizione nel CSS
-    }
-}
-
-// Ascolta l'evento 'load', che si attiva solo quando TUTTE le risorse della pagina
-// (immagini, CSS, ecc.) sono state caricate. Questo è molto più robusto di un timer fisso.
-window.addEventListener('load', hideLoadingScreen);
-
-
 document.addEventListener('DOMContentLoaded', function() {
+    // MODIFICA: Registra il tempo di inizio per calcolare la durata minima del caricamento.
+    const startTime = Date.now();
+    const loadingScreen = document.getElementById('loading-screen');
+
     // App state
     const state = {
         onboardingCompleted: false,
@@ -1399,13 +1384,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // MODIFICA: Rimosso il vecchio timer per nascondere la schermata di caricamento.
-    // La nuova logica è in cima al file e usa window.onload.
-    /*
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-    }, 1500);
-    */
+    // MODIFICA: Rimossa la vecchia logica di setTimeout
+    // setTimeout(() => {
+    //     loadingScreen.style.display = 'none';
+    // }, 1500);
 
     setIntentionBtn.addEventListener('click', setDailyIntention);
 
@@ -1435,4 +1417,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }, { once: true });
         }
     }
+
+    // MODIFICA: Aggiunta la nuova logica di caricamento con window.onload
+    // Questa funzione nasconde la schermata di caricamento solo dopo che la pagina è completamente
+    // carica (immagini, css, etc.) e garantisce che sia visibile per almeno 1.5 secondi.
+    window.onload = function() {
+        const elapsedTime = Date.now() - startTime;
+        const minLoadingTime = 1500;
+        const remainingTime = minLoadingTime - elapsedTime;
+
+        const hideLoadingScreen = () => {
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+        };
+
+        if (remainingTime > 0) {
+            setTimeout(hideLoadingScreen, remainingTime);
+        } else {
+            hideLoadingScreen();
+        }
+    };
 });

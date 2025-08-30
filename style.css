@@ -27,7 +27,6 @@
  * MODIFICA: Ridisegnato completamente l'onboarding per essere più centrato, con emoji più vicine al testo e contenuti aggiornati.
  * MODIFICA: Aggiunto uno stile coerente per il pulsante "Genera Report" (.primary-action-btn).
  * MODIFICA: Ridisegnato il modale delle impostazioni dell'account per un design più pulito e dedicato.
- * MODIFICA: Aggiunta una transizione di opacità alla schermata di caricamento per una scomparsa fluida.
  */
 :root {
     --primary: #B39DDB;
@@ -2494,8 +2493,6 @@ input:checked + .toggle-slider:before {
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    /* MODIFICA: Aggiunta transizione per la dissolvenza in uscita */
-    transition: opacity 0.5s ease-out;
 }
 
 .loading-logo {
