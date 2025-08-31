@@ -13,10 +13,12 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
+    <!-- Schermata di caricamento iniziale -->
     <div id="loading-screen">
         <img src="logo.jpg" alt="Logo" class="loading-logo">
     </div>
 
+    <!-- Sezione di Autenticazione (Login/Registrazione) -->
     <section id="auth-section" class="section">
         <div class="auth-container">
             <div class="auth-header">
@@ -25,6 +27,7 @@
                 <div class="app-tagline">Inizia il tuo percorso di benessere</div>
             </div>
 
+            <!-- Vista Registrazione -->
             <div id="registration-view">
                 <h2 class="auth-title">Crea il tuo Account</h2>
                 <form id="registration-form" class="registration-form">
@@ -59,6 +62,7 @@
                 <p class="toggle-form-link">Hai già un account? <a href="#" id="show-login-link">Accedi</a></p>
             </div>
 
+            <!-- Vista Login -->
             <div id="login-view" style="display: none;">
                 <h2 class="auth-title">Bentornato!</h2>
                 <form id="login-form" class="registration-form">
@@ -77,7 +81,9 @@
         </div>
     </section>
 
+    <!-- Contenuto Principale dell'App (nascosto all'inizio) -->
     <div id="main-app" style="display: none;">
+        <!-- Modale Report Settimanale -->
         <div class="history-modal" id="report-modal">
             <div class="history-container">
                 <div class="history-header">
@@ -97,7 +103,9 @@
             </div>
         </div>
 
+        <!-- Container Principale -->
         <div class="container">
+            <!-- Sezione Home -->
             <section id="home" class="section">
                 <div class="header">
                     <h1 id="welcome-header">Bentornato! <i class="fas fa-smile"></i></h1>
@@ -169,6 +177,7 @@
                 </div>
             </section>
 
+            <!-- Sezione Meditazioni -->
             <section id="meditations" class="section">
                 <div class="header">
                     <h1><i class="fas fa-spa"></i> Meditazioni Guidate</h1>
@@ -475,6 +484,7 @@
                 </div>
             </section>
 
+            <!-- Sezione Salute -->
             <section id="health" class="section">
                 <div class="header">
                     <h1><i class="fas fa-heart"></i> Salute & Benessere</h1>
@@ -571,6 +581,7 @@
                 </div>
             </section>
 
+            <!-- Sezione Profilo -->
             <section id="profile" class="section">
                 <div class="profile-header">
                     <div class="profile-emoji" id="profile-emoji">😊</div>
@@ -669,6 +680,7 @@
             </section>
         </div>
 
+        <!-- Modale Player Meditazione -->
         <div class="player-modal" id="player-modal">
             <div class="player-container">
                 <div class="player-header">
@@ -684,6 +696,7 @@
             </div>
         </div>
 
+        <!-- Modale Storico e Progressi -->
         <div class="history-modal" id="history-modal">
             <div class="history-container">
                 <div class="history-header">
@@ -726,6 +739,7 @@
             </div>
         </div>
 
+        <!-- Modale Impostazioni Account -->
         <div class="history-modal" id="account-settings-modal">
             <div class="account-settings-container">
                 <div class="history-header">
@@ -761,6 +775,7 @@
             </div>
         </div>
 
+        <!-- Modale Modifica Profilo -->
         <div class="profile-edit-modal" id="profile-edit-modal">
             <div class="profile-edit-container">
                 <h2 class="profile-edit-title">Modifica Profilo</h2>
@@ -810,6 +825,7 @@
             </div>
         </div>
 
+        <!-- Modale Login Social (Opzionale) -->
         <div class="login-modal" id="login-modal">
             <div class="login-container">
                 <div class="login-header">
@@ -827,8 +843,10 @@
             </div>
         </div>
 
+        <!-- Messaggio Toast -->
         <div class="toast" id="toast"></div>
 
+        <!-- Barra di Navigazione -->
         <div class="nav-bar">
             <a href="#" class="nav-item active" data-target="home">
                 <div class="nav-icon"><i class="fas fa-home"></i></div>
@@ -851,6 +869,7 @@
                 <div class="nav-indicator"></div>
             </a>
         </div>
-    </div> <script src="script.js" defer></script>
+    </div>
+    <script src="script.js" defer></script>
 </body>
 </html>
