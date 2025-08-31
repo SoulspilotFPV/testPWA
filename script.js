@@ -25,10 +25,6 @@
  * --- ULTIME MODIFICHE ---
  * MODIFICA: Aggiunto `history.scrollRestoration` per prevenire il ripristino dello scroll al refresh della pagina.
  * MODIFICA: Aggiunto `window.scrollTo(0, 0)` per assicurare che l'app venga sempre visualizzata dall'inizio.
- * --- MODIFICHE FINALI ---
- * MODIFICA: Creata la funzione `animateButtonSuccess` per fornire un feedback visivo (icona di spunta ✓) quando un'azione di salvataggio ha successo.
- * MODIFICA: Integrata la funzione `animateButtonSuccess` in tutte le principali azioni di salvataggio (profilo, obiettivi, intenzioni, check-in, etc.) per migliorare l'UX.
- * MODIFICA: Ritardata la chiusura dei modali o il re-rendering degli elementi dopo il salvataggio per consentire all'utente di vedere l'animazione del pulsante.
  */
 document.addEventListener('DOMContentLoaded', function() {
     // MODIFICA: Disabilita il ripristino automatico della posizione di scroll del browser.
@@ -586,15 +582,9 @@ document.addEventListener('DOMContentLoaded', function() {
             timestamp: new Date().getTime()
         };
 
-        const setGoalBtn = document.getElementById('set-goal-btn');
-        if (setGoalBtn) animateButtonSuccess(setGoalBtn);
+        saveData();
+        renderDailyGoal();
         showToast("Obiettivo impostato!");
-
-        // Ritarda il re-rendering per mostrare l'animazione del pulsante
-        setTimeout(() => {
-            saveData();
-            renderDailyGoal();
-        }, 2000);
     }
 
     function setDailyIntention() {
@@ -612,14 +602,9 @@ document.addEventListener('DOMContentLoaded', function() {
             timestamp: new Date().getTime()
         };
 
-        animateButtonSuccess(setIntentionBtn);
+        saveData();
+        renderDailyIntention();
         showToast("Intenzione fissata!");
-
-        // Ritarda il re-rendering per mostrare l'animazione del pulsante
-        setTimeout(() => {
-            saveData();
-            renderDailyIntention();
-        }, 2000);
     }
 
     function toggleGoalCompletion() {
@@ -641,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     dailyGoalContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'set-goal-btn' || e.target.closest('#set-goal-btn')) {
+        if (e.target.id === 'set-goal-btn') {
             setDailyGoal();
         } else if (e.target.id === 'goal-checkbox') {
             toggleGoalCompletion();
@@ -893,14 +878,9 @@ document.addEventListener('DOMContentLoaded', function() {
         state.anxietyEntries[today].push({ value: anxietySlider.value, window: currentWindow.id });
         state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
 
-        animateButtonSuccess(saveCombinedCheckinBtn);
         showToast(`Check-in della ${currentWindow.name} registrato!`);
-
-        setTimeout(() => {
-            initTimeBasedCheckin();
-            updateMoodStatusMessage();
-        }, 2000);
-
+        initTimeBasedCheckin();
+        updateMoodStatusMessage();
         updateDailyData();
 
         if (!state.streakUpdatedToday) {
@@ -999,14 +979,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.profile-emoji').textContent = emoji;
         updateWelcomeMessage();
         saveData();
-
-        animateButtonSuccess(profileEditSave);
+        profileEditModal.classList.remove('active');
         showToast("Profilo aggiornato!");
-
-        setTimeout(() => {
-            profileEditModal.classList.remove('active');
-            profileEditSave.disabled = false; // Riabilita per la prossima apertura
-        }, 2000);
     });
     profileEditCancel.addEventListener('click', () => profileEditModal.classList.remove('active'));
 
@@ -1022,16 +996,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         state.gratitudeEntries[getLocalDateString()] = entries;
-
-        animateButtonSuccess(gratitudeBtn);
         showToast("Diario della gratitudine salvato!");
         this.reset();
-
-        // Ritarda il blocco del form per mostrare l'animazione
-        setTimeout(() => {
-            saveData();
-            checkGratitudeLock();
-        }, 2000);
+        saveData();
+        checkGratitudeLock();
     });
 
     function handleSubscription(plan) {
@@ -1296,12 +1264,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.sleepEntries[today]) { showToast("Hai già registrato il sonno oggi"); return; }
         state.sleepEntries[today] = sleepSlider.value;
         saveData();
-        animateButtonSuccess(saveSleepBtn);
         showToast("Sonno registrato: " + sleepSlider.value);
         updateDailyData();
-        setTimeout(() => {
-            saveSleepBtn.disabled = false; // Riabilita dopo l'animazione
-        }, 2000);
     });
 
     generateReportBtn.addEventListener('click', () => {
@@ -1439,36 +1403,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, { once: true });
             }, { once: true });
         }
-    }
-
-    /**
-     * NUOVA FUNZIONE: Fornisce un feedback visivo di successo su un pulsante.
-     * Trasforma temporaneamente il pulsante per mostrare un'icona di spunta (✓)
-     * e un colore di successo, per poi ripristinare lo stato originale.
-     * @param {HTMLElement} button - L'elemento del pulsante da animare.
-     */
-    function animateButtonSuccess(button) {
-        if (!button) return; // Controllo di sicurezza
-
-        const originalContent = button.innerHTML;
-        const originalWidth = button.offsetWidth;
-
-        // Imposta una larghezza fissa per evitare cambi di layout durante l'animazione
-        button.style.width = `${originalWidth}px`;
-
-        button.classList.add('btn-success');
-        button.innerHTML = '✓';
-        button.disabled = true;
-
-        // Dopo 2 secondi, ripristina lo stato originale del pulsante
-        setTimeout(() => {
-            button.classList.remove('btn-success');
-            button.innerHTML = originalContent;
-            button.style.width = ''; // Rimuovi la larghezza fissa
-
-            // La logica specifica di ogni funzione si occuperà di riabilitare
-            // il pulsante se necessario, per evitare conflitti.
-        }, 2000);
     }
 
     function main() {

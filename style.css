@@ -136,23 +136,16 @@ body.dark-theme {
 
 /* --- MODIFICA: Stili per la pagina di autenticazione --- */
 #auth-section {
-    /* MODIFICA CHIAVE: Aggiunto position: fixed e z-index per assicurare che la sezione di autenticazione copra l'intera pagina.
-       Questo risolve il problema della visualizzazione dello sfondo dell'app sottostante, garantendo uno sfondo viola solido come richiesto. */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2000;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
     padding: 20px;
     transition: opacity 0.5s ease-out;
-    background-color: #D3BBFF; /* Sfondo viola solido */
+    /* MODIFICA RICHIESTA: Aggiunto il colore di sfondo solido per coprire l'immagine del body e risolvere il problema di visualizzazione. */
+    background-color: #D3BBFF;
 }
-
 
 .auth-container {
     background: var(--card-bg);
@@ -2477,7 +2470,8 @@ input:checked + .toggle-slider:before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: #e6d9ff;
+    /* MODIFICA RICHIESTA: Cambiato il colore di sfondo della pagina di caricamento. */
+    background: #D3BBFF;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2565,19 +2559,4 @@ input:checked + .toggle-slider:before {
     background: rgba(209, 196, 233, 0.1);
     transform: none;
     box-shadow: none;
-}
-
-/* NUOVA MODIFICA: Stili per il feedback di successo animato sui pulsanti.
-   Questa classe viene aggiunta tramite JavaScript per trasformare un pulsante
-   in un'icona di spunta verde dopo un'azione di salvataggio. */
-.gratitude-btn.btn-success,
-.goal-btn.btn-success,
-.intention-btn.btn-success,
-.profile-edit-save.btn-success,
-.login-btn.btn-success {
-    background: var(--success) !important; /* Usa !important per sovrascrivere altri stati come :hover */
-    font-size: 1.5rem; /* Rende la spunta più grande e visibile */
-    font-weight: bold;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 15px rgba(102, 187, 106, 0.4);
 }
