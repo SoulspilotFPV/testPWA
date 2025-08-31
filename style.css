@@ -82,19 +82,31 @@
 html {
     height: 100%;
 }
-
-/* --- MODIFICA CORRETTIVA --- */
-/* Rimosso lo pseudo-elemento body::before. Lo sfondo viene ora applicato direttamente al body */
-/* con `background-attachment: fixed` per risolvere il problema dello sfondo bianco su desktop */
-/* durante lo scroll, garantendo che l'immagine di sfondo copra l'intera altezza della pagina. */
 body {
     min-height: 100%;
     position: relative;
+    background-color: var(--background);
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
     background-image: url('bodylight.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-    background-color: var(--background);
+    /* MODIFICA: Rimosso `background-attachment: fixed`. La proprietà `position: fixed` è più affidabile
+       per creare uno sfondo fisso, specialmente sui browser mobili, evitando problemi di zoom e scatti. */
+}
+body.dark-theme::before {
+    background-image: url('bodydark.jpg');
+}
+
+
+body {
     color: var(--text);
     line-height: 1.6;
     padding-bottom: 100px;
@@ -118,8 +130,6 @@ body.dark-theme {
     --text-primary: var(--text-primary-dark);
     --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
-    /* MODIFICA CORRETTIVA: Aggiunta immagine di sfondo per il tema scuro. */
-    background-image: url('bodydark.jpg');
 }
 
 /* --- MODIFICA: Rimossi tutti gli stili per l'onboarding --- */
@@ -131,9 +141,12 @@ body.dark-theme {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    width: 100%;
+    /* MODIFICA: Aggiornato il padding per rispettare le 'safe areas' dei dispositivi mobili (es. notch) e garantire una spaziatura uniforme su tutti i lati. */
     padding: 20px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
     transition: opacity 0.5s ease-out;
-    /* MODIFICA: Aggiunto lo sfondo colorato richiesto, che copre l'immagine del body. */
     background-color: #D3BBFF;
 }
 
@@ -331,25 +344,25 @@ body.dark-theme {
     margin-bottom: 0;
 }
 
-/* --- MODIFICA CORRETTIVA --- */
-/* Stili aggiornati per il selettore di umore per risolvere l'overflow su mobile. */
-/* È stato implementato uno scroll orizzontale (slider) e la scrollbar è stata nascosta */
-/* per un'esperienza utente più pulita, simile a uno "swipe". */
+
 .mood-tracker {
     display: flex;
-    justify-content: flex-start; /* Allinea gli elementi all'inizio per uno scroll corretto */
-    gap: 15px; /* Aggiunge spazio tra i bottoni emoji */
+    justify-content: space-between;
     margin: 15px 0;
-    overflow-x: auto; /* Abilita lo scroll orizzontale */
-    padding: 5px 15px; /* Aggiunge padding laterale per non far toccare i bordi agli emoji */
-    -ms-overflow-style: none;  /* Nasconde la scrollbar su IE e Edge */
-    scrollbar-width: none;  /* Nasconde la scrollbar su Firefox */
+    overflow-x: auto;
+    padding: 5px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) transparent;
 }
 
 .mood-tracker::-webkit-scrollbar {
-    display: none; /* Nasconde la scrollbar su Chrome, Safari e Opera */
+    height: 5px;
 }
 
+.mood-tracker::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
 
 .mood-btn {
     background: none;
@@ -1539,10 +1552,6 @@ input[type="range"]::-webkit-slider-thumb {
 .password-feedback li {
     color: var(--error);
     transition: color 0.3s ease;
-    /* --- MODIFICA CORRETTIVA --- */
-    /* Aggiunto 'word-break' per evitare che il testo dei requisiti della password */
-    /* fuoriesca dal contenitore su schermi molto stretti. */
-    word-break: break-word;
 }
 .password-feedback li.valid {
     color: var(--success);
@@ -2464,8 +2473,7 @@ input:checked + .toggle-slider:before {
     left: 0;
     right: 0;
     bottom: 0;
-    /* --- MODIFICA CORRETTIVA --- */
-    /* Cambiato il colore di sfondo della schermata di caricamento come da richiesta. */
+    /* MODIFICA: Colore di sfondo del caricamento aggiornato come da richiesta. */
     background: #D3bbff;
     display: flex;
     justify-content: center;
