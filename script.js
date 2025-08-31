@@ -1,13 +1,33 @@
 /**
  * File: script.js
- * --- NOTE SULLE MODIFICHE IMPLEMENTATE ---
- * MODIFICA: La logica principale non ha richiesto una riscrittura completa, poiché la struttura esistente è solida e funzionale.
- * MODIFICA: Sono stati aggiunti commenti dettagliati in italiano, come richiesto, per chiarire il flusso di autenticazione
- * e le funzioni principali che gestiscono il passaggio dalla schermata di login/registrazione all'app vera e propria.
- * MODIFICA: Garantita la coerenza della logica con le modifiche CSS per assicurare una transizione fluida e senza problemi visivi.
+ * --- NOTE SULLE ULTIME MODIFICHE ---
+ * MODIFICA: Aggiunto l'audio per la nuova meditazione "Lasciare andare" (ID 23).
+ * MODIFICA: Riscritto il rendering HTML dello storico ('updateHistoryDisplay') per implementare il nuovo design più pulito e integrato.
+ * MODIFICA: Unificato il check-in di umore, ansia e stress in un unico banner.
+ * MODIFICA: Aggiornata la struttura dati per 'anxietyEntries' e 'stressEntries' per supportare registrazioni multiple giornaliere.
+ * MODIFICA: Rifattorizzata la logica di salvataggio in una nuova funzione 'saveCombinedCheckin'.
+ * MODIFICA: Assicurato il corretto reset dei check-in dopo la mezzanotte.
+ * MODIFICA: Aggiunta logica per il refresh automatico dei contenuti giornalieri.
+ * MODIFICA: Il messaggio di check-in umore scompare dopo la registrazione.
+ * MODIFICA: Gli obiettivi nel report settimanale sono mostrati come "X/7".
+ * MODIFICA: Aggiunto un nuovo modale per accorpare le impostazioni dell'account.
+ * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
+ * MODIFICA: Rimosso lo slide "Percorsi di Crescita" dall'onboarding e aggiornata la logica di navigazione.
+ * MODIFICA: Implementata la logica di caricamento con window.onload e durata minima garantita.
+ * --- MODIFICHE PER RIMOZIONE ONBOARDING E NUOVA PAGINA AUTH ---
+ * MODIFICA: Rimossa la funzione `initOnboarding` e la relativa logica a slide.
+ * MODIFICA: Creata la nuova funzione `initAuthLogic` per gestire i form di login/registrazione.
+ * MODIFICA: La logica di avvio ora controlla `isLoggedIn`. Se l'utente non è loggato, mostra la sezione `#auth-section`.
+ * MODIFICA: Creata la funzione `enterMainApp` per gestire la transizione dalla pagina di auth all'app principale dopo il login/registrazione.
+ * MODIFICA: Il modale di modifica profilo si apre automaticamente solo per i nuovi utenti dopo la registrazione.
+ * --- ULTIME MODIFICHE ---
+ * MODIFICA: Aggiunto `history.scrollRestoration` per prevenire il ripristino dello scroll al refresh della pagina.
+ * MODIFICA: Aggiunto `window.scrollTo(0, 0)` per assicurare che l'app venga sempre visualizzata dall'inizio.
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Disabilita il ripristino automatico della posizione di scroll del browser.
+    // MODIFICA: Disabilita il ripristino automatico della posizione di scroll del browser.
     // Questo risolve il problema della pagina che non parte dall'alto al refresh.
     if (history.scrollRestoration) {
         history.scrollRestoration = 'manual';
@@ -16,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const startTime = Date.now();
     const loadingScreen = document.getElementById('loading-screen');
 
-    // Funzione per nascondere la schermata di caricamento con una durata minima garantita
     function hideLoadingScreen() {
         const elapsedTime = Date.now() - startTime;
         const minimumTime = 1500;
@@ -27,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
-                }, 500); // Attende la fine della transizione CSS
+                }, 500);
             }
         };
 
@@ -38,10 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Nasconde la schermata di caricamento solo quando la pagina è completamente caricata
     window.onload = hideLoadingScreen;
 
-    // Stato globale dell'applicazione
+    // App state
     const state = {
         currentMeditation: null,
         currentSelectedMood: null,
@@ -113,12 +131,40 @@ document.addEventListener('DOMContentLoaded', function() {
         loadedDate: null
     };
 
-    // Percorsi dei file audio per le meditazioni
+    // Percorsi dei file audio
     const meditationAudios = {
-        1: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 2: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 3: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 4: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 5: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 6: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 7: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 8: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 9: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 10: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 11: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 12: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 13: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 14: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 15: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3', 16: 'https://assets.mixkit.co/sfx/preview/mixkit-forest-stream-ambience-124.mp3', 17: 'https://assets.mixkit.co/sfx/preview/mixkit-forest-ambience-573.mp3', 18: 'https://assets.mixkit.co/sfx/preview/mixkit-rain-ambience-239.mp3', 19: 'https://assets.mixkit.co/sfx/preview/mixkit-waves-ambience-1184.mp3', 20: 'https://assets.mixkit.co/sfx/preview/mixkit-night-ambience-427.mp3', 21: 'https://assets.mixkit.co/sfx/preview/mixkit-thunder-ambience-1191.mp3', 22: 'https://assets.mixkit.co/sfx/preview/mixkit-river-stream-water-1240.mp3', 23: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3'
+        1: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        2: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        3: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        4: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        5: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        6: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        7: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        8: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        9: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        10: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        11: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        12: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        13: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        14: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        15: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        16: 'https://assets.mixkit.co/sfx/preview/mixkit-forest-stream-ambience-124.mp3',
+        17: 'https://assets.mixkit.co/sfx/preview/mixkit-forest-ambience-573.mp3',
+        18: 'https://assets.mixkit.co/sfx/preview/mixkit-rain-ambience-239.mp3',
+        19: 'https://assets.mixkit.co/sfx/preview/mixkit-waves-ambience-1184.mp3',
+        20: 'https://assets.mixkit.co/sfx/preview/mixkit-night-ambience-427.mp3',
+        21: 'https://assets.mixkit.co/sfx/preview/mixkit-thunder-ambience-1191.mp3',
+        22: 'https://assets.mixkit.co/sfx/preview/mixkit-river-stream-water-1240.mp3',
+        23: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3'
     };
 
-    // Selezione degli elementi del DOM
+    const soundFiles = {
+        bells: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        nature: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
+        piano: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3'
+    };
+
+    // DOM Elements
     const authSection = document.getElementById('auth-section');
     const mainAppContainer = document.getElementById('main-app');
     const sections = document.querySelectorAll('.section');
@@ -140,6 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const gratitudeHistoryContainer = document.getElementById('gratitude-history-container');
     const goalHistoryContainer = document.getElementById('goal-history-container');
     const dailyGoalContainer = document.getElementById('daily-goal-container');
+    const intentionContainer = document.getElementById('intention-container');
+    const monthlySubscribeBtn = document.getElementById('monthly-subscribe');
+    const annualSubscribeBtn = document.getElementById('annual-subscribe');
+    const googleLoginBtn = document.getElementById('google-login');
     const dailyImage = document.getElementById('daily-image');
     const dailyQuote = document.getElementById('daily-quote');
     const gratitudeForm = document.getElementById('gratitude-form');
@@ -149,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileEditSave = document.getElementById('profile-edit-save');
     const logoutBtn = document.getElementById('logout-btn');
     const themeToggleInput = document.getElementById('theme-toggle-input');
+    const themeToggleProfile = document.getElementById('theme-toggle-profile');
     const streakCounter = document.getElementById('streak-counter');
     const genderOptionsContainer = document.querySelector('.gender-options');
     const emojiPicker = document.querySelector('.emoji-picker');
@@ -172,10 +223,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const dailyAnxietyValue = document.getElementById('daily-anxiety-value');
     const dailyStressValue = document.getElementById('daily-stress-value');
     const dailySleepValue = document.getElementById('daily-sleep-value');
+    const calendarMonth = document.getElementById('calendar-month');
     const intentionInput = document.getElementById('intention-input');
     const setIntentionBtn = document.getElementById('set-intention-btn');
     const intentionText = document.getElementById('intention-text');
+
     const saveCombinedCheckinBtn = document.getElementById('save-combined-checkin-btn');
+
     const accountSettingsModal = document.getElementById('account-settings-modal');
     const accountSettingsBtn = document.getElementById('account-settings-btn');
     const accountSettingsCloseBtn = document.getElementById('account-settings-close-btn');
@@ -184,7 +238,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const privacyBtn = document.getElementById('privacy-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
 
-    // Elementi del form di autenticazione
+    const yearlyToggle = document.getElementById('yearly-toggle');
+    const monthlyToggle = document.getElementById('monthly-toggle');
+    const subscriptionToggle = document.querySelector('.subscription-toggle');
+    const yearlyPlan = document.getElementById('yearly-plan');
+    const monthlyPlan = document.getElementById('monthly-plan');
+
     const registrationForm = document.getElementById('registration-form');
     const loginForm = document.getElementById('login-form');
     const registrationView = document.getElementById('registration-view');
@@ -193,6 +252,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const showRegisterLink = document.getElementById('show-register-link');
     const registerBtn = document.getElementById('register-btn');
     const termsCheckboxRegister = document.getElementById('terms-checkbox-register');
+    const termsLinkRegister = document.getElementById('terms-link-register');
+    const privacyLinkRegister = document.getElementById('privacy-link-register');
     const passwordInput = document.getElementById('password-input');
     const passwordFeedback = document.getElementById('password-feedback');
     const lengthCheck = document.getElementById('length-check');
@@ -201,171 +262,196 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Carica i dati salvati da localStorage
     function loadSavedData() {
-        const savedState = localStorage.getItem('appState');
-        if (savedState) {
-            Object.assign(state, JSON.parse(savedState));
+        const savedProfile = localStorage.getItem('userProfile');
+        if (savedProfile) {
+            state.profile = JSON.parse(savedProfile);
+        }
+
+        const savedMoodEntries = localStorage.getItem('moodEntries');
+        if (savedMoodEntries) {
+            state.moodEntries = JSON.parse(savedMoodEntries);
+        }
+
+        const savedGratitudeEntries = localStorage.getItem('gratitudeEntries');
+        if (savedGratitudeEntries) {
+            state.gratitudeEntries = JSON.parse(savedGratitudeEntries);
+        }
+
+        const savedAnxietyEntries = localStorage.getItem('anxietyEntries');
+        if (savedAnxietyEntries) {
+            state.anxietyEntries = JSON.parse(savedAnxietyEntries);
+        }
+
+        const savedStressEntries = localStorage.getItem('stressEntries');
+        if (savedStressEntries) {
+            state.stressEntries = JSON.parse(savedStressEntries);
+        }
+
+        const savedSleepEntries = localStorage.getItem('sleepEntries');
+        if (savedSleepEntries) {
+            state.sleepEntries = JSON.parse(savedSleepEntries);
+        }
+
+        const savedReminders = localStorage.getItem('reminders');
+        if (savedReminders) {
+            state.reminders = JSON.parse(savedReminders);
+        }
+
+        const savedDailyGoals = localStorage.getItem('dailyGoals');
+        if (savedDailyGoals) {
+            state.dailyGoals = JSON.parse(savedDailyGoals);
+        }
+
+        const savedDailyIntentions = localStorage.getItem('dailyIntentions');
+        if (savedDailyIntentions) {
+            state.dailyIntentions = JSON.parse(savedDailyIntentions);
+        }
+
+        const savedPremium = localStorage.getItem('isPremium');
+        if (savedPremium) {
+            state.isPremium = JSON.parse(savedPremium);
+        }
+
+        const savedReferralCode = localStorage.getItem('referralCode');
+        if (savedReferralCode) {
+            state.referralCode = savedReferralCode;
+        }
+
+        const savedLogin = localStorage.getItem('isLoggedIn');
+        if (savedLogin) {
+            state.isLoggedIn = JSON.parse(savedLogin);
+        }
+
+        const savedDarkTheme = localStorage.getItem('darkTheme');
+        if (savedDarkTheme) {
+            state.darkTheme = JSON.parse(savedDarkTheme);
+        }
+
+        const savedStreak = localStorage.getItem('growthStreak');
+        if (savedStreak) {
+            state.growthStreak = JSON.parse(savedStreak);
+        }
+
+        const savedLastActivity = localStorage.getItem('lastActivityDate');
+        if (savedLastActivity) {
+            state.lastActivityDate = savedLastActivity;
+        }
+
+        const savedDownloads = localStorage.getItem('downloadedMeditations');
+        if (savedDownloads) {
+            state.downloadedMeditations = JSON.parse(savedDownloads);
+        }
+
+        const savedMeditationHistory = localStorage.getItem('meditationHistory');
+        if (savedMeditationHistory) {
+            state.meditationHistory = JSON.parse(savedMeditationHistory);
+        }
+
+        const savedLastAccess = localStorage.getItem('lastAccessDate');
+        if (savedLastAccess) {
+            state.lastAccessDate = savedLastAccess;
+        }
+
+        const savedStreakUpdated = localStorage.getItem('streakUpdatedToday');
+        if (savedStreakUpdated) {
+            state.streakUpdatedToday = JSON.parse(savedStreakUpdated);
+        }
+
+        const savedDailyContent = localStorage.getItem('dailyContent');
+        if (savedDailyContent) {
+            const content = JSON.parse(savedDailyContent);
+            if (content.date === getLocalDateString()) {
+                state.dailyContent = content;
+            }
+        }
+
+        const savedSelectedDate = localStorage.getItem('selectedHistoryDate');
+        if (savedSelectedDate) {
+            state.selectedHistoryDate = savedSelectedDate;
         }
     }
 
     // Salva dati in localStorage
     function saveData() {
-        localStorage.setItem('appState', JSON.stringify(state));
-    }
+        localStorage.setItem('userProfile', JSON.stringify(state.profile));
+        localStorage.setItem('moodEntries', JSON.stringify(state.moodEntries));
+        localStorage.setItem('gratitudeEntries', JSON.stringify(state.gratitudeEntries));
+        localStorage.setItem('anxietyEntries', JSON.stringify(state.anxietyEntries));
+        localStorage.setItem('stressEntries', JSON.stringify(state.stressEntries));
+        localStorage.setItem('sleepEntries', JSON.stringify(state.sleepEntries));
+        localStorage.setItem('reminders', JSON.stringify(state.reminders));
+        localStorage.setItem('dailyGoals', JSON.stringify(state.dailyGoals));
+        localStorage.setItem('dailyIntentions', JSON.stringify(state.dailyIntentions));
+        localStorage.setItem('isPremium', JSON.stringify(state.isPremium));
+        localStorage.setItem('referralCode', state.referralCode || '');
+        localStorage.setItem('isLoggedIn', JSON.stringify(state.isLoggedIn));
+        localStorage.setItem('darkTheme', JSON.stringify(state.darkTheme));
+        localStorage.setItem('growthStreak', JSON.stringify(state.growthStreak));
+        localStorage.setItem('lastActivityDate', state.lastActivityDate || '');
+        localStorage.setItem('downloadedMeditations', JSON.stringify(state.downloadedMeditations));
+        localStorage.setItem('meditationHistory', JSON.stringify(state.meditationHistory));
+        localStorage.setItem('lastAccessDate', state.lastAccessDate || '');
+        localStorage.setItem('streakUpdatedToday', JSON.stringify(state.streakUpdatedToday));
+        localStorage.setItem('selectedHistoryDate', state.selectedHistoryDate || new Date().toISOString().split('T')[0]);
 
-    // Funzione per mostrare un messaggio temporaneo (toast)
-    function showToast(message) {
-        toast.innerHTML = `<span>🌸</span> ${message}`;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    /**
-     * COMMENTO: Questa è la funzione chiave per la logica di autenticazione.
-     * Si occupa di:
-     * 1. Gestire il passaggio tra il form di login e quello di registrazione.
-     * 2. Validare la password in tempo reale durante la digitazione.
-     * 3. Abilitare/disabilitare il pulsante di registrazione in base all'accettazione dei termini.
-     * 4. Simulare il processo di registrazione e login.
-     * 5. Chiamare la funzione `enterMainApp` in caso di successo.
-     */
-    function initAuthLogic() {
-        // Passa dalla vista registrazione alla vista login
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            registrationView.style.display = 'none';
-            loginView.style.display = 'block';
-        });
-
-        // Passa dalla vista login alla vista registrazione
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginView.style.display = 'none';
-            registrationView.style.display = 'block';
-        });
-
-        // Validazione della password in tempo reale
-        let passwordValidity = { length: false, number: false, special: false };
-        passwordInput.addEventListener('input', () => {
-            const value = passwordInput.value;
-            passwordValidity.length = value.length >= 8;
-            lengthCheck.classList.toggle('valid', passwordValidity.length);
-            passwordValidity.number = /\d/.test(value);
-            numberCheck.classList.toggle('valid', passwordValidity.number);
-            passwordValidity.special = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-            specialCheck.classList.toggle('valid', passwordValidity.special);
-        });
-
-        function isPasswordValid() {
-            return passwordValidity.length && passwordValidity.number && passwordValidity.special;
-        }
-
-        // Abilita il pulsante di registrazione solo se i termini sono accettati
-        termsCheckboxRegister.addEventListener('change', function() {
-            registerBtn.disabled = !this.checked;
-        });
-
-        // Gestisce l'invio del form di registrazione
-        registrationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!isPasswordValid()) {
-                showToast("La password non rispetta i criteri di sicurezza.");
-                return;
-            }
-            showToast("Registrazione in corso...");
-
-            // Simula una chiamata di rete
-            setTimeout(() => {
-                state.isLoggedIn = true;
-                state.termsAcceptedAt = new Date().toISOString();
-                saveData();
-                enterMainApp(true); // Entra nell'app come nuovo utente
-            }, 1500);
-        });
-
-        // Gestisce l'invio del form di login
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast("Accesso in corso...");
-
-            // Simula una chiamata di rete
-            setTimeout(() => {
-                state.isLoggedIn = true;
-                saveData();
-                enterMainApp(false); // Entra nell'app come utente esistente
-            }, 1500);
-        });
-    }
-
-    /**
-     * COMMENTO: Questa funzione gestisce la transizione visiva dalla sezione di autenticazione
-     * all'applicazione principale.
-     * @param {boolean} isNewUser - Indica se l'utente si è appena registrato.
-     * Se true, mostra il modale per modificare il profilo.
-     */
-    function enterMainApp(isNewUser = false) {
-        // Nasconde la sezione di autenticazione con una dissolvenza
-        authSection.style.opacity = '0';
-        setTimeout(() => {
-            authSection.style.display = 'none';
-            mainAppContainer.style.display = 'block';
-
-            // Assicura che la vista dell'app parta dall'alto
-            window.scrollTo(0, 0);
-
-            // Inizializza l'interfaccia utente dell'app
-            initUI();
-
-            document.getElementById('home').classList.add('active');
-            document.querySelector('.nav-item[data-target="home"]').classList.add('active');
-
-            // Se è un nuovo utente, apre il modale per la modifica del profilo
-            if (isNewUser) {
-                profileEditModal.classList.add('active');
-            }
-        }, 500); // La durata corrisponde alla transizione CSS
-    }
-
-    /**
-     * COMMENTO: Punto di ingresso principale dell'applicazione.
-     * Viene eseguito al caricamento del DOM.
-     * Decide se mostrare la schermata di autenticazione o l'app principale
-     * in base allo stato di login dell'utente.
-     */
-    function main() {
-        loadSavedData();
-
-        if (state.isLoggedIn) {
-            // Se l'utente è già loggato, nasconde l'autenticazione e mostra l'app
-            authSection.style.display = 'none';
-            mainAppContainer.style.display = 'block';
-
-            window.scrollTo(0, 0);
-
-            initUI();
-            document.getElementById('home').classList.add('active');
-            document.querySelector('.nav-item[data-target="home"]').classList.add('active');
-        } else {
-            // Se l'utente non è loggato, mostra la sezione di autenticazione
-            authSection.style.display = 'flex';
-            authSection.classList.add('active');
-            mainAppContainer.style.display = 'none';
-            initAuthLogic(); // Inizializza la logica per i form di login/registrazione
+        if (state.dailyContent) {
+            localStorage.setItem('dailyContent', JSON.stringify(state.dailyContent));
         }
     }
 
-    // --- IL RESTO DEL CODICE DELL'APP RIMANE INVARIATO ---
-    // (Funzioni per UI, gestione stato, eventi, etc.)
+    function updateWelcomeMessage() {
+        let welcomeText = "";
+
+        switch(state.profile.gender) {
+            case "M":
+                welcomeText = "Bentornato!";
+                break;
+            case "F":
+                welcomeText = "Bentornata!";
+                break;
+            case "N":
+                welcomeText = "Bentornatə!";
+                break;
+            default:
+                welcomeText = "Bentornato/a!";
+        }
+
+        document.getElementById('welcome-header').innerHTML = `${welcomeText} ${state.profile.emoji || '😊'}`;
+
+        const welcomeElement = document.querySelector('.profile-welcome');
+        let welcomeProfileText = "";
+
+        switch(state.profile.gender) {
+            case "M":
+                welcomeProfileText = "Benvenuto nella tua area personale";
+                break;
+            case "F":
+                welcomeProfileText = "Benvenuta nella tua area personale";
+                break;
+            case "N":
+                welcomeProfileText = "Benvenutə nella tua area personale";
+                break;
+            default:
+                welcomeProfileText = "Benvenuto/a nella tua area personale";
+        }
+
+        if (welcomeElement) {
+            welcomeElement.textContent = welcomeProfileText;
+        }
+    }
 
     // Initialize UI
     function initUI() {
         state.loadedDate = getLocalDateString();
+
+        document.querySelector('.profile-name').textContent = state.profile.name;
+        document.querySelector('.profile-emoji').textContent = state.profile.emoji;
         updateWelcomeMessage();
         renderDailyGoal();
         renderDailyIntention();
         updateTheme();
         updatePremiumLocks();
         updateDailyData();
-        updateStreakCounter();
 
         if (state.isPremium) {
             premiumCard.style.display = 'none';
@@ -390,35 +476,18 @@ document.addEventListener('DOMContentLoaded', function() {
         updateLoginState();
     }
 
-    function updateWelcomeMessage() {
-        let welcomeText = "";
-        switch(state.profile.gender) {
-            case "M": welcomeText = "Bentornato!"; break;
-            case "F": welcomeText = "Bentornata!"; break;
-            case "N": welcomeText = "Bentornatə!"; break;
-            default: welcomeText = "Bentornato/a!";
-        }
-        document.getElementById('welcome-header').innerHTML = `${welcomeText} ${state.profile.emoji || '😊'}`;
-        const welcomeElement = document.querySelector('.profile-welcome');
-        let welcomeProfileText = "";
-        switch(state.profile.gender) {
-            case "M": welcomeProfileText = "Benvenuto nella tua area personale"; break;
-            case "F": welcomeProfileText = "Benvenuta nella tua area personale"; break;
-            case "N": welcomeProfileText = "Benvenutə nella tua area personale"; break;
-            default: welcomeProfileText = "Benvenuto/a nella tua area personale";
-        }
-        if (welcomeElement) welcomeElement.textContent = welcomeProfileText;
-        document.querySelector('.profile-name').textContent = state.profile.name;
-        document.querySelector('.profile-emoji').textContent = state.profile.emoji;
-    }
-
     function updateLoginState() {
-        logoutBtn.style.display = state.isLoggedIn ? 'flex' : 'none';
+        if (state.isLoggedIn) {
+            logoutBtn.style.display = 'flex';
+        } else {
+            logoutBtn.style.display = 'none';
+        }
     }
 
     function renderDailyGoal() {
         const today = getLocalDateString();
         const todayGoal = state.dailyGoals[today];
+
         if (!todayGoal) {
             dailyGoalContainer.innerHTML = `
                 <div class="goal-input-container">
@@ -427,100 +496,185 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
                     Inserisci un obiettivo realistico che vuoi portare a termine entro oggi.
-                </p>`;
-        } else {
-            dailyGoalContainer.innerHTML = `
-                <div class="goal-item">
-                    <div class="goal-checkbox ${todayGoal.completed ? 'checked' : ''}" id="goal-checkbox">
-                        ${todayGoal.completed ? '✓' : ''}
-                    </div>
-                    <div class="goal-text ${todayGoal.completed ? 'completed' : ''}">${todayGoal.text}</div>
-                    <div class="goal-status">
-                        ${todayGoal.completed ? '🎉 Completato' : '⏳ In corso...'}
-                    </div>
-                </div>`;
+                </p>
+            `;
+            return;
         }
+
+        dailyGoalContainer.innerHTML = `
+            <div class="goal-item">
+                <div class="goal-checkbox ${todayGoal.completed ? 'checked' : ''}" id="goal-checkbox">
+                    ${todayGoal.completed ? '✓' : ''}
+                </div>
+                <div class="goal-text ${todayGoal.completed ? 'completed' : ''}">${todayGoal.text}</div>
+                <div class="goal-status">
+                    ${todayGoal.completed ? '🎉 Completato' : '⏳ In corso...'}
+                </div>
+            </div>
+        `;
     }
 
     function renderDailyIntention() {
         const today = getLocalDateString();
         const todayIntention = state.dailyIntentions[today];
+
         if (!todayIntention) {
             intentionText.textContent = "Crea la tua intenzione per guidare la giornata";
             intentionInput.style.display = "block";
             setIntentionBtn.style.display = "block";
             setIntentionBtn.innerHTML = '<i class="fas fa-feather"></i> Imposta Intenzione';
-        } else {
-            intentionText.textContent = `"${todayIntention.text}"`;
-            intentionInput.style.display = "none";
-            setIntentionBtn.style.display = "none";
+            return;
         }
+
+        intentionText.textContent = `"${todayIntention.text}"`;
+        intentionInput.style.display = "none";
+        setIntentionBtn.style.display = "none";
     }
 
     function updateDailyData() {
         const today = getLocalDateString();
+
         if (state.moodEntries[today] && state.moodEntries[today].length > 0) {
             const moodValues = state.moodEntries[today].map(entry => getMoodValue(entry.mood));
             const avgMood = moodValues.reduce((a, b) => a + b, 0) / moodValues.length;
             dailyMoodValue.textContent = avgMood.toFixed(1);
-        } else { dailyMoodValue.textContent = "-"; }
+        } else {
+            dailyMoodValue.textContent = "-";
+        }
+
         if (state.anxietyEntries[today] && state.anxietyEntries[today].length > 0) {
             const anxietyValues = state.anxietyEntries[today].map(entry => parseInt(entry.value));
             const avgAnxiety = anxietyValues.reduce((a, b) => a + b, 0) / anxietyValues.length;
             dailyAnxietyValue.textContent = avgAnxiety.toFixed(1);
-        } else { dailyAnxietyValue.textContent = "-"; }
+        } else {
+            dailyAnxietyValue.textContent = "-";
+        }
+
         if (state.stressEntries[today] && state.stressEntries[today].length > 0) {
             const stressValues = state.stressEntries[today].map(entry => parseInt(entry.value));
             const avgStress = stressValues.reduce((a, b) => a + b, 0) / stressValues.length;
             dailyStressValue.textContent = avgStress.toFixed(1);
-        } else { dailyStressValue.textContent = "-"; }
-        dailySleepValue.textContent = state.sleepEntries[today] || "-";
+        } else {
+            dailyStressValue.textContent = "-";
+        }
+
+        if (state.sleepEntries[today]) {
+            dailySleepValue.textContent = state.sleepEntries[today];
+        } else {
+            dailySleepValue.textContent = "-";
+        }
     }
 
     function setDailyGoal() {
         const input = document.getElementById('goal-input');
         if (!input) return;
         const goalText = input.value.trim();
-        if (!goalText) { showToast("Per favore inserisci un obiettivo"); return; }
+
+        if (!goalText) {
+            showToast("Per favore inserisci un obiettivo");
+            return;
+        }
+
         const today = getLocalDateString();
-        state.dailyGoals[today] = { text: goalText, completed: false, timestamp: new Date().getTime() };
-        saveData(); renderDailyGoal(); showToast("Obiettivo impostato!");
+        state.dailyGoals[today] = {
+            text: goalText,
+            completed: false,
+            timestamp: new Date().getTime()
+        };
+
+        saveData();
+        renderDailyGoal();
+        showToast("Obiettivo impostato!");
     }
 
     function setDailyIntention() {
         const input = document.getElementById('intention-input');
         const intentionTextValue = input.value.trim();
-        if (!intentionTextValue) { showToast("Per favore inserisci un'intenzione"); return; }
+
+        if (!intentionTextValue) {
+            showToast("Per favore inserisci un'intenzione");
+            return;
+        }
+
         const today = getLocalDateString();
-        state.dailyIntentions[today] = { text: intentionTextValue, timestamp: new Date().getTime() };
-        saveData(); renderDailyIntention(); showToast("Intenzione fissata!");
+        state.dailyIntentions[today] = {
+            text: intentionTextValue,
+            timestamp: new Date().getTime()
+        };
+
+        saveData();
+        renderDailyIntention();
+        showToast("Intenzione fissata!");
     }
 
     function toggleGoalCompletion() {
         const today = getLocalDateString();
         const goal = state.dailyGoals[today];
+
         if (!goal) return;
+
         goal.completed = !goal.completed;
-        saveData(); renderDailyGoal();
-        if (goal.completed) { showToast("Obiettivo completato! Complimenti!"); avviaCoriandoliPersonalizzati(); }
-        else { showToast("Obiettivo riportato in corso"); }
+        saveData();
+        renderDailyGoal();
+
+        if (goal.completed) {
+            showToast("Obiettivo completato! Complimenti!");
+            avviaCoriandoliPersonalizzati();
+        } else {
+            showToast("Obiettivo riportato in corso");
+        }
     }
 
     dailyGoalContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'set-goal-btn') setDailyGoal();
-        else if (e.target.id === 'goal-checkbox') toggleGoalCompletion();
+        if (e.target.id === 'set-goal-btn') {
+            setDailyGoal();
+        } else if (e.target.id === 'goal-checkbox') {
+            toggleGoalCompletion();
+        }
     });
+
 
     function checkGratitudeLock() {
         const today = getLocalDateString();
+
         if (state.gratitudeEntries[today]) {
-            gratitudeInputs.forEach((input, index) => {
-                input.value = state.gratitudeEntries[today][index] || '';
+            gratitudeInputs.forEach(input => {
+                input.value = state.gratitudeEntries[today][Array.from(gratitudeInputs).indexOf(input)] || '';
                 input.disabled = true;
             });
+
             gratitudeBtn.disabled = true;
             gratitudeBtn.textContent = "✅ Completato per oggi";
             gratitudeBtn.classList.add('completed');
+            gratitudeBtn.style.background = "#e2e8f0";
+            gratitudeBtn.style.color = "#64748b";
+            gratitudeBtn.style.cursor = "not-allowed";
+        }
+    }
+
+    function updateMoodStatusMessage() {
+        const now = new Date();
+        const currentTime = now.getHours() + now.getMinutes()/100;
+        const today = getLocalDateString();
+        const moodStatus = document.querySelector('.mood-status');
+
+        if (!moodStatus) return;
+
+        const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
+
+        const hasLoggedInCurrentWindow = state.moodEntries[today]?.some(e => e.window === currentWindow?.id);
+
+        if (hasLoggedInCurrentWindow) {
+            moodStatus.style.display = 'none';
+            return;
+        }
+
+        moodStatus.style.display = 'block';
+
+        if (currentWindow) {
+            moodStatus.innerHTML = `È ora per il tuo check-in della ${currentWindow.name.toLowerCase()}!`;
+        } else {
+            moodStatus.innerHTML = `I check-in sono disponibili dalle 7:00 alle 23:59`;
         }
     }
 
@@ -545,43 +699,195 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getLocalDateString(date = new Date()) {
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function checkDateAndReload() {
+        if (document.visibilityState === 'visible') {
+            const today = getLocalDateString();
+            if (today !== state.loadedDate) {
+                window.location.reload();
+            }
+        }
+    }
+    document.addEventListener('visibilitychange', checkDateAndReload);
+
+    function initAuthLogic() {
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registrationView.style.display = 'none';
+            loginView.style.display = 'block';
+        });
+
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginView.style.display = 'none';
+            registrationView.style.display = 'block';
+        });
+
+        let passwordValidity = { length: false, number: false, special: false };
+        passwordInput.addEventListener('input', () => {
+            const value = passwordInput.value;
+            passwordValidity.length = value.length >= 8;
+            lengthCheck.classList.toggle('valid', passwordValidity.length);
+            passwordValidity.number = /\d/.test(value);
+            numberCheck.classList.toggle('valid', passwordValidity.number);
+            passwordValidity.special = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+            specialCheck.classList.toggle('valid', passwordValidity.special);
+        });
+
+        function isPasswordValid() {
+            return passwordValidity.length && passwordValidity.number && passwordValidity.special;
+        }
+
+        termsCheckboxRegister.addEventListener('change', function() {
+            registerBtn.disabled = !this.checked;
+        });
+
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!isPasswordValid()) {
+                showToast("La password non rispetta i criteri di sicurezza.");
+                return;
+            }
+            showToast("Registrazione in corso...");
+
+            setTimeout(() => {
+                state.isLoggedIn = true;
+                state.termsAcceptedAt = new Date().toISOString();
+                saveData();
+                enterMainApp(true);
+            }, 1500);
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast("Accesso in corso...");
+            setTimeout(() => {
+                state.isLoggedIn = true;
+                saveData();
+                enterMainApp(false);
+            }, 1500);
+        });
+
+        if (termsLinkRegister) {
+            termsLinkRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert("Qui verrebbero mostrati i Termini e Condizioni.");
+            });
+        }
+        if (privacyLinkRegister) {
+            privacyLinkRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert("Qui verrebbe mostrata l'Informativa sulla Privacy.");
+            });
+        }
+    }
+
+    function enterMainApp(isNewUser = false) {
+        authSection.style.opacity = '0';
+        setTimeout(() => {
+            authSection.style.display = 'none';
+            mainAppContainer.style.display = 'block';
+
+            // MODIFICA: Porta la pagina in cima.
+            window.scrollTo(0, 0);
+
+            initUI();
+
+            document.getElementById('home').classList.add('active');
+            document.querySelector('.nav-item[data-target="home"]').classList.add('active');
+
+            if (isNewUser) {
+                profileEditModal.classList.add('active');
+            }
+        }, 500);
     }
 
     navBar.addEventListener('click', function(e) {
         const targetItem = e.target.closest('.nav-item');
         if (!targetItem) return;
+
         e.preventDefault();
         const targetId = targetItem.dataset.target;
+
         navBar.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         targetItem.classList.add('active');
+
         sections.forEach(section => {
-            section.classList.toggle('active', section.id === targetId);
+            section.classList.remove('active');
+            if (section.id === targetId) {
+                section.classList.add('active');
+            }
         });
+
+        // La funzione per portare in cima la pagina è già presente qui e funziona correttamente.
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (targetId === 'health') {
+            initTimeBasedCheckin();
+            updateMoodStatusMessage();
+        }
     });
 
     moodTracker.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.mood-btn');
         if (!targetButton) return;
+
         state.currentSelectedMood = targetButton.dataset.mood;
+
         moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
         targetButton.classList.add('selected');
     });
 
     function saveCombinedCheckin() {
-        if (!state.isPremium) { showToast("Questa funzionalità richiede un abbonamento Premium"); return; }
-        if (!state.currentSelectedMood) { showToast("Per favore, seleziona un'emoji per il tuo umore"); return; }
+        if (!state.isPremium) {
+            showToast("Questa funzionalità richiede un abbonamento Premium");
+            return;
+        }
+
+        if (!state.currentSelectedMood) {
+            showToast("Per favore, seleziona un'emoji per il tuo umore");
+            return;
+        }
+
+        const now = new Date();
+        const currentTime = now.getHours() + now.getMinutes() / 100;
         const today = getLocalDateString();
+        const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
+
+        if (!currentWindow) {
+            showToast("Il check-in è disponibile solo dalle 7:00 alle 23:59");
+            return;
+        }
+
         if (!state.moodEntries[today]) state.moodEntries[today] = [];
         if (!state.anxietyEntries[today]) state.anxietyEntries[today] = [];
         if (!state.stressEntries[today]) state.stressEntries[today] = [];
-        state.moodEntries[today].push({ mood: state.currentSelectedMood });
-        state.anxietyEntries[today].push({ value: anxietySlider.value });
-        state.stressEntries[today].push({ value: stressSlider.value });
-        showToast(`Check-in registrato!`);
+
+        const hasLoggedIn = state.moodEntries[today].some(e => e.window === currentWindow.id);
+        if (hasLoggedIn) {
+            showToast(`Hai già effettuato il check-in per la ${currentWindow.name}`);
+            return;
+        }
+
+        state.moodEntries[today].push({ mood: state.currentSelectedMood, window: currentWindow.id });
+        state.anxietyEntries[today].push({ value: anxietySlider.value, window: currentWindow.id });
+        state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
+
+        showToast(`Check-in della ${currentWindow.name} registrato!`);
+        initTimeBasedCheckin();
+        updateMoodStatusMessage();
         updateDailyData();
-        updateStreak();
+
+        if (!state.streakUpdatedToday) {
+            updateStreak();
+            state.streakUpdatedToday = true;
+        }
+
         state.currentSelectedMood = null;
         moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
         saveData();
@@ -592,29 +898,36 @@ document.addEventListener('DOMContentLoaded', function() {
     meditationList.addEventListener('click', function(e) {
         const targetItem = e.target.closest('.meditation-item');
         if (!targetItem) return;
-        if (!state.isPremium) { showToast("Questa meditazione richiede un abbonamento Premium"); return; }
+
+        if (!state.isPremium) {
+            showToast("Questa meditazione richiede un abbonamento Premium");
+            return;
+        }
+
         const id = targetItem.dataset.id;
         document.getElementById('player-title').textContent = targetItem.dataset.title;
         document.getElementById('player-description').textContent = `${targetItem.dataset.duration} di ${targetItem.querySelector('.meditation-desc').textContent}`;
         audioPlayer.src = meditationAudios[id];
+        audioPlayer.pause();
         playerModal.classList.add('active');
     });
 
     function updateStreak() {
-        const todayStr = getLocalDateString();
-        const yesterday = new Date();
+        const today = new Date();
+        const todayStr = getLocalDateString(today);
+        const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = getLocalDateString(yesterday);
-        if (state.lastActivityDate !== todayStr) {
-            if (state.lastActivityDate === yesterdayStr) {
-                state.growthStreak++;
-            } else {
-                state.growthStreak = 1;
-            }
-            state.lastActivityDate = todayStr;
-            updateStreakCounter();
-            saveData();
+
+        if (!state.lastActivityDate) {
+            state.growthStreak = 1;
+        } else if (state.lastActivityDate === yesterdayStr) {
+            state.growthStreak++;
+        } else if (state.lastActivityDate !== todayStr) {
+            state.growthStreak = 1;
         }
+        state.lastActivityDate = todayStr;
+        updateStreakCounter();
     }
 
     document.getElementById('player-close-btn').addEventListener('click', () => {
@@ -640,26 +953,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     emojiPicker.addEventListener('click', function(e) {
         const targetOption = e.target.closest('.emoji-option');
-        if (targetOption) {
-            emojiPicker.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
-            targetOption.classList.add('selected');
-        }
+        if (!targetOption) return;
+        emojiPicker.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
+        targetOption.classList.add('selected');
     });
 
     genderOptionsContainer.addEventListener('click', function(e) {
         const targetOption = e.target.closest('.gender-option');
-        if (targetOption) {
-            genderOptionsContainer.querySelectorAll('.gender-option').forEach(opt => opt.classList.remove('selected'));
-            targetOption.classList.add('selected');
-        }
+        if (!targetOption) return;
+        genderOptionsContainer.querySelectorAll('.gender-option').forEach(opt => opt.classList.remove('selected'));
+        targetOption.classList.add('selected');
     });
 
     profileEditSave.addEventListener('click', () => {
         const newName = document.getElementById('profile-name-input').value.trim();
         const emoji = document.querySelector('.emoji-option.selected')?.dataset.emoji;
         const gender = document.querySelector('.gender-option.selected')?.dataset.gender;
-        if (!newName || !emoji || !gender) { showToast("Per favore compila tutti i campi"); return; }
+
+        if (!newName || !emoji || !gender) {
+            showToast("Per favore compila tutti i campi");
+            return;
+        }
         state.profile = { name: newName, emoji, gender };
+        document.querySelector('.profile-name').textContent = newName;
+        document.querySelector('.profile-emoji').textContent = emoji;
         updateWelcomeMessage();
         saveData();
         profileEditModal.classList.remove('active');
@@ -669,14 +986,81 @@ document.addEventListener('DOMContentLoaded', function() {
 
     gratitudeForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        if (!state.isPremium) { showToast("Questa funzionalità richiede un abbonamento Premium"); return; }
-        const entries = Array.from(gratitudeInputs).map(i => i.value.trim());
-        if (entries.some(e => e === '')) { showToast("Per favore compila tutti i campi"); return; }
+        if (!state.isPremium) {
+            showToast("Questa funzionalità richiede un abbonamento Premium");
+            return;
+        }
+        const entries = Array.from(this.querySelectorAll('.gratitude-input')).map(i => i.value.trim());
+        if (entries.some(e => e === '')) {
+            showToast("Per favore compila tutti i campi");
+            return;
+        }
         state.gratitudeEntries[getLocalDateString()] = entries;
         showToast("Diario della gratitudine salvato!");
         this.reset();
         saveData();
         checkGratitudeLock();
+    });
+
+    function handleSubscription(plan) {
+        showToast("Stiamo elaborando il tuo pagamento...");
+        setTimeout(() => {
+            const isSuccess = true;
+            if (isSuccess) {
+                state.isPremium = true;
+                saveData();
+                updatePremiumLocks();
+                showToast("Pagamento riuscito! Abbonamento Premium attivato.");
+                initUI();
+            } else {
+                showToast("Pagamento non riuscito. Riprova.");
+            }
+        }, 3000);
+    }
+
+    function setupSubscriptionToggle() {
+        yearlyToggle.addEventListener('click', () => {
+            subscriptionToggle.classList.remove('monthly-active');
+            yearlyToggle.classList.add('active');
+            monthlyToggle.classList.remove('active');
+            yearlyPlan.classList.add('active');
+            monthlyPlan.classList.remove('active');
+        });
+
+        monthlyToggle.addEventListener('click', () => {
+            subscriptionToggle.classList.add('monthly-active');
+            monthlyToggle.classList.add('active');
+            yearlyToggle.classList.remove('active');
+            monthlyPlan.classList.add('active');
+            yearlyPlan.classList.remove('active');
+        });
+
+        if (monthlySubscribeBtn) {
+            monthlySubscribeBtn.addEventListener('click', () => handleSubscription("mensile"));
+        }
+        if (annualSubscribeBtn) {
+            annualSubscribeBtn.addEventListener('click', () => handleSubscription("annuale"));
+        }
+    }
+    setupSubscriptionToggle();
+
+
+    if (googleLoginBtn) {
+       googleLoginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+    }
+    if(loginCloseBtn) {
+        loginCloseBtn.addEventListener('click', () => loginModal.classList.remove('active'));
+    }
+
+    document.getElementById('google-login').addEventListener('click', () => {
+        showToast("Accesso con Google in corso...");
+        setTimeout(() => {
+            state.isLoggedIn = true;
+            saveData();
+            updateLoginState();
+            loginModal.classList.remove('active');
+            showToast("Accesso effettuato con successo!");
+        }, 1500);
     });
 
     logoutBtn.addEventListener('click', function() {
@@ -690,9 +1074,16 @@ document.addEventListener('DOMContentLoaded', function() {
     accountSettingsBtn.addEventListener('click', () => accountSettingsModal.classList.add('active'));
     accountSettingsCloseBtn.addEventListener('click', () => accountSettingsModal.classList.remove('active'));
 
+    manageSubscriptionBtn.addEventListener('click', () => {
+        showToast("Reindirizzamento per la gestione dell'abbonamento...");
+        window.open('https://dashboard.stripe.com/', '_blank');
+    });
+
+    termsBtn.addEventListener('click', () => alert("Qui verrebbero mostrati i Termini di Servizio."));
+    privacyBtn.addEventListener('click', () => alert("Qui verrebbe mostrata la Privacy Policy."));
+
     deleteAccountBtn.addEventListener('click', function() {
-        // Usa un modale custom invece di confirm
-        const isConfirmed = window.confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.");
+        const isConfirmed = confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile e cancellerà tutti i tuoi dati.");
         if (isConfirmed) {
             showToast("Il tuo account verrà eliminato...");
             setTimeout(() => {
@@ -710,42 +1101,89 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function getMoodName(mood) { return {'devastato': 'Devastato', 'stressato': 'Stressato', 'arrabbiato': 'Arrabbiato', 'triste': 'Triste', 'neutro': 'Neutro', 'calmo': 'Calmo', 'contento': 'Contento', 'felice': 'Felice', 'entusiasta': 'Entusiasta', 'amore': 'Amore'}[mood] || mood; }
-    function getMoodEmoji(mood) { return {'devastato': '😭', 'stressato': '😩', 'arrabbiato': '😠', 'triste': '😔', 'neutro': '😐', 'calmo': '😌', 'contento': '🙂', 'felice': '😊', 'entusiasta': '😄', 'amore': '😍'}[mood] || ''; }
-    function getMoodValue(mood) { return {'devastato': 1, 'stressato': 2, 'arrabbiato': 3, 'triste': 4, 'neutro': 5, 'calmo': 6, 'contento': 7, 'felice': 8, 'entusiasta': 9, 'amore': 10}[mood] || 5; }
+    function getMoodName(mood) {
+        const names = {'devastato': 'Devastato', 'stressato': 'Stressato', 'arrabbiato': 'Arrabbiato', 'triste': 'Triste', 'neutro': 'Neutro', 'calmo': 'Calmo', 'contento': 'Contento', 'felice': 'Felice', 'entusiasta': 'Entusiasta', 'amore': 'Amore'};
+        return names[mood] || mood;
+    }
+    function getMoodEmoji(mood) {
+        const emojis = {'devastato': '😭', 'stressato': '😩', 'arrabbiato': '😠', 'triste': '😔', 'neutro': '😐', 'calmo': '😌', 'contento': '🙂', 'felice': '😊', 'entusiasta': '😄', 'amore': '😍'};
+        return emojis[mood] || '';
+    }
+    function getMoodValue(mood) {
+        const values = {'devastato': 1, 'stressato': 2, 'arrabbiato': 3, 'triste': 4, 'neutro': 5, 'calmo': 6, 'contento': 7, 'felice': 8, 'entusiasta': 9, 'amore': 10};
+        return values[mood] || 5;
+    }
+    function showToast(message) {
+        toast.innerHTML = `<span>🌸</span> ${message}`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
     function updateHistoryDisplay(date) {
         const selectedDate = getLocalDateString(date);
         state.selectedHistoryDate = selectedDate;
         saveData();
+
         const moodEntries = state.moodEntries[selectedDate] || [];
         const anxietyEntries = state.anxietyEntries[selectedDate] || [];
         const stressEntries = state.stressEntries[selectedDate] || [];
         const gratitudeEntries = state.gratitudeEntries[selectedDate] || [];
         const dailyGoal = state.dailyGoals[selectedDate] || null;
-        let moodHistoryHTML = moodEntries.map(entry => `
-            <div class="mood-history-item">
-                <div class="mood-history-emoji">${getMoodEmoji(entry.mood)}</div>
-                <div class="mood-history-details">
-                    <div class="mood-history-mood-name">${getMoodName(entry.mood)}</div>
+
+        let moodHistoryHTML = '';
+        state.timeWindows.forEach(window => {
+            const moodEntry = moodEntries.find(e => e.window === window.id);
+            if (moodEntry) {
+                const anxietyEntry = anxietyEntries.find(e => e.window === window.id);
+                const stressEntry = stressEntries.find(e => e.window === window.id);
+
+                moodHistoryHTML += `
+                    <div class="mood-history-item">
+                        <div class="mood-history-emoji">${getMoodEmoji(moodEntry.mood)}</div>
+                        <div class="mood-history-details">
+                            <div class="mood-history-mood-name">${getMoodName(moodEntry.mood)}</div>
+                            <div class="mood-history-window">${window.name}</div>
+                        </div>
+                        <div class="mood-history-stats">
+                            <div class="mood-history-stat">
+                                <div class="stat-label-history">Ansia</div>
+                                <div class="stat-value-history">${anxietyEntry ? anxietyEntry.value : '-'}</div>
+                            </div>
+                             <div class="mood-history-stat">
+                                <div class="stat-label-history">Stress</div>
+                                <div class="stat-value-history">${stressEntry ? stressEntry.value : '-'}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        moodHistoryContainer.innerHTML = moodHistoryHTML || '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
+        gratitudeHistoryContainer.innerHTML = gratitudeEntries.length > 0 ? `<ol style="padding-left: 20px; margin-top: 10px;">${gratitudeEntries.map(entry => `<li style="margin-bottom: 8px;">${entry}</li>`).join('')}</ol>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
+        goalHistoryContainer.innerHTML = dailyGoal ? `
+            <div class="goal-history-item">
+                <div class="goal-history-icon ${dailyGoal.completed ? 'completed' : 'not-completed'}">${dailyGoal.completed ? '✓' : '✗'}</div>
+                <div>
+                    <div style="font-weight: ${dailyGoal.completed ? 'normal' : 'bold'}">${dailyGoal.text}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">${dailyGoal.completed ? '🎯 Completato' : '🎯 Non completato'}</div>
                 </div>
-            </div>`).join('');
-        moodHistoryContainer.innerHTML = moodHistoryHTML || '<p>Nessun dato</p>';
-        gratitudeHistoryContainer.innerHTML = gratitudeEntries.length > 0 ? `<ol>${gratitudeEntries.map(e => `<li>${e}</li>`).join('')}</ol>` : '<p>Nessun dato</p>';
-        goalHistoryContainer.innerHTML = dailyGoal ? `<p>${dailyGoal.text} - ${dailyGoal.completed ? 'Completato' : 'Non completato'}</p>` : '<p>Nessun dato</p>';
+            </div>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
     }
 
     function generateCalendar() {
-        const calendarMonth = document.getElementById('calendar-month');
-        if (!calendarMonth || !document.getElementById('calendar')) return;
+        if(!calendarMonth || !document.getElementById('calendar')) return;
         const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
         calendarMonth.textContent = `${monthNames[state.currentCalendarDate.getMonth()]} ${state.currentCalendarDate.getFullYear()}`;
         const calendar = document.getElementById('calendar');
         calendar.innerHTML = '';
-        ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'].forEach(day => calendar.innerHTML += `<div class="calendar-header">${day}</div>`);
+        const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+        days.forEach(day => calendar.innerHTML += `<div class="calendar-header">${day}</div>`);
+
         const firstDay = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth(), 1);
         const lastDay = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth() + 1, 0);
+
         for (let i = 0; i < firstDay.getDay(); i++) calendar.innerHTML += '<div></div>';
+
         for (let i = 1; i <= lastDay.getDate(); i++) {
             const day = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth(), i);
             const dayString = getLocalDateString(day);
@@ -753,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dayElement.className = 'calendar-day';
             dayElement.textContent = i;
             if (state.moodEntries[dayString] || state.gratitudeEntries[dayString] || state.dailyGoals[dayString]) dayElement.classList.add('has-data');
-            if (dayString === getLocalDateString()) dayElement.classList.add('active');
+            if (dayString === getLocalDateString(new Date())) dayElement.classList.add('active');
             if (dayString === state.selectedHistoryDate) dayElement.classList.add('selected');
             dayElement.addEventListener('click', function() {
                 document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
@@ -765,22 +1203,53 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHistoryDisplay(new Date(state.selectedHistoryDate));
     }
 
+    function initTimeBasedCheckin() {
+        const now = new Date();
+        const currentTime = now.getHours() + now.getMinutes()/100;
+        const today = getLocalDateString();
+
+        const moodButtons = moodTracker.querySelectorAll('.mood-btn');
+        const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
+
+        let isDisabled = true;
+        if (currentWindow) {
+            const hasLoggedIn = state.moodEntries[today]?.some(e => e.window === currentWindow.id);
+            if (!hasLoggedIn) {
+                isDisabled = false;
+            }
+        }
+
+        moodButtons.forEach(btn => btn.disabled = isDisabled);
+        anxietySlider.disabled = isDisabled;
+        stressSlider.disabled = isDisabled;
+        saveCombinedCheckinBtn.disabled = isDisabled;
+    }
+
+    setInterval(() => {
+        if (state.isLoggedIn && document.querySelector('#health.section.active')) {
+            initTimeBasedCheckin();
+            updateMoodStatusMessage();
+        }
+    }, 60000);
+
     meditationFilters.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.filter-btn');
         if (!targetButton) return;
+
         const filter = targetButton.dataset.filter;
         meditationFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         targetButton.classList.add('active');
+
         document.querySelectorAll('.meditation-item').forEach(item => {
             item.style.display = (filter === 'all' || item.dataset.tags.includes(filter)) ? 'flex' : 'none';
         });
     });
 
-    document.getElementById('prev-month-btn')?.addEventListener('click', () => {
+    document.getElementById('prev-month-btn').addEventListener('click', () => {
         state.currentCalendarDate.setMonth(state.currentCalendarDate.getMonth() - 1);
         generateCalendar();
     });
-    document.getElementById('next-month-btn')?.addEventListener('click', () => {
+    document.getElementById('next-month-btn').addEventListener('click', () => {
         state.currentCalendarDate.setMonth(state.currentCalendarDate.getMonth() + 1);
         generateCalendar();
     });
@@ -806,7 +1275,77 @@ document.addEventListener('DOMContentLoaded', function() {
     reportCloseBtn.addEventListener('click', () => reportModal.classList.remove('active'));
 
     function generateWeeklyReport() {
-        // Funzione per generare il report settimanale (invariata)
+        const today = new Date();
+        let moodSum = 0, moodCount = 0, anxietySum = 0, anxietyCount = 0, stressSum = 0, stressCount = 0;
+        let sleepSum = 0, sleepCount = 0, gratitudeCount = 0, goalCompletionCount = 0;
+        const moodData = [], anxietyData = [], stressData = [], sleepData = [], dates = [];
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(today.getDate() - i);
+            const dateStr = getLocalDateString(date);
+            dates.push(daysOfWeek[date.getDay()]);
+
+            if (state.moodEntries[dateStr] && state.moodEntries[dateStr].length > 0) {
+                const avgMood = state.moodEntries[dateStr].map(e => getMoodValue(e.mood)).reduce((a, b) => a + b, 0) / state.moodEntries[dateStr].length;
+                moodSum += avgMood; moodCount++; moodData.push(avgMood);
+            } else { moodData.push(null); }
+            if (state.anxietyEntries[dateStr] && state.anxietyEntries[dateStr].length > 0) {
+                const avgAnxiety = state.anxietyEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.anxietyEntries[dateStr].length;
+                anxietySum += avgAnxiety; anxietyCount++; anxietyData.push(avgAnxiety);
+            } else { anxietyData.push(null); }
+            if (state.stressEntries[dateStr] && state.stressEntries[dateStr].length > 0) {
+                const avgStress = state.stressEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.stressEntries[dateStr].length;
+                stressSum += avgStress; stressCount++; stressData.push(avgStress);
+            } else { stressData.push(null); }
+            if (state.sleepEntries[dateStr]) {
+                sleepSum += parseInt(state.sleepEntries[dateStr]);
+                sleepCount++;
+                sleepData.push(parseInt(state.sleepEntries[dateStr]));
+            } else { sleepData.push(null); }
+            if (state.gratitudeEntries[dateStr]) gratitudeCount++;
+            if (state.dailyGoals[dateStr]?.completed) goalCompletionCount++;
+        }
+
+        const avgMood = moodCount > 0 ? (moodSum / moodCount).toFixed(1) : 'N/D';
+        const avgAnxiety = anxietyCount > 0 ? (anxietySum / anxietyCount).toFixed(1) : 'N/D';
+        const avgStress = stressCount > 0 ? (stressSum / stressCount).toFixed(1) : 'N/D';
+        const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : 'N/D';
+
+        reportContent.innerHTML = `
+            <div class="report-header"><h2 class="report-title">Resoconto Settimanale</h2></div>
+            <div class="report-stats">
+                <div class="report-stat"><div class="stat-value">${avgMood}</div><div class="stat-label">Umore</div></div>
+                <div class="report-stat"><div class="stat-value">${avgAnxiety}</div><div class="stat-label">Ansia</div></div>
+                <div class="report-stat"><div class="stat-value">${avgStress}</div><div class="stat-label">Stress</div></div>
+                <div class="report-stat"><div class="stat-value">${avgSleep}</div><div class="stat-label">Sonno</div></div>
+                <div class="report-stat"><div class="stat-value">${gratitudeCount}</div><div class="stat-label">Gratitudini</div></div>
+                <div class="report-stat"><div class="stat-value">${goalCompletionCount}/7</div><div class="stat-label">Obiettivi</div></div>
+            </div>
+            <div class="report-chart-area">
+                <div class="report-chart">
+                    <div class="chart-group">
+                        ${dates.map((date, index) => `
+                            <div class="chart-day-group">
+                                <div class="chart-bars">
+                                    <div class="chart-bar mood-bar" style="height: ${moodData[index] ? (moodData[index] / 10) * 100 + '%' : '0%'};" title="Umore: ${moodData[index] ? moodData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar anxiety-bar" style="height: ${anxietyData[index] ? (anxietyData[index] / 10) * 100 + '%' : '0%'};" title="Ansia: ${anxietyData[index] ? anxietyData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar stress-bar" style="height: ${stressData[index] ? (stressData[index] / 10) * 100 + '%' : '0%'};" title="Stress: ${stressData[index] ? stressData[index].toFixed(1) : 'N/D'}"></div>
+                                    <div class="chart-bar sleep-bar" style="height: ${sleepData[index] ? (sleepData[index] / 10) * 100 + '%' : '0%'};" title="Sonno: ${sleepData[index] || 'N/D'}"></div>
+                                </div>
+                                <div class="chart-label">${date}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item"><div class="legend-color" style="background: var(--primary);"></div>Umore</div>
+                <div class="legend-item"><div class="legend-color" style="background: #EF5350;"></div>Ansia</div>
+                <div class="legend-item"><div class="legend-color" style="background: #FFB74D;"></div>Stress</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--calm-1);"></div>Sonno</div>
+            </div>`;
     }
 
     downloadReportBtn.addEventListener('click', () => {
@@ -843,6 +1382,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const numeroCoriandoli = 60;
         const forme = ['🍃', '💧', '✨'];
         const container = document.body;
+
         for (let i = 0; i < numeroCoriandoli; i++) {
             const coriandolo = document.createElement('span');
             coriandolo.classList.add('coriandolo');
@@ -855,12 +1395,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const oscillazione = (Math.random() - 0.5) * 250;
             coriandolo.style.setProperty('--oscillazione', `${oscillazione}px`);
             container.appendChild(coriandolo);
+
             coriandolo.addEventListener('animationend', () => {
-                coriandolo.remove();
+                coriandolo.classList.add('fade-out');
+                coriandolo.addEventListener('animationend', () => {
+                    coriandolo.remove();
+                }, { once: true });
             }, { once: true });
         }
     }
 
-    // Avvia l'applicazione
+    function main() {
+        loadSavedData();
+
+        if (state.isLoggedIn) {
+            authSection.style.display = 'none';
+            mainAppContainer.style.display = 'block';
+
+            // MODIFICA: Porta la pagina in cima quando un utente loggato ricarica la pagina.
+            window.scrollTo(0, 0);
+
+            initUI();
+            document.getElementById('home').classList.add('active');
+            document.querySelector('.nav-item[data-target="home"]').classList.add('active');
+        } else {
+            authSection.style.display = 'flex';
+            authSection.classList.add('active');
+            mainAppContainer.style.display = 'none';
+            initAuthLogic();
+        }
+    }
+
     main();
 });

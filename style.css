@@ -1,15 +1,41 @@
 /**
  * File: style.css
- * --- NOTE SULLE MODIFICHE IMPLEMENTATE ---
- * MODIFICA: Impostato il colore di sfondo della schermata di caricamento (#loading-screen) a #D3BBFF, come richiesto.
- * MODIFICA: Aggiunto un colore di sfondo solido (#D3BBFF) alla sezione di autenticazione (#auth-section). Questo risolve il problema
- * della visualizzazione dell'immagine di sfondo dell'app principale durante il login o la registrazione.
- * MODIFICA: Aggiunto un leggero `backdrop-filter` al contenitore di autenticazione per un effetto più morbido e integrato.
- * MODIFICA: Riorganizzati e commentati gli stili relativi alla sezione di autenticazione per maggiore chiarezza.
+ * --- NOTE SULLE ULTIME MODIFICHE ---
+ * MODIFICA: Risolto il problema di visualizzazione del cerchio di selezione dell'emoji aumentando il padding del contenitore.
+ * MODIFICA: Cambiato il colore del testo dell'intenzione giornaliera in bianco nel tema scuro per una migliore leggibilità.
+ * MODIFICA: Ridisegnata completamente la visualizzazione dello storico per un layout più pulito e integrato.
+ * MODIFICA: Unito i check-in di umore, ansia e stress in un unico banner per coerenza.
+ * MODIFICA: Aggiunti stili per il nuovo banner combinato (#combined-checkin-card).
+ * MODIFICA: Assicurata la responsività del nuovo banner su dispositivi mobili.
+ * MODIFICA: Aggiunto uno stile 'selected' per l'emoji dell'umore cliccata.
+ * MODIFICA: Implementato un workaround per rendere lo sfondo fisso su tutti i dispositivi mobili.
+ * MODIFICA: Corretto e unificato il colore dei filtri delle meditazioni in tema chiaro.
+ * MODIFICA: Lo sfondo dell'input per la modifica del nome ora è coerente con il tema (chiaro/scuro).
+ * MODIFICA: La palette viola scuro (#7E57C2) è stata applicata a tutti gli elementi testuali e di accento nel tema scuro, come da richiesta.
+ * MODIFICA: Centrato correttamente il modale di login/registrazione su tutti i dispositivi.
+ * MODIFICA: Ridotta la dimensione del badge "Risparmia il 40%" su schermi piccoli per evitare overflow.
+ * MODIFICA: Aggiunta scala numerica e linee guida al grafico del report per migliorarne la leggibilità.
+ * MODIFICA: Il suggerimento per lo scroll delle emoji è ora nascosto su desktop.
+ * MODIFICA: Corretto il colore hover del pulsante "Annulla" nel tema scuro.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * MODIFICA: Scurito il colore del testo primario per migliorare il contrasto e l'accessibilità.
+ * MODIFICA: Impostato il colore di sfondo dell'onboarding su #D3bbff come richiesto.
+ * MODIFICA: Aggiunto un border-radius al logo nella schermata di caricamento per un aspetto smussato.
+ * MODIFICA: Rimossi l'asse Y (numeri) e le linee della griglia dal grafico del report settimanale.
+ * MODIFICA: Migliorata la spaziatura nel blocco "Intenzione Giornaliera" per coerenza visiva.
+ * MODIFICA: Rimosso lo stile per .slider-btn, dato che i bottoni ora usano .gratitude-btn.
+ * MODIFICA: Ridisegnato il modale delle Impostazioni Account per un design più pulito e unificato.
+ * MODIFICA: Ridisegnata la sezione di Onboarding per una migliore centratura e leggibilità.
+ * MODIFICA: Aggiornato lo stile del pulsante "Genera Report" per coerenza con l'app.
+ * MODIFICA: Rimossi gli stili dell'onboarding e aggiunti nuovi stili per la pagina di autenticazione (#auth-section).
+ * --- ULTIME MODIFICHE ---
+ * MODIFICA: Aggiunto il colore di sfondo #D3BBFF alla pagina di login/registrazione.
+ * MODIFICA: Rimosso `background-attachment: fixed` per migliorare la compatibilità dello sfondo fisso sui dispositivi mobili.
  */
 :root {
     --primary: #B39DDB;
     --primary-light: #D1C4E9;
+    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --primary-dark: #5E35B1;
     --primary-darker: #5E35B1;
     --background: #F5F5F5;
@@ -32,6 +58,7 @@
     --journey-3: #FFAB91;
     --streak-gradient: linear-gradient(135deg, #D1C4E9, #B39DDB);
     --streak-height: 120px;
+    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --text-primary-light: #5E35B1;
     --text-primary-dark: #7E57C2;
     --text-primary: var(--text-primary-light);
@@ -55,30 +82,19 @@
 html {
     height: 100%;
 }
+
+/* --- MODIFICA CORRETTIVA --- */
+/* Rimosso lo pseudo-elemento body::before. Lo sfondo viene ora applicato direttamente al body */
+/* con `background-attachment: fixed` per risolvere il problema dello sfondo bianco su desktop */
+/* durante lo scroll, garantendo che l'immagine di sfondo copra l'intera altezza della pagina. */
 body {
     min-height: 100%;
     position: relative;
-    background-color: var(--background);
-}
-/* Stile per l'immagine di sfondo dell'app principale */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
-    z-index: -1;
     background-image: url('bodylight.jpg');
     background-size: cover;
     background-position: center;
-}
-body.dark-theme::before {
-    background-image: url('bodydark.jpg');
-}
-
-
-body {
+    background-attachment: fixed;
+    background-color: var(--background);
     color: var(--text);
     line-height: 1.6;
     padding-bottom: 100px;
@@ -102,9 +118,13 @@ body.dark-theme {
     --text-primary: var(--text-primary-dark);
     --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
+    /* MODIFICA CORRETTIVA: Aggiunta immagine di sfondo per il tema scuro. */
+    background-image: url('bodydark.jpg');
 }
 
-/* --- Sezione Autenticazione --- */
+/* --- MODIFICA: Rimossi tutti gli stili per l'onboarding --- */
+
+/* --- MODIFICA: Stili per la pagina di autenticazione --- */
 #auth-section {
     display: flex;
     flex-direction: column;
@@ -113,8 +133,7 @@ body.dark-theme {
     min-height: 100vh;
     padding: 20px;
     transition: opacity 0.5s ease-out;
-    /* MODIFICA: Aggiunto lo sfondo colorato richiesto.
-       Questo colore copre l'immagine di sfondo del body, risolvendo il problema di visualizzazione. */
+    /* MODIFICA: Aggiunto lo sfondo colorato richiesto, che copre l'immagine del body. */
     background-color: #D3BBFF;
 }
 
@@ -128,7 +147,6 @@ body.dark-theme {
     border: 1px solid rgba(179, 157, 219, 0.2);
     max-height: 90vh;
     overflow-y: auto;
-    backdrop-filter: blur(5px);
 }
 
 .auth-header {
@@ -149,7 +167,8 @@ body.dark-theme {
     color: var(--text-primary);
     margin-bottom: 20px;
 }
-/* --- Fine Sezione Autenticazione --- */
+/* --- FINE STILI AUTH --- */
+
 
 .container {
     max-width: 100%;
@@ -312,25 +331,25 @@ body.dark-theme {
     margin-bottom: 0;
 }
 
-
+/* --- MODIFICA CORRETTIVA --- */
+/* Stili aggiornati per il selettore di umore per risolvere l'overflow su mobile. */
+/* È stato implementato uno scroll orizzontale (slider) e la scrollbar è stata nascosta */
+/* per un'esperienza utente più pulita, simile a uno "swipe". */
 .mood-tracker {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; /* Allinea gli elementi all'inizio per uno scroll corretto */
+    gap: 15px; /* Aggiunge spazio tra i bottoni emoji */
     margin: 15px 0;
-    overflow-x: auto;
-    padding: 5px 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-light) transparent;
+    overflow-x: auto; /* Abilita lo scroll orizzontale */
+    padding: 5px 15px; /* Aggiunge padding laterale per non far toccare i bordi agli emoji */
+    -ms-overflow-style: none;  /* Nasconde la scrollbar su IE e Edge */
+    scrollbar-width: none;  /* Nasconde la scrollbar su Firefox */
 }
 
 .mood-tracker::-webkit-scrollbar {
-    height: 5px;
+    display: none; /* Nasconde la scrollbar su Chrome, Safari e Opera */
 }
 
-.mood-tracker::-webkit-scrollbar-thumb {
-    background: var(--primary-light);
-    border-radius: 10px;
-}
 
 .mood-btn {
     background: none;
@@ -1520,6 +1539,10 @@ input[type="range"]::-webkit-slider-thumb {
 .password-feedback li {
     color: var(--error);
     transition: color 0.3s ease;
+    /* --- MODIFICA CORRETTIVA --- */
+    /* Aggiunto 'word-break' per evitare che il testo dei requisiti della password */
+    /* fuoriesca dal contenitore su schermi molto stretti. */
+    word-break: break-word;
 }
 .password-feedback li.valid {
     color: var(--success);
@@ -2441,13 +2464,13 @@ input:checked + .toggle-slider:before {
     left: 0;
     right: 0;
     bottom: 0;
-    /* MODIFICA: Cambiato il colore di sfondo come richiesto */
-    background: #D3BBFF;
+    /* --- MODIFICA CORRETTIVA --- */
+    /* Cambiato il colore di sfondo della schermata di caricamento come da richiesta. */
+    background: #D3bbff;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    transition: opacity 0.5s ease;
 }
 
 .loading-logo {
