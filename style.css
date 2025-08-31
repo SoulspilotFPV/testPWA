@@ -136,18 +136,22 @@ body.dark-theme {
 
 /* --- MODIFICA: Stili per la pagina di autenticazione --- */
 #auth-section {
+    /* MODIFICA: Cambiata la strategia di posizionamento in 'fixed' per bloccare lo sfondo, impedire lo scroll della pagina e garantire la centratura. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    width: 100%;
-    /* MODIFICA: Aggiornato il padding per rispettare le 'safe areas' dei dispositivi mobili (es. notch) e garantire una spaziatura uniforme su tutti i lati. */
+    /* MODIFICA: Lo scroll ora è sulla sezione per gestire schermi piccoli, mantenendo il banner centrato. */
     padding: 20px;
-    padding-top: max(20px, env(safe-area-inset-top));
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    transition: opacity 0.5s ease-out;
+    overflow-y: auto;
     background-color: #D3BBFF;
+    transition: opacity 0.5s ease-out;
 }
 
 .auth-container {
@@ -158,7 +162,7 @@ body.dark-theme {
     box-shadow: var(--shadow-lg);
     padding: 30px 25px;
     border: 1px solid rgba(179, 157, 219, 0.2);
-    max-height: 90vh;
+    max-height: 95vh;
     overflow-y: auto;
 }
 
@@ -167,12 +171,7 @@ body.dark-theme {
     margin-bottom: 25px;
 }
 
-.auth-logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 20px;
-    margin-bottom: 15px;
-}
+/* MODIFICA: Stile del logo rimosso poiché l'elemento è stato eliminato dall'HTML. */
 
 .auth-title {
     text-align: center;
@@ -196,10 +195,7 @@ body.dark-theme {
     animation: fadeIn 0.4s ease-out;
 }
 
-#auth-section {
-    padding: 20px 15px;
-}
-
+/* Rimossa la regola duplicata per #auth-section padding */
 
 .section.active {
     display: block;
