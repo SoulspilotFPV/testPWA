@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Vivi Consapevolmente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="loading-screen">
+        <img src="logo.jpg" alt="Logo" class="loading-logo">
+    </div>
+
+    <section id="auth-section" class="section">
+        <div class="auth-container">
+            <div class="auth-header">
+                <img src="logo.jpg" alt="Logo" class="auth-logo">
+                <div class="app-name">Vivi Consapevolmente</div>
+                <div class="app-tagline">Inizia il tuo percorso di benessere</div>
+            </div>
+
+            <div id="registration-view">
+                <h2 class="auth-title">Crea il tuo Account</h2>
+                <form id="registration-form" class="registration-form">
+                    <div class="form-group">
+                        <label for="email-input">Email</label>
+                        <input type="email" id="email-input" class="form-input" placeholder="tuamail@esempio.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password-input">Password</label>
+                        <input type="password" id="password-input" class="form-input" placeholder="Crea una password sicura" required>
+                        <div id="password-feedback" class="password-feedback">
+                            <ul>
+                                <li id="length-check">Almeno 8 caratteri</li>
+                                <li id="number-check">Almeno un numero (0-9)</li>
+                                <li id="special-check">Almeno un carattere speciale (!@#$...)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="terms-checkbox-register" name="terms">
+                        <label for="terms-checkbox-register">Ho letto e accetto i <a href="#" id="terms-link-register">Termini e Condizioni</a> e ho preso visione della <a href="#" id="privacy-link-register">Privacy Policy</a>.</label>
+                    </div>
+
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="stats-checkbox" name="stats">
+                        <label for="stats-checkbox">Acconsento all'uso dei miei dati in forma anonima per statistiche e per migliorare l'app.</label>
+                    </div>
+
+                    <button type="submit" class="login-btn register" id="register-btn" disabled>Registrati</button>
+                </form>
+                <p class="toggle-form-link">Hai già un account? <a href="#" id="show-login-link">Accedi</a></p>
+            </div>
+
+            <div id="login-view" style="display: none;">
+                <h2 class="auth-title">Bentornato!</h2>
+                <form id="login-form" class="registration-form">
+                    <div class="form-group">
+                        <label for="login-email-input">Email</label>
+                        <input type="email" id="login-email-input" class="form-input" placeholder="tuamail@esempio.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password-input">Password</label>
+                        <input type="password" id="login-password-input" class="form-input" placeholder="La tua password" required>
+                    </div>
+                    <button type="submit" class="login-btn register" id="login-btn">Accedi</button>
+                </form>
+                 <p class="toggle-form-link">Non hai un account? <a href="#" id="show-register-link">Registrati</a></p>
+            </div>
+        </div>
+    </section>
+
+    <div id="main-app" style="display: none;">
+        <div class="history-modal" id="report-modal">
+            <div class="history-container">
+                <div class="history-header">
+                    <div class="history-title">📊 Resoconto Settimanale</div>
+                    <button class="history-close" id="report-close-btn">&times;</button>
+                </div>
+                <div id="report-content" class="report-content">
+                    </div>
+                <div class="report-actions">
+                    <button class="report-btn" id="download-report-btn">
+                        <i class="fas fa-download"></i> Scarica Immagine
+                    </button>
+                    <button class="report-btn" id="share-report-btn">
+                        <i class="fas fa-share-alt"></i> Condividi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <section id="home" class="section">
+                <div class="header">
+                    <h1 id="welcome-header">Bentornato! <i class="fas fa-smile"></i></h1>
+                    <p>Prenditi un momento per te oggi</p>
+                </div>
+
+                <div class="streak-card">
+                    <div class="streak-number" id="streak-counter">0</div>
+                    <div class="streak-label">Giorni consecutivi di crescita 🔥</div>
+                    <p style="margin-top: 5px; font-size: 0.9rem; opacity: 0.8;">Continua così! Ogni giorno conta.</p>
+                </div>
+
+                <div class="daily-card">
+                    <img id="daily-image" src="daily1.jpg" alt="Immagine del giorno">
+                    <div class="daily-card-overlay">
+                        <h3><i class="fas fa-quote-left"></i> Pensiero del Giorno</h3>
+                        <p id="daily-quote">"Il momento presente è l'unico momento disponibile." - Thich Nhat Hanh</p>
+                    </div>
+                </div>
+
+                <div class="intention-banner">
+                    <div class="intention-icon">🌱</div>
+                    <div class="intention-title">Intenzione Giornaliera</div>
+                    <div class="intention-text" id="intention-text">Crea la tua intenzione per guidare la giornata</div>
+                    <input type="text" class="intention-input" id="intention-input" placeholder="Qual è la tua intenzione per oggi?">
+                    <button class="intention-btn" id="set-intention-btn"><i class="fas fa-feather"></i> Imposta Intenzione</button>
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>🎯 Obiettivo Giornaliero</span>
+                    </div>
+                    <div class="goal-container" id="daily-goal-container">
+                        </div>
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📊 Dati Giornalieri</span>
+                    </div>
+                    <div class="daily-data-container">
+                        <div class="daily-data-item">
+                            <div class="daily-data-value" id="daily-mood-value">-</div>
+                            <div class="daily-data-label">Umore</div>
+                        </div>
+                        <div class="daily-data-item">
+                            <div class="daily-data-value" id="daily-anxiety-value">-</div>
+                            <div class="daily-data-label">Ansia</div>
+                        </div>
+                        <div class="daily-data-item">
+                            <div class="daily-data-value" id="daily-stress-value">-</div>
+                            <div class="daily-data-label">Stress</div>
+                        </div>
+                        <div class="daily-data-item">
+                            <div class="daily-data-value" id="daily-sleep-value">-</div>
+                            <div class="daily-data-label">Sonno</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="meditations" class="section">
+                <div class="header">
+                    <h1><i class="fas fa-spa"></i> Meditazioni Guidate</h1>
+                    <p>Scegli tra le nostre sessioni di meditazione per ogni esigenza</p>
+                </div>
+
+                <div class="meditation-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-globe"></i> Tutte
+                    </button>
+                    <button class="filter-btn" data-filter="mattina">
+                        <i class="fas fa-sun"></i> Mattina
+                    </button>
+                    <button class="filter-btn" data-filter="sera">
+                        <i class="fas fa-moon"></i> Sera
+                    </button>
+                    <button class="filter-btn" data-filter="ansia">
+                        <i class="fas fa-wind"></i> Ansia
+                    </button>
+                    <button class="filter-btn" data-filter="lavoro">
+                        <i class="fas fa-briefcase"></i> Lavoro
+                    </button>
+                    <button class="filter-btn" data-filter="suoni">
+                        <i class="fas fa-music"></i> Suoni della Natura
+                    </button>
+                </div>
+
+                <div class="meditation-list">
+                    <div class="meditation-item" data-id="13" data-title="Respiro consapevole" data-duration="breve" data-tags="ansia">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Respiro consapevole</div>
+                            <div class="meditation-desc">Calma immediata attraverso il respiro</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="23" data-title="Lasciare andare" data-duration="10 min" data-tags="sera,ansia">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Lasciare andare</div>
+                            <div class="meditation-desc">Libera la mente e il corpo dalle tensioni</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="1" data-title="Rilasciare lo stress" data-duration="5 min" data-tags="lavoro,ansia">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Rilasciare lo stress</div>
+                            <div class="meditation-desc">Libera la tensione accumulata durante la giornata</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="10" data-title="Risveglio consapevole" data-duration="5 min" data-tags="mattina">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Risveglio consapevole</div>
+                            <div class="meditation-desc">Inizia la giornata con presenza e intenzione</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="6" data-title="Body scan" data-duration="10 min" data-tags="sera">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Body scan</div>
+                            <div class="meditation-desc">Esplora le sensazioni fisiche per rilassare tutto il corpo</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="15" data-title="Auto-compassione" data-duration="breve" data-tags="ansia">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Auto-compassione</div>
+                            <div class="meditation-desc">Sii gentile con te stesso nei momenti difficili</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="2" data-title="Prima di un evento importante" data-duration="5 min" data-tags="lavoro">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Prima di un evento importante</div>
+                            <div class="meditation-desc">Preparati mentalmente per una performance eccellente</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="5" data-title="Passeggiata consapevole" data-duration="10 min" data-tags="mattina,sera">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Passeggiata consapevole</div>
+                            <div class="meditation-desc">Connettiti con il tuo corpo e l'ambiente circostante</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="9" data-title="Mangiare consapevole" data-duration="5 min" data-tags="mattina,sera">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Mangiare consapevole</div>
+                            <div class="meditation-desc">Trasforma il pasto in un'esperienza sensoriale completa</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="7" data-title="Prima della concentrazione" data-duration="3 min" data-tags="lavoro">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Prima della concentrazione</div>
+                            <div class="meditation-desc">Prepara la mente per attività che richiedono attenzione</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="8" data-title="Ricarica di energie" data-duration="5 min" data-tags="mattina">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Ricarica di energie</div>
+                            <div class="meditation-desc">Rinvigorisci corpo e mente per affrontare la giornata</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="3" data-title="Separare vita e problemi dal lavoro" data-duration="5 min" data-tags="lavoro">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Separare vita e problemi dal lavoro</div>
+                            <div class="meditation-desc">Crea un confine mentale tra lavoro e vita privata</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="4" data-title="Separare lavoro e vita" data-duration="5 min" data-tags="lavoro">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Separare lavoro e vita</div>
+                            <div class="meditation-desc">Mantieni un equilibrio sano tra impegni professionali e personali</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="11" data-title="Tragitto di routine" data-duration="5 min" data-tags="mattina,sera">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Tragitto di routine</div>
+                            <div class="meditation-desc">Trasforma il viaggio quotidiano in un momento di presenza</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="12" data-title="Caffè consapevole" data-duration="breve" data-tags="mattina">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Caffè consapevole</div>
+                            <div class="meditation-desc">Assapora pienamente la tua bevanda mattutina</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="14" data-title="Focus al lavoro" data-duration="breve" data-tags="lavoro">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Focus al lavoro</div>
+                            <div class="meditation-desc">Ritorna alla concentrazione in pochi istanti</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="16" data-title="Ruscello" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Ruscello</div>
+                            <div class="meditation-desc">Il suono rilassante di un ruscello di montagna</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="17" data-title="Foglie" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Foglie</div>
+                            <div class="meditation-desc">Il fruscio delle foglie nella foresta</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="18" data-title="Pioggia" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Pioggia</div>
+                            <div class="meditation-desc">Il suono rilassante della pioggia</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="19" data-title="Mare" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Mare</div>
+                            <div class="meditation-desc">Il suono delle onde del mare</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="20" data-title="Natura notturna" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Natura notturna</div>
+                            <div class="meditation-desc">I suoni della natura di notte</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="21" data-title="Temporale" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Temporale</div>
+                            <div class="meditation-desc">Il suono di un temporale lontano</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meditation-item" data-id="22" data-title="Torrente" data-duration="60 min" data-tags="suoni">
+                        <div class="meditation-info">
+                            <div class="meditation-title">Torrente</div>
+                            <div class="meditation-desc">Il suono di un torrente di montagna</div>
+                        </div>
+                        <div class="premium-lock">
+                            <button class="premium-lock-btn" data-target="premium-card">
+                                <i class="fas fa-lock"></i> Sblocca con Premium
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="health" class="section">
+                <div class="header">
+                    <h1><i class="fas fa-heart"></i> Salute & Benessere</h1>
+                    <p>Prenditi cura del tuo benessere fisico e mentale</p>
+                </div>
+
+                <div class="card" id="combined-checkin-card">
+                    <div class="card-title">
+                        <span>☀️ Check-in Benessere</span>
+                    </div>
+
+                    <div class="mood-status">È ora per il tuo check-in!</div>
+
+                    <label class="checkin-label">Come ti senti in questo momento?</label>
+                    <div class="mood-tracker">
+                        <button class="mood-btn" data-mood="devastato">😭</button>
+                        <button class="mood-btn" data-mood="stressato">😩</button>
+                        <button class="mood-btn" data-mood="arrabbiato">😠</button>
+                        <button class="mood-btn" data-mood="triste">😔</button>
+                        <button class="mood-btn" data-mood="neutro">😐</button>
+                        <button class="mood-btn" data-mood="calmo">😌</button>
+                        <button class="mood-btn" data-mood="contento">🙂</button>
+                        <button class="mood-btn" data-mood="felice">😊</button>
+                        <button class="mood-btn" data-mood="entusiasta">😄</button>
+                        <button class="mood-btn" data-mood="amore">😍</button>
+                    </div>
+                    <p class="mood-tracker-hint">Scorri per vedere tutte le 10 emoji</p>
+
+                    <div class="slider-container combined-slider">
+                        <label for="anxiety-slider" class="checkin-label">Livello di Ansia</label>
+                        <div class="slider-value" id="anxiety-value">5</div>
+                        <input type="range" min="1" max="10" value="5" class="anxiety-slider" id="anxiety-slider">
+                        <div class="slider-labels">
+                            <span>Basso</span>
+                            <span>Alto</span>
+                        </div>
+                    </div>
+
+                    <div class="slider-container combined-slider">
+                        <label for="stress-slider" class="checkin-label">Livello di Stress</label>
+                        <div class="slider-value" id="stress-value">5</div>
+                        <input type="range" min="1" max="10" value="5" class="stress-slider" id="stress-slider">
+                        <div class="slider-labels">
+                            <span>Basso</span>
+                            <span>Alto</span>
+                        </div>
+                    </div>
+                    <button class="gratitude-btn" id="save-combined-checkin-btn">Salva Check-in</button>
+
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>😴 Check-in Sonno</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-value" id="sleep-value">7</div>
+                        <input type="range" min="1" max="10" value="7" class="sleep-slider" id="sleep-slider">
+                        <div class="slider-labels">
+                            <span>Scarso</span>
+                            <span>Ottimo</span>
+                        </div>
+                    </div>
+                    <button class="gratitude-btn" id="save-sleep-btn">Salva</button>
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📔 Diario della Gratitudine</span>
+                    </div>
+                    <form class="gratitude-form" id="gratitude-form">
+                        <input type="text" class="gratitude-input" placeholder="😊 Cosa ti rende grato oggi? (Es. Il sole che splende)">
+                        <input type="text" class="gratitude-input" placeholder="🙏 Un'altra cosa per cui sei grato">
+                        <input type="text" class="gratitude-input" placeholder="🌞 E un'altra ancora...">
+                        <button type="submit" class="gratitude-btn" id="gratitude-btn">
+                            <i class="fas fa-book"></i> Salva nel Diario
+                        </button>
+                    </form>
+                    <div class="premium-lock">
+                        <button class="premium-lock-btn" data-target="premium-card">
+                            <i class="fas fa-lock"></i> Sblocca con Premium
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="profile" class="section">
+                <div class="profile-header">
+                    <div class="profile-emoji" id="profile-emoji">😊</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profile-name">Marco Rossi</div>
+                        <div class="profile-welcome" id="profile-welcome">Benvenuto nella tua area personale</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="profile-item" id="history-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="profile-text">Storico e Progressi</div>
+                    </div>
+
+                    <div class="profile-item" id="edit-profile-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="profile-text">Modifica profilo</div>
+                    </div>
+
+                    <div class="profile-item" id="account-settings-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="profile-text">Impostazioni Account</div>
+                    </div>
+
+                    <div class="profile-item" id="theme-toggle-profile">
+                        <div class="profile-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="profile-text">Tema Scuro</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="theme-toggle-input">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="profile-item logout-btn" id="logout-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="profile-text">Esci</div>
+                    </div>
+                </div>
+
+                <div class="premium-card" id="premium-card">
+                    <div class="premium-title">
+                        <span><i class="fas fa-crown"></i> Diventa Premium</span>
+                    </div>
+                    <p class="premium-description">Sblocca tutte le funzionalità per accelerare il tuo percorso di benessere.</p>
+
+                    <div class="subscription-toggle-container">
+                        <div class="subscription-toggle">
+                            <div class="toggle-slider-background"></div>
+                            <button class="toggle-option active" id="yearly-toggle">
+                                Annuale <span class="discount-badge">Risparmia il 40%</span>
+                            </button>
+                            <button class="toggle-option" id="monthly-toggle">
+                                Mensile
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="yearly-plan" class="plan-details active">
+                        <div class="plan-price-container">
+                            <span class="plan-price">49,99€</span>
+                            <span class="plan-period">/ anno</span>
+                        </div>
+                        <p class="plan-equivalent">Solo 4,17€ al mese</p>
+                        <div class="trial-badge">
+                            <i class="fas fa-gift"></i> 7 GIORNI DI PROVA GRATUITA
+                        </div>
+                        <button class="subscribe-btn-premium" id="annual-subscribe">Inizia la prova gratuita</button>
+                    </div>
+
+                    <div id="monthly-plan" class="plan-details">
+                        <div class="plan-price-container">
+                            <span class="plan-price">6,99€</span>
+                            <span class="plan-period">/ mese</span>
+                        </div>
+                        <p class="plan-equivalent">Flessibilità totale, disdici quando vuoi</p>
+                        <button class="subscribe-btn-premium" id="monthly-subscribe">Abbonati Ora</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">
+                        <span><i class="fas fa-hands-helping"></i> Supporto e Aiuto</span>
+                    </div>
+                    <p style="padding: 10px; color: var(--text-light);">Siamo qui per te. Se hai bisogno di supporto o vuoi condividere la tua esperienza, contattaci a supporto@viviconsapevolmente.it</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="player-modal" id="player-modal">
+            <div class="player-container">
+                <div class="player-header">
+                    <h2 id="player-title">Meditazione del Respiro</h2>
+                </div>
+                <div class="player-body">
+                    <p id="player-description" style="text-align: center; margin-bottom: 20px; color: var(--text-light);">
+                        10 minuti di calma e concentrazione
+                    </p>
+                    <audio id="meditation-audio" controls></audio>
+                    <button class="player-close" id="player-close-btn">Chiudi</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-modal" id="history-modal">
+            <div class="history-container">
+                <div class="history-header">
+                    <div class="history-title">Storico e Progressi</div>
+                    <button class="history-close" id="history-close-btn">&times;</button>
+                </div>
+
+                <div class="calendar-navigation">
+                    <button class="calendar-nav-btn" id="prev-month-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="calendar-month" id="calendar-month">Luglio 2025</div>
+                    <button class="calendar-nav-btn" id="next-month-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="calendar-container" id="calendar">
+                    </div>
+
+                <button class="gratitude-btn" id="generate-report-btn"><i class="fas fa-chart-pie"></i> Genera Report</button>
+
+                <div class="history-section">
+                    <div class="history-section-title">Check-in Benessere</div>
+                    <div class="card" id="mood-history-container">
+                        </div>
+                </div>
+
+                <div class="history-section">
+                    <div class="history-section-title">Diario della Gratitudine</div>
+                    <div class="card" id="gratitude-history-container">
+                        </div>
+                </div>
+
+                <div class="history-section">
+                    <div class="history-section-title">🎯 Obiettivi Giornalieri</div>
+                    <div class="card" id="goal-history-container">
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-modal" id="account-settings-modal">
+            <div class="account-settings-container">
+                <div class="history-header">
+                    <div class="history-title">Impostazioni Account</div>
+                    <button class="history-close" id="account-settings-close-btn">&times;</button>
+                </div>
+                <div class="account-settings-content">
+                    <div class="profile-item" id="manage-subscription-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="profile-text">Gestisci Abbonamento</div>
+                    </div>
+                    <div class="profile-item" id="terms-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="profile-text">Termini di Servizio</div>
+                    </div>
+                    <div class="profile-item" id="privacy-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="profile-text">Privacy Policy</div>
+                    </div>
+                    <div class="profile-item delete-btn" id="delete-account-btn">
+                        <div class="profile-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="profile-text">Elimina il mio account</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-edit-modal" id="profile-edit-modal">
+            <div class="profile-edit-container">
+                <h2 class="profile-edit-title">Modifica Profilo</h2>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nome</label>
+                    <input type="text" class="form-input" id="profile-name-input" placeholder="Il tuo nome">
+                </div>
+
+                <div class="gender-selection">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Genere</label>
+                    <div class="gender-options">
+                        <div class="gender-option" data-gender="M">Maschile</div>
+                        <div class="gender-option" data-gender="F">Femminile</div>
+                        <div class="gender-option" data-gender="N">Neutro</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Emoji</label>
+                    <div class="emoji-picker">
+                        <div class="emoji-option" data-emoji="😊">😊</div>
+                        <div class="emoji-option" data-emoji="😄">😄</div>
+                        <div class="emoji-option" data-emoji="😌">😌</div>
+                        <div class="emoji-option" data-emoji="🧘">🧘</div>
+                        <div class="emoji-option" data-emoji="🌿">🌿</div>
+                        <div class="emoji-option" data-emoji="🌸">🌸</div>
+                        <div class="emoji-option" data-emoji="🦋">🦋</div>
+                        <div class="emoji-option" data-emoji="🌈">🌈</div>
+                        <div class="emoji-option" data-emoji="🌞">🌞</div>
+                        <div class="emoji-option" data-emoji="🌙">🌙</div>
+                        <div class="emoji-option" data-emoji="🍃">🍃</div>
+                        <div class="emoji-option" data-emoji="🌼">🌼</div>
+                        <div class="emoji-option" data-emoji="💖">💖</div>
+                        <div class="emoji-option" data-emoji="✨">✨</div>
+                        <div class="emoji-option" data-emoji="🙏">🙏</div>
+                        <div class="emoji-option" data-emoji="🌟">🌟</div>
+                        <div class="emoji-option" data-emoji="🕊️">🕊️</div>
+                        <div class="emoji-option" data-emoji="💧">💧</div>
+                    </div>
+                </div>
+
+                <div class="profile-edit-buttons">
+                    <button class="profile-edit-cancel" id="profile-edit-cancel">Annulla</button>
+                    <button class="profile-edit-save" id="profile-edit-save">Salva</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-modal" id="login-modal">
+            <div class="login-container">
+                <div class="login-header">
+                    <div class="app-name">Vivi Consapevolmente</div>
+                    <div class="app-tagline">La tua app per il benessere quotidiano</div>
+                </div>
+
+                <div class="login-options">
+                    <button class="login-btn google" id="google-login">
+                        <i class="fab fa-google"></i> Accedi con Google
+                    </button>
+                </div>
+
+                <button class="login-close" id="login-close-btn">Continua senza account</button>
+            </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <div class="nav-bar">
+            <a href="#" class="nav-item active" data-target="home">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <div>Home</div>
+                <div class="nav-indicator"></div>
+            </a>
+            <a href="#" class="nav-item" data-target="meditations">
+                <div class="nav-icon"><i class="fas fa-spa"></i></div>
+                <div>Meditazioni</div>
+                <div class="nav-indicator"></div>
+            </a>
+            <a href="#" class="nav-item" data-target="health">
+                <div class="nav-icon"><i class="fas fa-heart"></i></div>
+                <div>Salute</div>
+                <div class="nav-indicator"></div>
+            </a>
+            <a href="#" class="nav-item" data-target="profile">
+                <div class="nav-icon"><i class="fas fa-user"></i></div>
+                <div>Profilo</div>
+                <div class="nav-indicator"></div>
+            </a>
+        </div>
+    </div> <script src="script.js" defer></script>
+</body>
+</html>
