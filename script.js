@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         lastAccessDate: null,
         streakUpdatedToday: false,
         // NUOVA MODIFICA: Aggiornati i percorsi delle immagini per riflettere una struttura di cartelle (es. assets/images/).
-        // Assicurarsi che le immagini si trovino in questo percorso.
+        // Assicurarsi che le immagini si trovino in questo percorso nel progetto.
         dailyQuotes: [
             { image: "assets/images/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
             { image: "assets/images/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
@@ -298,6 +298,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Carica i dati salvati da localStorage
     function loadSavedData() {
+        // --- PREPARAZIONE PER SUPABASE ---
+        // Questa funzione è il punto di ingresso per caricare i dati.
+        // Attualmente usa localStorage. In futuro, qui andrà la logica
+        // per interrogare il database Supabase e popolare lo stato dell'app.
+        // Esempio:
+        // const { data, error } = await supabase.from('profiles').select('*').single();
+        // if (data) state.profile = data.profile_data;
+
         const savedProfile = localStorage.getItem('userProfile');
         if (savedProfile) {
             state.profile = JSON.parse(savedProfile);
@@ -410,6 +418,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Salva dati in localStorage
     function saveData() {
+        // --- PREPARAZIONE PER SUPABASE ---
+        // Questa funzione centralizza il salvataggio dei dati.
+        // Attualmente usa localStorage. In futuro, la logica qui verrà sostituita
+        // con chiamate API per aggiornare i dati nel database Supabase.
+        // L'approccio ideale è creare una funzione `updateRemoteData` che viene
+        // chiamata da qui.
+        // Esempio:
+        // const { error } = await supabase.from('profiles').update({ profile_data: state.profile }).eq('id', userId);
+
         localStorage.setItem('userProfile', JSON.stringify(state.profile));
         localStorage.setItem('moodEntries', JSON.stringify(state.moodEntries));
         localStorage.setItem('gratitudeEntries', JSON.stringify(state.gratitudeEntries));

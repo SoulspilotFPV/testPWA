@@ -33,9 +33,14 @@
  * MODIFICA: Rimosso `background-attachment: fixed` per migliorare la compatibilità dello sfondo fisso sui dispositivi mobili.
  * MODIFICA: Aggiunti stili per il nuovo sistema di medaglie e per il popup di sblocco.
  * MODIFICA: Riscritta l'animazione di apertura/chiusura di tutti i modali per risolvere il bug della "contrazione" e migliorare la fluidità.
- * --- MODIFICHE RICHIESTE DALL'UTENTE ---
+ * --- MODIFICHE RICHIESTE DALL'UTENTE (Implementate in questa versione) ---
  * MODIFICA: Aggiunti stili per il feedback visivo (icona di spunta e animazioni) quando un utente salva un dato.
  * MODIFICA: Aggiunta un'animazione per la comparsa di un nuovo obiettivo o intenzione dopo essere stati impostati.
+ * MODIFICA: Riscritti gli stili per il modale "Impostazioni Account" per una maggiore coerenza visiva con il resto dell'app.
+ * MODIFICA: Aggiunta una media query `@media (hover: hover)` per applicare gli effetti :hover solo su dispositivi non-touch,
+ * risolvendo il problema dello "sticky hover" (es. sui filtri delle meditazioni) dopo un tap su mobile.
+ * NUOVA MODIFICA: Corretto il glitch visivo delle medaglie non sbloccate durante il cambio tema.
+ * NUOVA MODIFICA: Risolto il problema della barra nera in cima alla pagina su mobile in dark mode.
  */
 :root {
     --primary: #B39DDB;
@@ -100,14 +105,16 @@ body::before {
     height: 100vh;
     width: 100vw;
     z-index: -1;
-    background-image: url('bodylight.jpg');
+    background-image: url('assets/images/bodylight.jpg'); /* Assicurati che l'immagine sia in assets/images */
     background-size: cover;
-    background-position: center;
-    /* MODIFICA: Rimosso `background-attachment: fixed`. La proprietà `position: fixed` è più affidabile
-       per creare uno sfondo fisso, specialmente sui browser mobili, evitando problemi di zoom e scatti. */
+    /* NUOVA MODIFICA: background-position esplicita e background-attachment ripristinato
+       per risolvere il bug della barra nera su mobile in dark mode, garantendo
+       un posizionamento più robusto e stabile dello sfondo. */
+    background-position: center center;
+    background-attachment: fixed;
 }
 body.dark-theme::before {
-    background-image: url('bodydark.jpg');
+    background-image: url('assets/images/bodydark.jpg'); /* Assicurati che l'immagine sia in assets/images */
 }
 
 
@@ -244,11 +251,6 @@ body.dark-theme {
     position: relative;
 }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-}
-
 .card-title {
     font-size: 1.25rem;
     color: var(--text-primary);
@@ -382,11 +384,6 @@ body.dark-theme {
     justify-content: center;
 }
 
-.mood-btn:hover {
-    transform: scale(1.15);
-    background: rgba(209, 196, 233, 0.2);
-}
-
 .mood-btn.selected {
     transform: scale(1.1);
     border-color: var(--primary);
@@ -503,13 +500,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     border-color: rgba(126, 87, 194, 0.4);
 }
 
-
-.meditation-item:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-    background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
-}
-
 .meditation-info {
     flex: 1;
 }
@@ -607,10 +597,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     border: 1px solid rgba(179, 157, 219, 0.2);
 }
 
-.player-close:hover {
-    background: rgba(209, 196, 233, 0.1);
-}
-
 .history-container {
     background: var(--card-bg);
     width: 90%;
@@ -649,11 +635,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     justify-content: center;
     border-radius: 50%;
     transition: all 0.3s ease;
-}
-
-.history-close:hover {
-    background: #f1f5f9;
-    color: var(--text);
 }
 
 .dark-theme .history-close:hover {
@@ -745,10 +726,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     transition: background 0.3s ease;
 }
 
-.calendar-nav-btn:hover {
-    background: rgba(209, 196, 233, 0.2);
-}
-
 .calendar-nav-btn:active {
     background: rgba(209, 196, 233, 0.3);
     transform: scale(0.95);
@@ -789,10 +766,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 
 .dark-theme .calendar-day {
     background: rgba(50, 50, 50, 0.7);
-}
-
-.calendar-day:hover {
-    background: rgba(209, 196, 233, 0.2);
 }
 
 .calendar-day:active {
@@ -862,11 +835,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 
 .dark-theme .emoji-option {
     background: rgba(50, 50, 50, 0.2);
-}
-
-.emoji-option:hover {
-    transform: scale(1.1);
-    border-color: var(--primary-light);
 }
 
 .emoji-option.selected {
@@ -944,21 +912,9 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     color: #f5f5f5;
 }
 
-.profile-edit-cancel:hover {
-    background: #e2e8f0;
-}
-
-.dark-theme .profile-edit-cancel:hover {
-    background: #3e3e3e;
-}
-
 .profile-edit-save {
     background: var(--button-bg);
     color: white;
-}
-
-.profile-edit-save:hover {
-    background: var(--primary-dark);
 }
 
 .toast {
@@ -1102,11 +1058,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     width: 100%;
 }
 
-.gratitude-btn:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
 .gratitude-btn:active {
     background: var(--primary-darker);
     transform: scale(0.98);
@@ -1184,12 +1135,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     box-shadow: var(--shadow);
 }
 
-.profile-item:hover {
-    background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
 .profile-item:active {
     transform: translateY(0);
     background: rgba(209, 196, 233, 0.2);
@@ -1256,10 +1201,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     align-items: center;
     justify-content: center;
     gap: 8px;
-}
-
-.goal-btn:hover {
-    background: var(--primary-dark);
 }
 
 .goal-item {
@@ -1550,11 +1491,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     font-weight: 700;
 }
 
-
-.filter-btn:hover {
-    background: rgba(179, 157, 219, 0.4);
-}
-
 .filter-btn:active {
     transform: scale(0.95);
 }
@@ -1570,11 +1506,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     box-shadow: 0 6px 16px rgba(126, 87, 194, 0.1);
     margin-bottom: 20px;
     transition: all 0.3s ease;
-}
-
-.intention-banner:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(126, 87, 194, 0.15);
 }
 
 .intention-banner::before {
@@ -1639,10 +1570,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     transition: opacity 0.3s ease;
 }
 
-.intention-text:hover .edit-intention-btn {
-    opacity: 1;
-}
-
 .intention-btn {
     background: var(--button-bg);
     color: white;
@@ -1658,12 +1585,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
     display: block;
     margin: 0 auto;
-}
-
-.intention-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(126, 87, 194, 0.4);
 }
 
 .intention-input {
@@ -2019,11 +1940,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-.subscribe-btn-premium:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(94, 53, 177, 0.4);
-}
-
 .time-range {
     display: flex;
     align-items: center;
@@ -2053,55 +1969,6 @@ input:checked + .toggle-slider:before {
 
 .logout-btn .profile-text {
     color: var(--error) !important;
-}
-
-.logout-btn:hover {
-    background: rgba(239, 83, 80, 0.2) !important;
-}
-
-.delete-btn {
-    background: rgba(239, 83, 80, 0.1) !important;
-}
-.delete-btn .profile-text {
-    color: var(--error) !important;
-}
-.delete-btn:hover {
-    background: rgba(239, 83, 80, 0.2) !important;
-}
-
-
-@media (max-width: 480px) {
-    .premium-title {
-        font-size: 1.4rem;
-    }
-    .discount-badge {
-        font-size: 0.65rem;
-        padding: 2px 6px;
-    }
-    .toggle-option {
-        font-size: 0.85rem;
-    }
-}
-
-.history-container, .profile-edit-container, .report-container {
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-.slider-btn,
-.intention-btn,
-.profile-edit-save,
-.gratitude-btn,
-.goal-btn {
-    background: var(--button-bg);
-    color: white;
-}
-
-.slider-btn:hover,
-.intention-btn:hover,
-.profile-edit-save:hover,
-.gratitude-btn:hover,
-.goal-btn:hover {
-    background: var(--primary-dark);
 }
 
 #onboarding-login-modal {
@@ -2280,10 +2147,6 @@ input:checked + .toggle-slider:before {
     cursor: pointer;
 }
 
-.chart-bar:hover {
-    filter: brightness(1.1);
-}
-
 .mood-bar {
     background: var(--primary);
 }
@@ -2349,11 +2212,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-.report-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-
 .report-btn:active {
     transform: translateY(0);
 }
@@ -2388,11 +2246,6 @@ input:checked + .toggle-slider:before {
     text-align: center;
     border: 1px solid rgba(179, 157, 219, 0.2);
     transition: all 0.3s ease;
-}
-
-.sound-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .sound-icon {
@@ -2484,6 +2337,7 @@ input:checked + .toggle-slider:before {
     }
 }
 
+/* NUOVA MODIFICA: Stili per il modale delle Impostazioni Account, resi coerenti */
 .account-settings-container {
     background: var(--card-bg);
     width: 90%;
@@ -2497,27 +2351,51 @@ input:checked + .toggle-slider:before {
     border: 1px solid rgba(179, 157, 219, 0.2);
 }
 
-#account-settings-modal .account-settings-content .profile-item {
-    background: transparent;
-    box-shadow: none;
-    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
-    margin-bottom: 0;
-    border-radius: 0;
-    padding-left: 5px;
-    padding-right: 5px;
+.account-settings-content {
+    display: flex;
+    flex-direction: column;
 }
 
-#account-settings-modal .account-settings-content .profile-item:last-child {
+.account-settings-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.account-settings-item:last-child {
     border-bottom: none;
 }
 
-#account-settings-modal .account-settings-content .profile-item:hover {
-    background: rgba(209, 196, 233, 0.1);
-    transform: none;
-    box-shadow: none;
+.dark-theme .account-settings-item {
+    border-bottom-color: #3e3e3e;
 }
 
-/* --- NUOVI STILI: Medaglie --- */
+.account-settings-icon {
+    font-size: 1.2rem;
+    color: var(--primary);
+    width: 40px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+.account-settings-text {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.dark-theme .account-settings-text {
+    color: var(--text-light);
+}
+
+.account-settings-item.delete-btn .account-settings-icon,
+.account-settings-item.delete-btn .account-settings-text {
+    color: var(--error);
+}
+
+/* --- Sistema di Medaglie --- */
 .medals-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -2548,6 +2426,10 @@ input:checked + .toggle-slider:before {
     transition: all 0.4s ease;
     filter: blur(2px);
     opacity: 0.7;
+    /* NUOVA MODIFICA: Aggiunto per forzare l'accelerazione hardware (GPU).
+       Questo risolve il glitch di rendering sulle medaglie bloccate durante il cambio
+       di tema (light/dark) senza impattare la performance. */
+    transform: translateZ(0);
 }
 
 .medal-name {
@@ -2643,10 +2525,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-.medal-unlock-close:hover {
-    background: var(--primary-dark);
-}
-
 /* --- NUOVI STILI: Feedback Visivo sui Pulsanti e Contenuti --- */
 .btn-success-feedback {
     background: var(--success) !important;
@@ -2676,5 +2554,97 @@ input:checked + .toggle-slider:before {
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
+    }
+}
+
+/* NUOVA MODIFICA: Risolve il problema dello "sticky hover" su dispositivi touch.
+   Applica gli effetti :hover solo a dispositivi che possono effettivamente passare il mouse sopra un elemento. */
+@media (hover: hover) {
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    }
+    .mood-btn:hover {
+        transform: scale(1.15);
+        background: rgba(209, 196, 233, 0.2);
+    }
+    .meditation-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
+    }
+    .player-close:hover {
+        background: rgba(209, 196, 233, 0.1);
+    }
+    .history-close:hover {
+        background: #f1f5f9;
+        color: var(--text);
+    }
+    .calendar-nav-btn:hover {
+        background: rgba(209, 196, 233, 0.2);
+    }
+    .calendar-day:hover {
+        background: rgba(209, 196, 233, 0.2);
+    }
+    .emoji-option:hover {
+        transform: scale(1.1);
+        border-color: var(--primary-light);
+    }
+    .profile-edit-cancel:hover {
+        background: #e2e8f0;
+    }
+    .dark-theme .profile-edit-cancel:hover {
+        background: #3e3e3e;
+    }
+    .profile-edit-save:hover {
+        background: var(--primary-dark);
+    }
+    .gratitude-btn:hover {
+        background: var(--primary-dark);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .profile-item:hover {
+        background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    .goal-btn:hover {
+        background: var(--primary-dark);
+    }
+    .filter-btn:hover {
+        background: rgba(179, 157, 219, 0.4);
+    }
+    .intention-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(126, 87, 194, 0.15);
+    }
+    .intention-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(126, 87, 194, 0.4);
+    }
+    .subscribe-btn-premium:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(94, 53, 177, 0.4);
+    }
+    .logout-btn:hover {
+        background: rgba(239, 83, 80, 0.2) !important;
+    }
+    .report-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .sound-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .account-settings-item:hover {
+        background-color: rgba(209, 196, 233, 0.1);
+    }
+    .dark-theme .account-settings-item:hover {
+        background-color: #2d2d2d;
+    }
+    .medal-unlock-close:hover {
+        background: var(--primary-dark);
     }
 }
