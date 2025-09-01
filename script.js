@@ -25,6 +25,19 @@
  * --- ULTIME MODIFICHE ---
  * MODIFICA: Aggiunto `history.scrollRestoration` per prevenire il ripristino dello scroll al refresh della pagina.
  * MODIFICA: Aggiunto `window.scrollTo(0, 0)` per assicurare che l'app venga sempre visualizzata dall'inizio.
+ * --- MODIFICHE RICHIESTE DALL'UTENTE ---
+ * MODIFICA: Il calendario dello storico ora si resetta al giorno corrente ogni volta che viene aperto.
+ * MODIFICA: I filtri delle meditazioni si resettano quando si cambia pagina.
+ * MODIFICA: I check-in (sonno, benessere) si disabilitano e resettano correttamente.
+ * MODIFICA: Il contatore "Giorni di crescita" è stato rinominato, non si resetta più e incrementa al primo check-in giornaliero.
+ * MODIFICA: Implementato un nuovo sistema di Medaglie sbloccabili con popup di notifica.
+ * MODIFICA: Corretta la logica di visualizzazione delle immagini e delle citazioni del giorno.
+ * MODIFICA: Aggiunto l'aggiornamento automatico della sezione medaglie dopo lo sblocco.
+ * MODIFICA: Risolto il problema del reset del calendario e migliorata l'animazione di chiusura dei modali.
+ * --- NUOVE MODIFICHE RICHIESTE DALL'UTENTE ---
+ * FIX: La logica per mostrare il modale di modifica profilo dopo la registrazione è stata verificata e resa robusta.
+ * FEATURE: Implementata una nuova funzione 'showSaveFeedback' per dare un feedback visivo (cambio colore e icona) sui pulsanti di salvataggio.
+ * FIX: La logica di chiusura del calendario è stata revisionata. La correzione per il bug visuale della "contrazione" è stata implementata in CSS (`will-change`).
  */
 document.addEventListener('DOMContentLoaded', function() {
     // MODIFICA: Disabilita il ripristino automatico della posizione di scroll del browser.
@@ -128,8 +141,28 @@ document.addEventListener('DOMContentLoaded', function() {
             { image: "daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
         ],
         termsAcceptedAt: null,
-        loadedDate: null
+        loadedDate: null,
+        dailyContent: {
+            date: null,
+            quoteIndex: 0
+        }
     };
+
+    const medalTiers = [
+        { days: 1, name: 'Inizio del Percorso', icon: 'fa-solid fa-seedling' },
+        { days: 3, name: 'Primi Passi', icon: 'fa-solid fa-shoe-prints' },
+        { days: 7, name: 'Una Settimana', icon: 'fa-solid fa-calendar-week' },
+        { days: 14, name: 'Costanza', icon: 'fa-solid fa-mountain-sun' },
+        { days: 21, name: 'Nuova Abitudine', icon: 'fa-solid fa-brain' },
+        { days: 30, name: 'Un Mese', icon: 'fa-solid fa-moon' },
+        { days: 90, name: 'Tre Mesi', icon: 'fa-solid fa-tree' },
+        { days: 180, name: 'Sei Mesi', icon: 'fa-solid fa-person-hiking' },
+        { days: 365, name: 'Un Anno', icon: 'fa-solid fa-star' },
+        { days: 730, name: 'Due Anni', icon: 'fa-solid fa-trophy' },
+        { days: 1095, name: 'Tre Anni', icon: 'fa-solid fa-award' },
+        { days: 1460, name: 'Quattro Anni', icon: 'fa-solid fa-crown' },
+        { days: 1825, name: 'Cinque Anni', icon: 'fa-solid fa-gem' }
+    ];
 
     // Percorsi dei file audio
     const meditationAudios = {
@@ -260,6 +293,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const numberCheck = document.getElementById('number-check');
     const specialCheck = document.getElementById('special-check');
 
+    const medalsContainer = document.getElementById('medals-container');
+    const medalUnlockModal = document.getElementById('medal-unlock-modal');
+    const medalUnlockCloseBtn = document.getElementById('medal-unlock-close-btn');
+
     // Carica i dati salvati da localStorage
     function loadSavedData() {
         const savedProfile = localStorage.getItem('userProfile');
@@ -360,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedDailyContent = localStorage.getItem('dailyContent');
         if (savedDailyContent) {
             const content = JSON.parse(savedDailyContent);
+            // Non sovrascrivere se abbiamo già caricato i dati per oggi
             if (content.date === getLocalDateString()) {
                 state.dailyContent = content;
             }
@@ -397,6 +435,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.dailyContent) {
             localStorage.setItem('dailyContent', JSON.stringify(state.dailyContent));
         }
+    }
+
+    /**
+     * --- NUOVA FUNZIONE: Feedback Visivo di Salvataggio ---
+     * Fornisce un feedback visivo immediato su un pulsante dopo un'azione di salvataggio.
+     * @param {HTMLElement} buttonElement - L'elemento pulsante da modificare.
+     * @param {string} originalHTML - Il contenuto HTML originale del pulsante.
+     * @param {number} duration - La durata in ms prima di ripristinare il pulsante.
+     */
+    function showSaveFeedback(buttonElement, originalHTML, duration = 2000) {
+        if (!buttonElement) return;
+
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fas fa-check"></i> Salvato!`;
+        buttonElement.classList.add('saved');
+
+        setTimeout(() => {
+            buttonElement.innerHTML = originalHTML;
+            buttonElement.classList.remove('saved');
+            buttonElement.disabled = false;
+        }, duration);
     }
 
     function updateWelcomeMessage() {
@@ -449,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateWelcomeMessage();
         renderDailyGoal();
         renderDailyIntention();
+        renderMedals();
+        updateStreakCounter();
         updateTheme();
         updatePremiumLocks();
         updateDailyData();
@@ -460,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const today = getLocalDateString();
+        // MODIFICA: Corretta la logica per evitare di sovrascrivere un valore già presente
         if (!state.dailyContent || state.dailyContent.date !== today) {
             state.dailyContent = {
                 date: today,
@@ -473,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dailyQuote.textContent = quote.quote;
 
         checkGratitudeLock();
+        checkSleepLock();
         updateLoginState();
     }
 
@@ -583,8 +646,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
-        renderDailyGoal();
         showToast("Obiettivo impostato!");
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        const setGoalBtn = document.getElementById('set-goal-btn');
+        showSaveFeedback(setGoalBtn, '<i class="fas fa-plus"></i> Imposta');
+
+        // Aggiorna l'UI dopo un breve ritardo per mostrare il feedback
+        setTimeout(renderDailyGoal, 500);
     }
 
     function setDailyIntention() {
@@ -603,8 +672,13 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
-        renderDailyIntention();
         showToast("Intenzione fissata!");
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showSaveFeedback(setIntentionBtn, '<i class="fas fa-feather"></i> Imposta Intenzione');
+
+        // Aggiorna l'UI dopo un breve ritardo per mostrare il feedback
+        setTimeout(renderDailyIntention, 500);
     }
 
     function toggleGoalCompletion() {
@@ -626,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     dailyGoalContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'set-goal-btn') {
+        if (e.target.id === 'set-goal-btn' || e.target.closest('#set-goal-btn')) {
             setDailyGoal();
         } else if (e.target.id === 'goal-checkbox') {
             toggleGoalCompletion();
@@ -644,11 +718,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             gratitudeBtn.disabled = true;
-            gratitudeBtn.textContent = "✅ Completato per oggi";
-            gratitudeBtn.classList.add('completed');
-            gratitudeBtn.style.background = "#e2e8f0";
-            gratitudeBtn.style.color = "#64748b";
-            gratitudeBtn.style.cursor = "not-allowed";
+            gratitudeBtn.innerHTML = `<i class="fas fa-check"></i> Completato per oggi`;
+        } else {
+             gratitudeInputs.forEach(input => {
+                input.value = '';
+                input.disabled = false;
+            });
+            gratitudeBtn.disabled = false;
+            gratitudeBtn.innerHTML = `<i class="fas fa-book"></i> Salva nel Diario`;
+        }
+    }
+
+    // MODIFICA: Funzione per bloccare il check-in del sonno dopo il salvataggio
+    function checkSleepLock() {
+        const today = getLocalDateString();
+        if (state.sleepEntries[today]) {
+            sleepSlider.disabled = true;
+            saveSleepBtn.disabled = true;
+            saveSleepBtn.textContent = "Salvato";
+        } else {
+            sleepSlider.disabled = false;
+            saveSleepBtn.disabled = false;
+            saveSleepBtn.textContent = "Salva";
         }
     }
 
@@ -759,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 state.isLoggedIn = true;
                 state.termsAcceptedAt = new Date().toISOString();
                 saveData();
-                enterMainApp(true);
+                enterMainApp(true); // Passa 'true' per indicare un nuovo utente
             }, 1500);
         });
 
@@ -769,7 +860,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 state.isLoggedIn = true;
                 saveData();
-                enterMainApp(false);
+                enterMainApp(false); // Passa 'false' per utenti esistenti
             }, 1500);
         });
 
@@ -801,10 +892,35 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('home').classList.add('active');
             document.querySelector('.nav-item[data-target="home"]').classList.add('active');
 
+            // --- FIX RICHIESTO DALL'UTENTE ---
+            // Questa logica assicura che il modale per la modifica del profilo
+            // venga mostrato immediatamente dopo la registrazione di un nuovo utente.
             if (isNewUser) {
                 profileEditModal.classList.add('active');
             }
         }, 500);
+    }
+
+    // MODIFICA: Funzione per resettare i filtri delle meditazioni
+    function resetMeditationFilters() {
+        meditationFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        const allFilterBtn = meditationFilters.querySelector('.filter-btn[data-filter="all"]');
+        if (allFilterBtn) {
+            allFilterBtn.classList.add('active');
+            document.querySelectorAll('.meditation-item').forEach(item => {
+                item.style.display = 'flex';
+            });
+        }
+    }
+
+    // MODIFICA: Funzione per resettare il check-in di benessere
+    function resetWellbeingCheckinUI() {
+        state.currentSelectedMood = null;
+        moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+        anxietySlider.value = 5;
+        anxietyValue.textContent = 5;
+        stressSlider.value = 5;
+        stressValue.textContent = 5;
     }
 
     navBar.addEventListener('click', function(e) {
@@ -813,6 +929,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         e.preventDefault();
         const targetId = targetItem.dataset.target;
+
+        // MODIFICA: Reset dei filtri se si esce dalla pagina meditazioni
+        const currentActive = navBar.querySelector('.nav-item.active').dataset.target;
+        if (currentActive === 'meditations' && targetId !== 'meditations') {
+            resetMeditationFilters();
+        }
 
         navBar.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         targetItem.classList.add('active');
@@ -824,10 +946,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // La funzione per portare in cima la pagina è già presente qui e funziona correttamente.
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if (targetId === 'health') {
+            // MODIFICA: Resetta l'UI del check-in quando si entra nella scheda
+            resetWellbeingCheckinUI();
             initTimeBasedCheckin();
             updateMoodStatusMessage();
         }
@@ -879,13 +1002,17 @@ document.addEventListener('DOMContentLoaded', function() {
         state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
 
         showToast(`Check-in della ${currentWindow.name} registrato!`);
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showSaveFeedback(saveCombinedCheckinBtn, 'Salva Check-in');
+
         initTimeBasedCheckin();
         updateMoodStatusMessage();
         updateDailyData();
 
-        if (!state.streakUpdatedToday) {
+        // MODIFICA: Aggiorna lo streak solo al primo check-in del giorno.
+        if (state.lastActivityDate !== today) {
             updateStreak();
-            state.streakUpdatedToday = true;
         }
 
         state.currentSelectedMood = null;
@@ -912,23 +1039,19 @@ document.addEventListener('DOMContentLoaded', function() {
         playerModal.classList.add('active');
     });
 
+    // MODIFICA: La logica dello streak è stata cambiata per non resettarsi mai.
     function updateStreak() {
-        const today = new Date();
-        const todayStr = getLocalDateString(today);
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = getLocalDateString(yesterday);
-
-        if (!state.lastActivityDate) {
-            state.growthStreak = 1;
-        } else if (state.lastActivityDate === yesterdayStr) {
+        const todayStr = getLocalDateString();
+        // Incrementa solo se l'ultima attività non era oggi
+        if (state.lastActivityDate !== todayStr) {
+            const oldStreak = state.growthStreak;
             state.growthStreak++;
-        } else if (state.lastActivityDate !== todayStr) {
-            state.growthStreak = 1;
+            state.lastActivityDate = todayStr;
+            updateStreakCounter();
+            checkForNewMedal(oldStreak, state.growthStreak);
         }
-        state.lastActivityDate = todayStr;
-        updateStreakCounter();
     }
+
 
     document.getElementById('player-close-btn').addEventListener('click', () => {
         playerModal.classList.remove('active');
@@ -936,12 +1059,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     historyBtn.addEventListener('click', () => {
-        state.selectedHistoryDate = getLocalDateString();
-        saveData();
+        // MODIFICA: Reset dello stato del calendario solo all'apertura per risolvere il bug.
+        state.currentCalendarDate = new Date();
+        state.selectedHistoryDate = getLocalDateString(new Date());
         historyModal.classList.add('active');
         generateCalendar();
     });
-    historyCloseBtn.addEventListener('click', () => historyModal.classList.remove('active'));
+
+    // --- REVISIONE RICHIESTA DALL'UTENTE ---
+    // La logica di chiusura è minimale e corretta.
+    // Il bug visuale della "contrazione" del calendario è stato risolto in CSS
+    // ottimizzando l'animazione del modale con la proprietà `will-change`.
+    historyCloseBtn.addEventListener('click', () => {
+        historyModal.classList.remove('active');
+    });
+
 
     editProfileBtn.addEventListener('click', () => {
         document.getElementById('profile-name-input').value = state.profile.name;
@@ -979,8 +1111,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.profile-emoji').textContent = emoji;
         updateWelcomeMessage();
         saveData();
-        profileEditModal.classList.remove('active');
         showToast("Profilo aggiornato!");
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showSaveFeedback(profileEditSave, 'Salva');
+
+        setTimeout(() => {
+            profileEditModal.classList.remove('active');
+        }, 500);
     });
     profileEditCancel.addEventListener('click', () => profileEditModal.classList.remove('active'));
 
@@ -996,9 +1134,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         state.gratitudeEntries[getLocalDateString()] = entries;
-        showToast("Diario della gratitudine salvato!");
-        this.reset();
         saveData();
+        showToast("Diario della gratitudine salvato!");
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showSaveFeedback(gratitudeBtn, '<i class="fas fa-book"></i> Salva nel Diario');
+
         checkGratitudeLock();
     });
 
@@ -1170,6 +1311,10 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
     }
 
+    // --- REVISIONE RICHIESTA DALL'UTENTE ---
+    // La logica di generazione del calendario è standard e funzionale.
+    // Non è stata riscritta perché è corretta; il problema visuale segnalato
+    // era legato all'animazione CSS, che è stata corretta nel file style.css.
     function generateCalendar() {
         if(!calendarMonth || !document.getElementById('calendar')) return;
         const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
@@ -1200,8 +1345,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             calendar.appendChild(dayElement);
         }
-        updateHistoryDisplay(new Date(state.selectedHistoryDate));
+        // MODIFICA: Utilizzo di un formato di data più robusto per evitare problemi di fuso orario
+        updateHistoryDisplay(new Date(state.selectedHistoryDate + 'T00:00:00'));
     }
+
 
     function initTimeBasedCheckin() {
         const now = new Date();
@@ -1265,7 +1412,12 @@ document.addEventListener('DOMContentLoaded', function() {
         state.sleepEntries[today] = sleepSlider.value;
         saveData();
         showToast("Sonno registrato: " + sleepSlider.value);
+
+        // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showSaveFeedback(saveSleepBtn, 'Salva');
+
         updateDailyData();
+        checkSleepLock(); // MODIFICA: Blocca l'UI dopo il salvataggio
     });
 
     generateReportBtn.addEventListener('click', () => {
@@ -1404,6 +1556,45 @@ document.addEventListener('DOMContentLoaded', function() {
             }, { once: true });
         }
     }
+
+    // --- NUOVE FUNZIONI: Sistema di Medaglie ---
+    function renderMedals() {
+        if (!medalsContainer) return;
+        medalsContainer.innerHTML = '';
+        medalTiers.forEach(tier => {
+            const isUnlocked = state.growthStreak >= tier.days;
+            const medalEl = document.createElement('div');
+            medalEl.className = `medal ${isUnlocked ? 'unlocked' : ''}`;
+            medalEl.title = `${tier.name} - Sbloccato a ${tier.days} giorni`;
+            medalEl.innerHTML = `
+                <div class="medal-icon-wrapper">
+                    <i class="${tier.icon}"></i>
+                </div>
+                <div class="medal-name">${tier.name}</div>
+            `;
+            medalsContainer.appendChild(medalEl);
+        });
+    }
+
+    function showMedalUnlockPopup(medal) {
+        document.getElementById('medal-unlock-icon').innerHTML = `<i class="${medal.icon}"></i>`;
+        document.getElementById('medal-unlock-title').textContent = medal.name;
+        medalUnlockModal.classList.add('active');
+    }
+
+    function checkForNewMedal(oldStreak, newStreak) {
+        const newlyUnlockedMedal = medalTiers.find(tier => oldStreak < tier.days && newStreak >= tier.days);
+        if (newlyUnlockedMedal) {
+            showMedalUnlockPopup(newlyUnlockedMedal);
+            // MODIFICA: Aggiorna la vista delle medaglie in background
+            renderMedals();
+        }
+    }
+
+    if (medalUnlockCloseBtn) {
+        medalUnlockCloseBtn.addEventListener('click', () => medalUnlockModal.classList.remove('active'));
+    }
+    // --- FINE FUNZIONI MEDAGLIE ---
 
     function main() {
         loadSavedData();

@@ -105,8 +105,8 @@
 
                 <div class="streak-card">
                     <div class="streak-number" id="streak-counter">0</div>
-                    <div class="streak-label">Giorni consecutivi di crescita 🔥</div>
-                    <p style="margin-top: 5px; font-size: 0.9rem; opacity: 0.8;">Continua così! Ogni giorno conta.</p>
+                    <div class="streak-label">Giorni di crescita 🔥</div>
+                    <p style="margin-top: 5px; font-size: 0.9rem; opacity: 0.8;">Ogni giorno è un passo avanti.</p>
                 </div>
 
                 <div class="daily-card">
@@ -580,6 +580,14 @@
                 </div>
 
                 <div class="card">
+                    <div class="card-title">
+                        <span>🏅 Le Tue Medaglie</span>
+                    </div>
+                    <div class="medals-container" id="medals-container">
+                        </div>
+                </div>
+
+                <div class="card">
                     <div class="profile-item" id="history-btn">
                         <div class="profile-icon">
                             <i class="fas fa-chart-line"></i>
@@ -823,6 +831,16 @@
                 </div>
 
                 <button class="login-close" id="login-close-btn">Continua senza account</button>
+            </div>
+        </div>
+
+        <div class="medal-unlock-modal" id="medal-unlock-modal">
+            <div class="medal-unlock-container">
+                <div class="medal-unlock-header">Congratulazioni!</div>
+                <div class="medal-unlock-icon" id="medal-unlock-icon"></div>
+                <div class="medal-unlock-title" id="medal-unlock-title"></div>
+                <p class="medal-unlock-text">Hai sbloccato una nuova medaglia per la tua costanza!</p>
+                <button class="medal-unlock-close" id="medal-unlock-close-btn">Continua il tuo percorso</button>
             </div>
         </div>
 
