@@ -41,10 +41,6 @@
  * risolvendo il problema dello "sticky hover" (es. sui filtri delle meditazioni) dopo un tap su mobile.
  * NUOVA MODIFICA: Corretto il glitch visivo delle medaglie non sbloccate durante il cambio tema.
  * NUOVA MODIFICA: Risolto il problema della barra nera in cima alla pagina su mobile in dark mode.
- * --- MODIFICHE RICHIESTE DALL'UTENTE (Implementate in QUESTA versione) ---
- * MODIFICA: Cambiato il colore dei pulsanti disabilitati da grigio a un viola semitrasparente.
- * MODIFICA: Uniformato lo stile dei pulsanti del profilo a quello delle impostazioni account, e aggiunto un contorno arrotondato a tutti.
- * MODIFICA: Corretto il colore del testo dell'obiettivo giornaliero in dark mode per una migliore leggibilità.
  */
 :root {
     --primary: #B39DDB;
@@ -83,6 +79,9 @@
     --toggle-bg-dark: #2d2d2d;
     --toggle-slider-gradient: linear-gradient(135deg, #ff8a80, #ea80fc, #8c9eff, #80d8ff);
     --filter-bg-light: #E9E4F0;
+    /* --- NUOVA MODIFICA UTENTE: Colori per elementi disabilitati --- */
+    --disabled-bg: #E9E4F0;
+    --disabled-text: #9575CD;
 }
 
 * {
@@ -109,7 +108,8 @@ body::before {
     height: 100vh;
     width: 100vw;
     z-index: -1;
-    background-image: url('assets/images/bodylight.jpg'); /* Assicurati che l'immagine sia in assets/images */
+    /* MODIFICA UTENTE: Verificato il percorso dell'immagine di sfondo. Assicurarsi che la cartella 'assets' sia nella root del progetto. */
+    background-image: url('assets/images/bodylight.jpg');
     background-size: cover;
     /* NUOVA MODIFICA: background-position esplicita e background-attachment ripristinato
        per risolvere il bug della barra nera su mobile in dark mode, garantendo
@@ -118,7 +118,8 @@ body::before {
     background-attachment: fixed;
 }
 body.dark-theme::before {
-    background-image: url('assets/images/bodydark.jpg'); /* Assicurati che l'immagine sia in assets/images */
+    /* MODIFICA UTENTE: Verificato il percorso dell'immagine di sfondo. Assicurarsi che la cartella 'assets' sia nella root del progetto. */
+    background-image: url('assets/images/bodydark.jpg');
 }
 
 
@@ -146,6 +147,9 @@ body.dark-theme {
     --text-primary: var(--text-primary-dark);
     --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
+    /* --- NUOVA MODIFICA UTENTE: Colori per elementi disabilitati in tema scuro --- */
+    --disabled-bg: #2d2640;
+    --disabled-text: #7E57C2;
 }
 
 /* --- MODIFICA: Rimossi tutti gli stili per l'onboarding --- */
@@ -394,12 +398,11 @@ body.dark-theme {
     background: rgba(209, 196, 233, 0.3);
 }
 
-/* MODIFICA CSS: Cambiato lo stile dei pulsanti disabilitati */
 .mood-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    background: rgba(179, 157, 219, 0.2) !important;
+    background: none !important;
     border-color: transparent !important;
 }
 
@@ -470,15 +473,10 @@ input[type="range"]::-webkit-slider-thumb {
     border: 2px solid var(--primary);
 }
 
+/* --- MODIFICA UTENTE: Stile per la levetta dello slider disabilitato --- */
 input[type="range"]:disabled::-webkit-slider-thumb {
-    background: #e0e0e0;
-    border-color: #bdbdbd;
-}
-
-/* MODIFICA CSS: Rimosso lo stile per il pulsante disabilitato generico e unificato in .gratitude-btn */
-.slider-btn:disabled {
-    background: #e0e0e0;
-    cursor: not-allowed;
+    background: var(--disabled-bg);
+    border-color: var(--disabled-text);
 }
 
 .meditation-list {
@@ -1068,12 +1066,11 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     transform: scale(0.98);
 }
 
-/* MODIFICA CSS: Stile unificato per i pulsanti disabilitati */
+/* --- MODIFICA UTENTE: Stile per i pulsanti disabilitati (es. gratitudine, sonno) --- */
 .gratitude-btn:disabled {
-    background: rgba(179, 157, 219, 0.4);
-    color: rgba(255, 255, 255, 0.8);
+    background: var(--disabled-bg);
+    color: var(--disabled-text);
     cursor: not-allowed;
-    box-shadow: none;
 }
 
 #generate-report-btn {
@@ -1131,19 +1128,34 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 }
 
 
-/* MODIFICA CSS: Rimossi gli stili per .profile-item dato che non è più utilizzato */
+.profile-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
 
+.profile-item:active {
+    transform: translateY(0);
+    background: rgba(209, 196, 233, 0.2);
+}
+
+/* --- MODIFICA UTENTE: Stile delle icone del profilo uniformato a quello delle Impostazioni Account --- */
 .profile-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary));
-    border-radius: 12px;
+    font-size: 1.2rem;
+    color: var(--primary);
+    width: 40px;
+    text-align: center;
+    margin-right: 15px;
+    background: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    color: var(--primary-darker);
-    margin-right: 15px;
 }
 
 .profile-text {
@@ -1236,8 +1248,9 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     font-size: 1rem;
     color: var(--text);
 }
-/* MODIFICA CSS: Corretto colore testo obiettivo in dark mode */
+/* --- MODIFICA UTENTE: Colore del testo per obiettivo giornaliero in dark mode --- */
 .dark-theme .goal-text {
+    /* Cambiato da --primary-dark a --text per una migliore leggibilità */
     color: var(--text);
 }
 .dark-theme .goal-text.completed {
@@ -1411,11 +1424,11 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     margin-top: 10px;
 }
 
-/* MODIFICA CSS: Stile unificato per i pulsanti disabilitati */
+/* --- MODIFICA UTENTE: Stile per il pulsante di registrazione disabilitato --- */
 .login-btn.register:disabled {
-    background: rgba(179, 157, 219, 0.4);
+    background: var(--disabled-bg);
+    color: var(--disabled-text);
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.8);
 }
 
 .toggle-form-link {
@@ -1958,13 +1971,16 @@ input:checked + .toggle-slider:before {
     border-color: #333;
 }
 
-/* MODIFICA CSS: Cambiato lo stile del pulsante logout per coerenza */
 .logout-btn {
     background: rgba(239, 83, 80, 0.1) !important;
 }
 
-.logout-btn .account-settings-text,
-.logout-btn .account-settings-icon {
+.logout-btn .profile-text {
+    color: var(--error) !important;
+}
+
+/* NUOVA MODIFICA UTENTE: Colore icona logout coerente con il testo */
+.logout-btn .profile-icon {
     color: var(--error) !important;
 }
 
@@ -2334,7 +2350,7 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* MODIFICA CSS: Stile per il modale delle Impostazioni Account, reso coerente */
+/* NUOVA MODIFICA: Stili per il modale delle Impostazioni Account, resi coerenti */
 .account-settings-container {
     background: var(--card-bg);
     width: 90%;
@@ -2353,30 +2369,21 @@ input:checked + .toggle-slider:before {
     flex-direction: column;
 }
 
-/* MODIFICA CSS: Aggiunto contorno arrotondato e stile a "pulsante" */
 .account-settings-item {
     display: flex;
     align-items: center;
-    padding: 18px;
+    padding: 18px 10px;
     cursor: pointer;
-    border-bottom: none; /* Rimosso il separatore a linea */
+    border-bottom: 1px solid rgba(179, 157, 219, 0.2);
     transition: background-color 0.3s ease;
-    background: var(--card-bg);
-    border-radius: 16px;
-    margin-bottom: 15px; /* Spaziatura tra i pulsanti */
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(179, 157, 219, 0.2);
 }
 
-/* Rimuove il margine inferiore dell'ultimo elemento per una spaziatura corretta */
-section#profile .account-settings-item:last-child,
-.account-settings-content .account-settings-item:last-child {
-    margin-bottom: 0;
+.account-settings-item:last-child {
+    border-bottom: none;
 }
 
 .dark-theme .account-settings-item {
-    border-bottom-color: transparent; /* Assicura che la linea non riappaia */
-    border: 1px solid #3e3e3e;
+    border-bottom-color: #3e3e3e;
 }
 
 .account-settings-icon {
@@ -2609,8 +2616,7 @@ section#profile .account-settings-item:last-child,
         background: var(--primary-dark);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
-    /* MODIFICA CSS: Cambiato selettore da .profile-item a .account-settings-item per hover */
-    .account-settings-item:hover {
+    .profile-item:hover {
         background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
         transform: translateY(-2px);
         box-shadow: var(--shadow-lg);
@@ -2644,6 +2650,9 @@ section#profile .account-settings-item:last-child,
     .sound-item:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .account-settings-item:hover {
+        background-color: rgba(209, 196, 233, 0.1);
     }
     .dark-theme .account-settings-item:hover {
         background-color: #2d2d2d;

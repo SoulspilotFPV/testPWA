@@ -125,8 +125,8 @@ document.addEventListener('DOMContentLoaded', function() {
         meditationHistory: {},
         lastAccessDate: null,
         streakUpdatedToday: false,
-        // NUOVA MODIFICA: Aggiornati i percorsi delle immagini per riflettere una struttura di cartelle (es. assets/images/).
-        // Assicurarsi che le immagini si trovino in questo percorso nel progetto.
+        // MODIFICA UTENTE: Verificati i percorsi delle immagini.
+        // Assicurarsi che la cartella 'assets/images/' esista al livello principale del sito.
         dailyQuotes: [
             { image: "assets/images/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
             { image: "assets/images/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
