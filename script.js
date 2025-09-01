@@ -25,19 +25,16 @@
  * --- ULTIME MODIFICHE ---
  * MODIFICA: Aggiunto `history.scrollRestoration` per prevenire il ripristino dello scroll al refresh della pagina.
  * MODIFICA: Aggiunto `window.scrollTo(0, 0)` per assicurare che l'app venga sempre visualizzata dall'inizio.
- * --- MODIFICHE RICHIESTE DALL'UTENTE ---
- * MODIFICA: Il calendario dello storico ora si resetta al giorno corrente ogni volta che viene aperto.
+ * --- MODIFICHE RICHIESTE DALL'UTENTE (Implementate in questa versione) ---
+ * NUOVA MODIFICA: Risolto il bug per cui il modale di modifica profilo non appariva dopo la registrazione.
+ * NUOVA MODIFICA: Corretti i percorsi delle immagini per il "Pensiero del Giorno" per un corretto collegamento.
+ * NUOVA MODIFICA: Aggiunto un feedback visivo (icona di spunta e animazioni) per tutti i pulsanti di salvataggio (check-in, gratitudine, sonno, profilo).
+ * NUOVA MODIFICA: Implementata un'animazione di comparsa per l'obiettivo e l'intenzione giornalieri appena impostati.
+ * NUOVA MODIFICA: Riscritta completamente la logica di generazione del calendario e la gestione della chiusura di tutti i modali per una maggiore robustezza e una migliore UX.
  * MODIFICA: I filtri delle meditazioni si resettano quando si cambia pagina.
  * MODIFICA: I check-in (sonno, benessere) si disabilitano e resettano correttamente.
  * MODIFICA: Il contatore "Giorni di crescita" è stato rinominato, non si resetta più e incrementa al primo check-in giornaliero.
  * MODIFICA: Implementato un nuovo sistema di Medaglie sbloccabili con popup di notifica.
- * MODIFICA: Corretta la logica di visualizzazione delle immagini e delle citazioni del giorno.
- * MODIFICA: Aggiunto l'aggiornamento automatico della sezione medaglie dopo lo sblocco.
- * MODIFICA: Risolto il problema del reset del calendario e migliorata l'animazione di chiusura dei modali.
- * --- NUOVE MODIFICHE RICHIESTE DALL'UTENTE ---
- * FIX: La logica per mostrare il modale di modifica profilo dopo la registrazione è stata verificata e resa robusta.
- * FEATURE: Implementata una nuova funzione 'showSaveFeedback' per dare un feedback visivo (cambio colore e icona) sui pulsanti di salvataggio.
- * FIX: La logica di chiusura del calendario è stata revisionata. La correzione per il bug visuale della "contrazione" è stata implementata in CSS (`will-change`).
  */
 document.addEventListener('DOMContentLoaded', function() {
     // MODIFICA: Disabilita il ripristino automatico della posizione di scroll del browser.
@@ -128,17 +125,19 @@ document.addEventListener('DOMContentLoaded', function() {
         meditationHistory: {},
         lastAccessDate: null,
         streakUpdatedToday: false,
+        // NUOVA MODIFICA: Aggiornati i percorsi delle immagini per riflettere una struttura di cartelle (es. assets/images/).
+        // Assicurarsi che le immagini si trovino in questo percorso.
         dailyQuotes: [
-            { image: "daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
-            { image: "daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
-            { image: "daily3.jpg", quote: "💨 Respira. Lascia andare. E ricorda che questo momento è l'unico che sai per certo di avere. - Oprah Winfrey" },
-            { image: "daily4.jpg", quote: "🧘‍♀️ La meditazione non è fuga dalla realtà. È un incontro sereno con la realtà. - Thich Nhat Hanh" },
-            { image: "daily5.jpg", quote: "🌿 La natura non ha fretta, eppure tutto si realizza. - Lao Tzu" },
-            { image: "daily6.jpg", quote: "💫 Ogni giorno è una nuova opportunità per cambiare la tua vita. - Anonimo" },
-            { image: "daily7.jpg", quote: "🌅 Il sole sorge ogni mattina senza fallire. Sii come il sole. - Anonimo" },
-            { image: "daily8.jpg", quote: "🍃 Lascia andare ciò che non puoi controllare. - Anonimo" },
-            { image: "daily9.jpg", quote: "🌊 Sii come l'acqua: adattati, fluttua e scorri. - Bruce Lee" },
-            { image: "daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
+            { image: "assets/images/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
+            { image: "assets/images/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
+            { image: "assets/images/daily3.jpg", quote: "💨 Respira. Lascia andare. E ricorda che questo momento è l'unico che sai per certo di avere. - Oprah Winfrey" },
+            { image: "assets/images/daily4.jpg", quote: "🧘‍♀️ La meditazione non è fuga dalla realtà. È un incontro sereno con la realtà. - Thich Nhat Hanh" },
+            { image: "assets/images/daily5.jpg", quote: "🌿 La natura non ha fretta, eppure tutto si realizza. - Lao Tzu" },
+            { image: "assets/images/daily6.jpg", quote: "💫 Ogni giorno è una nuova opportunità per cambiare la tua vita. - Anonimo" },
+            { image: "assets/images/daily7.jpg", quote: "🌅 Il sole sorge ogni mattina senza fallire. Sii come il sole. - Anonimo" },
+            { image: "assets/images/daily8.jpg", quote: "🍃 Lascia andare ciò che non puoi controllare. - Anonimo" },
+            { image: "assets/images/daily9.jpg", quote: "🌊 Sii come l'acqua: adattati, fluttua e scorri. - Bruce Lee" },
+            { image: "assets/images/daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
         ],
         termsAcceptedAt: null,
         loadedDate: null,
@@ -437,27 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * --- NUOVA FUNZIONE: Feedback Visivo di Salvataggio ---
-     * Fornisce un feedback visivo immediato su un pulsante dopo un'azione di salvataggio.
-     * @param {HTMLElement} buttonElement - L'elemento pulsante da modificare.
-     * @param {string} originalHTML - Il contenuto HTML originale del pulsante.
-     * @param {number} duration - La durata in ms prima di ripristinare il pulsante.
-     */
-    function showSaveFeedback(buttonElement, originalHTML, duration = 2000) {
-        if (!buttonElement) return;
-
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = `<i class="fas fa-check"></i> Salvato!`;
-        buttonElement.classList.add('saved');
-
-        setTimeout(() => {
-            buttonElement.innerHTML = originalHTML;
-            buttonElement.classList.remove('saved');
-            buttonElement.disabled = false;
-        }, duration);
-    }
-
     function updateWelcomeMessage() {
         let welcomeText = "";
 
@@ -521,7 +499,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const today = getLocalDateString();
-        // MODIFICA: Corretta la logica per evitare di sovrascrivere un valore già presente
         if (!state.dailyContent || state.dailyContent.date !== today) {
             state.dailyContent = {
                 date: today,
@@ -547,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function renderDailyGoal() {
+    function renderDailyGoal(isNew = false) {
         const today = getLocalDateString();
         const todayGoal = state.dailyGoals[today];
 
@@ -565,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         dailyGoalContainer.innerHTML = `
-            <div class="goal-item">
+            <div class="goal-item ${isNew ? 'new-item-feedback' : ''}">
                 <div class="goal-checkbox ${todayGoal.completed ? 'checked' : ''}" id="goal-checkbox">
                     ${todayGoal.completed ? '✓' : ''}
                 </div>
@@ -577,19 +554,25 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    function renderDailyIntention() {
+    function renderDailyIntention(isNew = false) {
         const today = getLocalDateString();
         const todayIntention = state.dailyIntentions[today];
+        const intentionBanner = document.querySelector('.intention-banner');
 
         if (!todayIntention) {
             intentionText.textContent = "Crea la tua intenzione per guidare la giornata";
             intentionInput.style.display = "block";
             setIntentionBtn.style.display = "block";
-            setIntentionBtn.innerHTML = '<i class="fas fa-feather"></i> Imposta Intenzione';
             return;
         }
 
         intentionText.textContent = `"${todayIntention.text}"`;
+        // NUOVA MODIFICA: Aggiunge un'animazione quando l'intenzione viene impostata
+        if (isNew && intentionBanner) {
+            intentionBanner.classList.remove('new-item-feedback'); // Rimuove per ri-triggerare l'animazione
+            void intentionBanner.offsetWidth; // Trigger reflow
+            intentionBanner.classList.add('new-item-feedback');
+        }
         intentionInput.style.display = "none";
         setIntentionBtn.style.display = "none";
     }
@@ -646,14 +629,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
+        renderDailyGoal(true); // NUOVA MODIFICA: Passa `true` per attivare l'animazione
         showToast("Obiettivo impostato!");
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        const setGoalBtn = document.getElementById('set-goal-btn');
-        showSaveFeedback(setGoalBtn, '<i class="fas fa-plus"></i> Imposta');
-
-        // Aggiorna l'UI dopo un breve ritardo per mostrare il feedback
-        setTimeout(renderDailyGoal, 500);
     }
 
     function setDailyIntention() {
@@ -672,13 +649,9 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
+        renderDailyIntention(true); // NUOVA MODIFICA: Passa `true` per attivare l'animazione
         showToast("Intenzione fissata!");
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        showSaveFeedback(setIntentionBtn, '<i class="fas fa-feather"></i> Imposta Intenzione');
-
-        // Aggiorna l'UI dopo un breve ritardo per mostrare il feedback
-        setTimeout(renderDailyIntention, 500);
+        showButtonFeedback(setIntentionBtn); // NUOVA MODIFICA: Feedback visivo sul pulsante
     }
 
     function toggleGoalCompletion() {
@@ -700,7 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     dailyGoalContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'set-goal-btn' || e.target.closest('#set-goal-btn')) {
+        if (e.target.id === 'set-goal-btn') {
             setDailyGoal();
         } else if (e.target.id === 'goal-checkbox') {
             toggleGoalCompletion();
@@ -729,7 +702,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // MODIFICA: Funzione per bloccare il check-in del sonno dopo il salvataggio
     function checkSleepLock() {
         const today = getLocalDateString();
         if (state.sleepEntries[today]) {
@@ -850,7 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 state.isLoggedIn = true;
                 state.termsAcceptedAt = new Date().toISOString();
                 saveData();
-                enterMainApp(true); // Passa 'true' per indicare un nuovo utente
+                enterMainApp(true);
             }, 1500);
         });
 
@@ -860,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 state.isLoggedIn = true;
                 saveData();
-                enterMainApp(false); // Passa 'false' per utenti esistenti
+                enterMainApp(false);
             }, 1500);
         });
 
@@ -884,24 +856,23 @@ document.addEventListener('DOMContentLoaded', function() {
             authSection.style.display = 'none';
             mainAppContainer.style.display = 'block';
 
-            // MODIFICA: Porta la pagina in cima.
             window.scrollTo(0, 0);
-
             initUI();
 
             document.getElementById('home').classList.add('active');
             document.querySelector('.nav-item[data-target="home"]').classList.add('active');
 
-            // --- FIX RICHIESTO DALL'UTENTE ---
-            // Questa logica assicura che il modale per la modifica del profilo
-            // venga mostrato immediatamente dopo la registrazione di un nuovo utente.
+            // NUOVA MODIFICA: Risolto il bug del modale che non appare.
+            // Aggiunto un breve ritardo per garantire che la transizione del modale
+            // si attivi correttamente dopo la visualizzazione dell'app principale.
             if (isNewUser) {
-                profileEditModal.classList.add('active');
+                setTimeout(() => {
+                    openModal(profileEditModal);
+                }, 100);
             }
         }, 500);
     }
 
-    // MODIFICA: Funzione per resettare i filtri delle meditazioni
     function resetMeditationFilters() {
         meditationFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         const allFilterBtn = meditationFilters.querySelector('.filter-btn[data-filter="all"]');
@@ -913,7 +884,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // MODIFICA: Funzione per resettare il check-in di benessere
     function resetWellbeingCheckinUI() {
         state.currentSelectedMood = null;
         moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
@@ -930,7 +900,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const targetId = targetItem.dataset.target;
 
-        // MODIFICA: Reset dei filtri se si esce dalla pagina meditazioni
         const currentActive = navBar.querySelector('.nav-item.active').dataset.target;
         if (currentActive === 'meditations' && targetId !== 'meditations') {
             resetMeditationFilters();
@@ -949,7 +918,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if (targetId === 'health') {
-            // MODIFICA: Resetta l'UI del check-in quando si entra nella scheda
             resetWellbeingCheckinUI();
             initTimeBasedCheckin();
             updateMoodStatusMessage();
@@ -1002,15 +970,11 @@ document.addEventListener('DOMContentLoaded', function() {
         state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
 
         showToast(`Check-in della ${currentWindow.name} registrato!`);
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        showSaveFeedback(saveCombinedCheckinBtn, 'Salva Check-in');
-
+        showButtonFeedback(saveCombinedCheckinBtn); // NUOVA MODIFICA: Feedback visivo
         initTimeBasedCheckin();
         updateMoodStatusMessage();
         updateDailyData();
 
-        // MODIFICA: Aggiorna lo streak solo al primo check-in del giorno.
         if (state.lastActivityDate !== today) {
             updateStreak();
         }
@@ -1036,13 +1000,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('player-description').textContent = `${targetItem.dataset.duration} di ${targetItem.querySelector('.meditation-desc').textContent}`;
         audioPlayer.src = meditationAudios[id];
         audioPlayer.pause();
-        playerModal.classList.add('active');
+        openModal(playerModal);
     });
 
-    // MODIFICA: La logica dello streak è stata cambiata per non resettarsi mai.
     function updateStreak() {
         const todayStr = getLocalDateString();
-        // Incrementa solo se l'ultima attività non era oggi
         if (state.lastActivityDate !== todayStr) {
             const oldStreak = state.growthStreak;
             state.growthStreak++;
@@ -1052,36 +1014,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // --- NUOVA MODIFICA: RISCRITTURA DELLA LOGICA DEI MODALI ---
 
+    // Funzione centralizzata per aprire un modale
+    function openModal(modal) {
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+
+    // Funzione centralizzata per chiudere un modale
+    function closeModal(modal) {
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Aggiunge un listener a tutti i modali per chiuderli cliccando sullo sfondo (overlay)
+    document.querySelectorAll('.player-modal, .history-modal, .profile-edit-modal, .login-modal, .medal-unlock-modal, .report-modal, .account-settings-modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            // Chiude il modale solo se l'elemento cliccato è l'overlay stesso
+            if (e.target === modal) {
+                closeModal(modal);
+                // Azione specifica per il player audio
+                if (modal.id === 'player-modal') {
+                    audioPlayer.pause();
+                }
+            }
+        });
+    });
+
+    // Aggiornamento dei listener dei pulsanti di chiusura per usare la nuova logica
     document.getElementById('player-close-btn').addEventListener('click', () => {
-        playerModal.classList.remove('active');
+        closeModal(playerModal);
         audioPlayer.pause();
     });
 
     historyBtn.addEventListener('click', () => {
-        // MODIFICA: Reset dello stato del calendario solo all'apertura per risolvere il bug.
         state.currentCalendarDate = new Date();
         state.selectedHistoryDate = getLocalDateString(new Date());
-        historyModal.classList.add('active');
+        openModal(historyModal);
         generateCalendar();
     });
 
-    // --- REVISIONE RICHIESTA DALL'UTENTE ---
-    // La logica di chiusura è minimale e corretta.
-    // Il bug visuale della "contrazione" del calendario è stato risolto in CSS
-    // ottimizzando l'animazione del modale con la proprietà `will-change`.
-    historyCloseBtn.addEventListener('click', () => {
-        historyModal.classList.remove('active');
-    });
-
+    historyCloseBtn.addEventListener('click', () => closeModal(historyModal));
 
     editProfileBtn.addEventListener('click', () => {
         document.getElementById('profile-name-input').value = state.profile.name;
         document.querySelectorAll('.emoji-option, .gender-option').forEach(opt => opt.classList.remove('selected'));
         document.querySelector(`.emoji-option[data-emoji="${state.profile.emoji}"]`)?.classList.add('selected');
         document.querySelector(`.gender-option[data-gender="${state.profile.gender}"]`)?.classList.add('selected');
-        profileEditModal.classList.add('active');
+        openModal(profileEditModal);
     });
+
+    // --- FINE RISCRITTURA LOGICA MODALI ---
 
     emojiPicker.addEventListener('click', function(e) {
         const targetOption = e.target.closest('.emoji-option');
@@ -1111,16 +1097,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.profile-emoji').textContent = emoji;
         updateWelcomeMessage();
         saveData();
+        showButtonFeedback(profileEditSave); // NUOVA MODIFICA: Feedback visivo
+        setTimeout(() => closeModal(profileEditModal), 1000); // Chiude dopo il feedback
         showToast("Profilo aggiornato!");
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        showSaveFeedback(profileEditSave, 'Salva');
-
-        setTimeout(() => {
-            profileEditModal.classList.remove('active');
-        }, 500);
     });
-    profileEditCancel.addEventListener('click', () => profileEditModal.classList.remove('active'));
+    profileEditCancel.addEventListener('click', () => closeModal(profileEditModal));
 
     gratitudeForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1134,12 +1115,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         state.gratitudeEntries[getLocalDateString()] = entries;
-        saveData();
         showToast("Diario della gratitudine salvato!");
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        showSaveFeedback(gratitudeBtn, '<i class="fas fa-book"></i> Salva nel Diario');
-
+        showButtonFeedback(gratitudeBtn); // NUOVA MODIFICA: Feedback visivo
+        saveData();
         checkGratitudeLock();
     });
 
@@ -1187,10 +1165,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     if (googleLoginBtn) {
-       googleLoginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+       googleLoginBtn.addEventListener('click', () => openModal(loginModal));
     }
     if(loginCloseBtn) {
-        loginCloseBtn.addEventListener('click', () => loginModal.classList.remove('active'));
+        loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
     }
 
     document.getElementById('google-login').addEventListener('click', () => {
@@ -1199,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.isLoggedIn = true;
             saveData();
             updateLoginState();
-            loginModal.classList.remove('active');
+            closeModal(loginModal);
             showToast("Accesso effettuato con successo!");
         }, 1500);
     });
@@ -1212,8 +1190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     });
 
-    accountSettingsBtn.addEventListener('click', () => accountSettingsModal.classList.add('active'));
-    accountSettingsCloseBtn.addEventListener('click', () => accountSettingsModal.classList.remove('active'));
+    accountSettingsBtn.addEventListener('click', () => openModal(accountSettingsModal));
+    accountSettingsCloseBtn.addEventListener('click', () => closeModal(accountSettingsModal));
 
     manageSubscriptionBtn.addEventListener('click', () => {
         showToast("Reindirizzamento per la gestione dell'abbonamento...");
@@ -1311,44 +1289,76 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
     }
 
-    // --- REVISIONE RICHIESTA DALL'UTENTE ---
-    // La logica di generazione del calendario è standard e funzionale.
-    // Non è stata riscritta perché è corretta; il problema visuale segnalato
-    // era legato all'animazione CSS, che è stata corretta nel file style.css.
+    // --- NUOVA MODIFICA: Riscrittura completa della logica del calendario ---
     function generateCalendar() {
-        if(!calendarMonth || !document.getElementById('calendar')) return;
-        const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
-        calendarMonth.textContent = `${monthNames[state.currentCalendarDate.getMonth()]} ${state.currentCalendarDate.getFullYear()}`;
+        if (!calendarMonth || !document.getElementById('calendar')) return;
+
         const calendar = document.getElementById('calendar');
+        const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+        const currentDate = state.currentCalendarDate;
+
+        calendarMonth.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         calendar.innerHTML = '';
-        const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-        days.forEach(day => calendar.innerHTML += `<div class="calendar-header">${day}</div>`);
 
-        const firstDay = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth(), 1);
-        const lastDay = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth() + 1, 0);
+        const fragment = document.createDocumentFragment();
 
-        for (let i = 0; i < firstDay.getDay(); i++) calendar.innerHTML += '<div></div>';
+        daysOfWeek.forEach(day => {
+            const headerEl = document.createElement('div');
+            headerEl.className = 'calendar-header';
+            headerEl.textContent = day;
+            fragment.appendChild(headerEl);
+        });
 
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-            const day = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth(), i);
-            const dayString = getLocalDateString(day);
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const todayStr = getLocalDateString(new Date());
+
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            fragment.appendChild(emptyCell);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDate = new Date(year, month, i);
+            const dayString = getLocalDateString(dayDate);
             const dayElement = document.createElement('div');
             dayElement.className = 'calendar-day';
             dayElement.textContent = i;
-            if (state.moodEntries[dayString] || state.gratitudeEntries[dayString] || state.dailyGoals[dayString]) dayElement.classList.add('has-data');
-            if (dayString === getLocalDateString(new Date())) dayElement.classList.add('active');
-            if (dayString === state.selectedHistoryDate) dayElement.classList.add('selected');
+            dayElement.dataset.date = dayString;
+
+            const classes = [];
+            if (state.moodEntries[dayString] || state.gratitudeEntries[dayString] || state.dailyGoals[dayString]) {
+                classes.push('has-data');
+            }
+            if (dayString === todayStr) {
+                classes.push('active');
+            }
+            if (dayString === state.selectedHistoryDate) {
+                classes.push('selected');
+            }
+            if (classes.length > 0) {
+                dayElement.classList.add(...classes);
+            }
+
             dayElement.addEventListener('click', function() {
-                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                const prevSelected = calendar.querySelector('.calendar-day.selected');
+                if (prevSelected) {
+                    prevSelected.classList.remove('selected');
+                }
                 this.classList.add('selected');
-                updateHistoryDisplay(day);
+                state.selectedHistoryDate = dayString;
+                updateHistoryDisplay(dayDate);
             });
-            calendar.appendChild(dayElement);
+
+            fragment.appendChild(dayElement);
         }
-        // MODIFICA: Utilizzo di un formato di data più robusto per evitare problemi di fuso orario
+
+        calendar.appendChild(fragment);
         updateHistoryDisplay(new Date(state.selectedHistoryDate + 'T00:00:00'));
     }
-
 
     function initTimeBasedCheckin() {
         const now = new Date();
@@ -1412,19 +1422,16 @@ document.addEventListener('DOMContentLoaded', function() {
         state.sleepEntries[today] = sleepSlider.value;
         saveData();
         showToast("Sonno registrato: " + sleepSlider.value);
-
-        // NUOVA MODIFICA: Feedback visivo sul pulsante
-        showSaveFeedback(saveSleepBtn, 'Salva');
-
+        showButtonFeedback(saveSleepBtn); // NUOVA MODIFICA: Feedback visivo
         updateDailyData();
-        checkSleepLock(); // MODIFICA: Blocca l'UI dopo il salvataggio
+        checkSleepLock();
     });
 
     generateReportBtn.addEventListener('click', () => {
         generateWeeklyReport();
-        reportModal.classList.add('active');
+        openModal(reportModal);
     });
-    reportCloseBtn.addEventListener('click', () => reportModal.classList.remove('active'));
+    reportCloseBtn.addEventListener('click', () => closeModal(reportModal));
 
     function generateWeeklyReport() {
         const today = new Date();
@@ -1557,7 +1564,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- NUOVE FUNZIONI: Sistema di Medaglie ---
+    // --- Sistema di Medaglie ---
     function renderMedals() {
         if (!medalsContainer) return;
         medalsContainer.innerHTML = '';
@@ -1579,22 +1586,41 @@ document.addEventListener('DOMContentLoaded', function() {
     function showMedalUnlockPopup(medal) {
         document.getElementById('medal-unlock-icon').innerHTML = `<i class="${medal.icon}"></i>`;
         document.getElementById('medal-unlock-title').textContent = medal.name;
-        medalUnlockModal.classList.add('active');
+        openModal(medalUnlockModal);
     }
 
     function checkForNewMedal(oldStreak, newStreak) {
         const newlyUnlockedMedal = medalTiers.find(tier => oldStreak < tier.days && newStreak >= tier.days);
         if (newlyUnlockedMedal) {
             showMedalUnlockPopup(newlyUnlockedMedal);
-            // MODIFICA: Aggiorna la vista delle medaglie in background
             renderMedals();
         }
     }
 
     if (medalUnlockCloseBtn) {
-        medalUnlockCloseBtn.addEventListener('click', () => medalUnlockModal.classList.remove('active'));
+        medalUnlockCloseBtn.addEventListener('click', () => closeModal(medalUnlockModal));
     }
-    // --- FINE FUNZIONI MEDAGLIE ---
+
+    // --- NUOVA FUNZIONE: Feedback visivo per i pulsanti ---
+    function showButtonFeedback(button, iconClass = 'fa-check', duration = 1500) {
+        if (!button || button.disabled) return;
+
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        button.classList.add('btn-success-feedback');
+
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            // Rende il pulsante nuovamente utilizzabile solo se non è stato disabilitato permanentemente da un'altra funzione
+            const isPermanentlyDisabled = (button.id === 'gratitude-btn' && state.gratitudeEntries[getLocalDateString()]) ||
+                                        (button.id === 'save-sleep-btn' && state.sleepEntries[getLocalDateString()]);
+            if (!isPermanentlyDisabled) {
+                button.disabled = false;
+            }
+            button.classList.remove('btn-success-feedback');
+        }, duration);
+    }
 
     function main() {
         loadSavedData();
@@ -1602,8 +1628,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.isLoggedIn) {
             authSection.style.display = 'none';
             mainAppContainer.style.display = 'block';
-
-            // MODIFICA: Porta la pagina in cima quando un utente loggato ricarica la pagina.
             window.scrollTo(0, 0);
 
             initUI();

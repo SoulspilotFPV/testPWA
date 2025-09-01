@@ -34,8 +34,8 @@
  * MODIFICA: Aggiunti stili per il nuovo sistema di medaglie e per il popup di sblocco.
  * MODIFICA: Riscritta l'animazione di apertura/chiusura di tutti i modali per risolvere il bug della "contrazione" e migliorare la fluidità.
  * --- MODIFICHE RICHIESTE DALL'UTENTE ---
- * MODIFICA: Aggiunta la proprietà `will-change` ai modali per ottimizzare le animazioni di chiusura e risolvere il bug della "contrazione" del calendario.
- * MODIFICA: Aggiunti nuovi stili per la classe `.saved` per fornire un feedback visivo animato al salvataggio.
+ * MODIFICA: Aggiunti stili per il feedback visivo (icona di spunta e animazioni) quando un utente salva un dato.
+ * MODIFICA: Aggiunta un'animazione per la comparsa di un nuovo obiettivo o intenzione dopo essere stati impostati.
  */
 :root {
     --primary: #B39DDB;
@@ -547,8 +547,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     /* Transizione migliorata per evitare glitch */
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
     transform: scale(1.05);
-    /* NUOVA MODIFICA: Ottimizza le animazioni di transizione per prevenire reflow e glitch grafici come la "contrazione" del calendario. */
-    will-change: transform, opacity;
 }
 
 .player-modal.active,
@@ -1097,7 +1095,7 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease;
     margin-top: 10px;
     font-size: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -1253,7 +1251,7 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2649,12 +2647,34 @@ input:checked + .toggle-slider:before {
     background: var(--primary-dark);
 }
 
-/* --- NUOVA MODIFICA: Stile per il Feedback di Salvataggio --- */
-.gratitude-btn.saved,
-.goal-btn.saved,
-.intention-btn.saved,
-.profile-edit-save.saved {
+/* --- NUOVI STILI: Feedback Visivo sui Pulsanti e Contenuti --- */
+.btn-success-feedback {
     background: var(--success) !important;
-    transform: scale(1.02);
-    box-shadow: 0 6px 16px rgba(102, 187, 106, 0.4);
+    transition: background-color 0.3s ease;
+}
+
+.btn-success-feedback .fas {
+    display: inline-block;
+    animation: check-pop 0.4s ease-out;
+}
+
+@keyframes check-pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.new-item-feedback {
+    animation: new-item-pop-in 0.5s ease-out;
+}
+
+@keyframes new-item-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
