@@ -125,19 +125,19 @@ document.addEventListener('DOMContentLoaded', function() {
         meditationHistory: {},
         lastAccessDate: null,
         streakUpdatedToday: false,
-        // MODIFICA UTENTE: Verificati i percorsi delle immagini.
-        // Assicurarsi che la cartella 'assets/images/' esista al livello principale del sito.
+        // MODIFICA: Corretti i percorsi delle immagini per il "Pensiero del Giorno".
+        // I percorsi ora puntano alla cartella "Daily/" come da struttura file.
         dailyQuotes: [
-            { image: "assets/images/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
-            { image: "assets/images/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
-            { image: "assets/images/daily3.jpg", quote: "💨 Respira. Lascia andare. E ricorda che questo momento è l'unico che sai per certo di avere. - Oprah Winfrey" },
-            { image: "assets/images/daily4.jpg", quote: "🧘‍♀️ La meditazione non è fuga dalla realtà. È un incontro sereno con la realtà. - Thich Nhat Hanh" },
-            { image: "assets/images/daily5.jpg", quote: "🌿 La natura non ha fretta, eppure tutto si realizza. - Lao Tzu" },
-            { image: "assets/images/daily6.jpg", quote: "💫 Ogni giorno è una nuova opportunità per cambiare la tua vita. - Anonimo" },
-            { image: "assets/images/daily7.jpg", quote: "🌅 Il sole sorge ogni mattina senza fallire. Sii come il sole. - Anonimo" },
-            { image: "assets/images/daily8.jpg", quote: "🍃 Lascia andare ciò che non puoi controllare. - Anonimo" },
-            { image: "assets/images/daily9.jpg", quote: "🌊 Sii come l'acqua: adattati, fluttua e scorri. - Bruce Lee" },
-            { image: "assets/images/daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
+            { image: "Daily/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
+            { image: "Daily/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
+            { image: "Daily/daily3.jpg", quote: "💨 Respira. Lascia andare. E ricorda che questo momento è l'unico che sai per certo di avere. - Oprah Winfrey" },
+            { image: "Daily/daily4.jpg", quote: "🧘‍♀️ La meditazione non è fuga dalla realtà. È un incontro sereno con la realtà. - Thich Nhat Hanh" },
+            { image: "Daily/daily5.jpg", quote: "🌿 La natura non ha fretta, eppure tutto si realizza. - Lao Tzu" },
+            { image: "Daily/daily6.jpg", quote: "💫 Ogni giorno è una nuova opportunità per cambiare la tua vita. - Anonimo" },
+            { image: "Daily/daily7.jpg", quote: "🌅 Il sole sorge ogni mattina senza fallire. Sii come il sole. - Anonimo" },
+            { image: "Daily/daily8.jpg", quote: "🍃 Lascia andare ciò che non puoi controllare. - Anonimo" },
+            { image: "Daily/daily9.jpg", quote: "🌊 Sii come l'acqua: adattati, fluttua e scorri. - Bruce Lee" },
+            { image: "Daily/daily10.jpg", quote: "🌸 Ogni fiore sboccia nel suo tempo. Rispetta il tuo ritmo. - Anonimo" }
         ],
         termsAcceptedAt: null,
         loadedDate: null,

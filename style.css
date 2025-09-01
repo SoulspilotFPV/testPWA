@@ -108,18 +108,15 @@ body::before {
     height: 100vh;
     width: 100vw;
     z-index: -1;
-    /* MODIFICA UTENTE: Verificato il percorso dell'immagine di sfondo. Assicurarsi che la cartella 'assets' sia nella root del progetto. */
-    background-image: url('assets/images/bodylight.jpg');
+    /* MODIFICA: Corretto il percorso dell'immagine di sfondo per il tema chiaro. */
+    background-image: url('bodylight.jpg');
     background-size: cover;
-    /* NUOVA MODIFICA: background-position esplicita e background-attachment ripristinato
-       per risolvere il bug della barra nera su mobile in dark mode, garantendo
-       un posizionamento più robusto e stabile dello sfondo. */
     background-position: center center;
     background-attachment: fixed;
 }
 body.dark-theme::before {
-    /* MODIFICA UTENTE: Verificato il percorso dell'immagine di sfondo. Assicurarsi che la cartella 'assets' sia nella root del progetto. */
-    background-image: url('assets/images/bodydark.jpg');
+    /* MODIFICA: Corretto il percorso dell'immagine di sfondo per il tema scuro. */
+    background-image: url('bodydark.jpg');
 }
 
 
