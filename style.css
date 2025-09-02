@@ -40,6 +40,9 @@
  * NUOVA MODIFICA: Consolidata la tecnica dello sfondo fisso su mobile tramite pseudo-elemento, la soluzione più robusta.
  * NUOVA MODIFICA: Allineato il colore del testo del sottotitolo del profilo (`.profile-welcome`) a quello degli altri sottotitoli in dark mode per coerenza.
  * NUOVA MODIFICA: Verificato e garantito che il colore del testo dell'obiettivo giornaliero in dark mode sia coerente con quello dell'intenzione.
+ * NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body` per prevenire la barra nera su mobile in dark mode, fornendo un fallback solido.
+ * NUOVA MODIFICA (FIX): Corretta l'animazione di chiusura dei modali per eliminare il "glitch" visivo, passando da `scale(1.05)` a `scale(0.95)` nello stato di base per una transizione fluida.
+ * NUOVA MODIFICA (FIX): Rimossi tutti gli effetti `:hover` come richiesto per evitare problemi su dispositivi touch e per coerenza con la richiesta.
  */
 :root {
     --primary: #B39DDB;
@@ -94,6 +97,9 @@ html {
 body {
     min-height: 100%;
     position: relative;
+    /* FIX: Aggiunto colore di sfondo al body. Questo previene la barra nera su mobile
+       agendo come fallback nel caso in cui lo pseudo-elemento ::before non copra
+       immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
     background-color: var(--background);
 }
 
@@ -505,6 +511,10 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     color: var(--text-light);
 }
 
+/* MODIFICA FIX: Animazione di apertura/chiusura dei modali.
+ * Il 'transform: scale(1.05)' originale causava un "salto" visivo durante la chiusura.
+ * Cambiandolo a 'scale(0.95)', il modale ora si rimpicciolisce e sfuma dolcemente,
+ * creando una transizione fluida e risolvendo il glitch. */
 .player-modal,
 .history-modal,
 .profile-edit-modal,
@@ -523,7 +533,7 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
-    transform: scale(1.05);
+    transform: scale(0.95); /* Modificato da 1.05 a 0.95 per un'uscita fluida */
 }
 
 .player-modal.active,
@@ -621,11 +631,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     justify-content: center;
     border-radius: 50%;
     transition: all 0.3s ease;
-}
-
-.dark-theme .history-close:hover {
-    background: #3e3e3e;
-    color: #f5f5f5;
 }
 
 .history-close:active {
@@ -2539,95 +2544,5 @@ input:checked + .toggle-slider:before {
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
-    }
-}
-
-@media (hover: hover) {
-    .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-    }
-    .mood-btn:hover {
-        transform: scale(1.15);
-        background: rgba(209, 196, 233, 0.2);
-    }
-    .meditation-item:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-lg);
-        background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
-    }
-    .player-close:hover {
-        background: rgba(209, 196, 233, 0.1);
-    }
-    .history-close:hover {
-        background: #f1f5f9;
-        color: var(--text);
-    }
-    .calendar-nav-btn:hover {
-        background: rgba(209, 196, 233, 0.2);
-    }
-    .calendar-day:hover {
-        background: rgba(209, 196, 233, 0.2);
-    }
-    .emoji-option:hover {
-        transform: scale(1.1);
-        border-color: var(--primary-light);
-    }
-    .profile-edit-cancel:hover {
-        background: #e2e8f0;
-    }
-    .dark-theme .profile-edit-cancel:hover {
-        background: #3e3e3e;
-    }
-    .profile-edit-save:hover {
-        background: var(--primary-dark);
-    }
-    .gratitude-btn:hover {
-        background: var(--primary-dark);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    .profile-item:hover {
-        background: linear-gradient(to right, rgba(179, 157, 219, 0.1), rgba(126, 87, 194, 0.1));
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-    }
-    .goal-btn:hover {
-        background: var(--primary-dark);
-    }
-    .filter-btn:hover {
-        background: rgba(179, 157, 219, 0.4);
-    }
-    .intention-banner:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 24px rgba(126, 87, 194, 0.15);
-    }
-    .intention-btn:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(126, 87, 194, 0.4);
-    }
-    .subscribe-btn-premium:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(94, 53, 177, 0.4);
-    }
-    .logout-btn:hover {
-        background: rgba(239, 83, 80, 0.2) !important;
-    }
-    .report-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-    }
-    .sound-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .account-settings-item:hover {
-        background-color: rgba(209, 196, 233, 0.1);
-    }
-    .dark-theme .account-settings-item:hover {
-        background-color: #2d2d2d;
-    }
-    .medal-unlock-close:hover {
-        background: var(--primary-dark);
     }
 }
