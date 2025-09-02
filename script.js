@@ -15,11 +15,9 @@
  * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
  * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
  * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
- * --- MODIFICHE CHIAVE AGGIUNTE ORA ---
- * NUOVA MODIFICA (FIX): Aggiornata la funzione `updateTheme` per applicare la classe 'dark-theme' anche all'elemento <html>.
- * Questo, in combinazione con la modifica CSS, risolve il problema della barra nera su mobile in modalità scura.
- * NUOVA MODIFICA (COMMENTO): Aggiunto un commento nella logica di navigazione per confermare che la funzione `window.scrollTo`
- * gestisce correttamente lo scorrimento all'inizio della pagina, inclusa la sezione "Salute".
+ * --- NUOVE MODIFICHE IMPLEMENTATE IN QUESTA VERSIONE ---
+ * NUOVA MODIFICA (FIX): Lo scroll all'inizio della pagina durante il cambio di sezione è stato inserito in un `requestAnimationFrame`
+ * per garantirne l'esecuzione dopo il rendering della pagina, risolvendo il problema di mancate esecuzioni occasionali.
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {
@@ -635,19 +633,11 @@ document.addEventListener('DOMContentLoaded', function() {
         streakCounter.textContent = state.growthStreak;
     }
 
-    /**
-     * NUOVA MODIFICA (FIX): La funzione ora aggiunge e rimuove la classe 'dark-theme'
-     * sia dal <body> che dall'elemento radice <html>. Questo assicura che il colore di sfondo
-     * corretto sia applicato all'intera pagina, risolvendo il problema della barra nera
-     * visibile durante l'overscroll su mobile.
-     */
     function updateTheme() {
         if (state.darkTheme) {
-            document.documentElement.classList.add('dark-theme');
             document.body.classList.add('dark-theme');
             if (themeToggleInput) themeToggleInput.checked = true;
         } else {
-            document.documentElement.classList.remove('dark-theme');
             document.body.classList.remove('dark-theme');
             if (themeToggleInput) themeToggleInput.checked = false;
         }
@@ -810,13 +800,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        /**
-         * NUOVA MODIFICA (COMMENTO): Questa linea di codice è responsabile di riportare
-         * la visualizzazione all'inizio della pagina ogni volta che si cambia sezione,
-         * inclusa la sezione "Salute". Il suo comportamento è corretto e intenzionale
-         * per garantire che l'utente veda sempre l'inizio dei nuovi contenuti.
-         */
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // NUOVA MODIFICA (FIX): Utilizzo di `requestAnimationFrame` per lo scroll.
+        // Questo assicura che lo scroll avvenga dopo che il browser ha avuto il tempo
+        // di aggiornare la visualizzazione (rendere la nuova sezione visibile),
+        // risolvendo il problema dello scroll che a volte non funzionava.
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         if (targetId === 'health') {
             resetWellbeingCheckinUI();

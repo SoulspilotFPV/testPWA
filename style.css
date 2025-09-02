@@ -43,9 +43,6 @@
  * NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body` per prevenire la barra nera su mobile in dark mode, fornendo un fallback solido.
  * NUOVA MODIFICA (FIX): Corretta l'animazione di chiusura dei modali per eliminare il "glitch" visivo, passando da `scale(1.05)` a `scale(0.95)` nello stato di base per una transizione fluida.
  * NUOVA MODIFICA (FIX): Rimossi tutti gli effetti `:hover` come richiesto per evitare problemi su dispositivi touch e per coerenza con la richiesta.
- * --- MODIFICA CHIAVE AGGIUNTA ORA ---
- * NUOVA MODIFICA (FIX): Aggiunta una regola CSS per `html.dark-theme` per impostare il colore di sfondo.
- * Questo previene la barra nera durante l'overscroll su mobile, garantendo che l'intero sfondo della pagina sia coerente con il tema scuro.
  */
 :root {
     --primary: #B39DDB;
@@ -97,24 +94,19 @@
 html {
     height: 100%;
 }
+
 body {
     min-height: 100%;
     position: relative;
-    /* FIX: Aggiunto colore di sfondo al body. Questo previene la barra nera su mobile
-       agendo come fallback nel caso in cui lo pseudo-elemento ::before non copra
-       immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
+    /* NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body`.
+     * Questo previene la "barra nera" che può apparire in cima alla pagina
+     * sui browser mobili (specialmente in dark mode) durante l'effetto di "rimbalzo"
+     * dello scroll. Fornisce un colore di sfondo solido che copre l'area,
+     * agendo come fallback nel caso in cui lo pseudo-elemento ::before
+     * non copra l'intera viewport istantaneamente.
+     */
     background-color: var(--background);
 }
-/**
- * NUOVA MODIFICA (FIX): Viene applicato il colore di sfondo scuro anche all'elemento <html>.
- * Questo risolve definitivamente il problema della barra nera in cima alla pagina su mobile
- * durante l'effetto "bounce" o "overscroll", garantendo che l'intera area visibile
- * del browser abbia il colore di sfondo corretto.
- */
-html.dark-theme {
-    background-color: #121212;
-}
-
 
 /**
  * NUOVA MODIFICA: SFONDO FISSO SU MOBILE
