@@ -94,17 +94,12 @@
 html {
     height: 100%;
 }
-
 body {
     min-height: 100%;
     position: relative;
-    /* NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body`.
-     * Questo previene la "barra nera" che può apparire in cima alla pagina
-     * sui browser mobili (specialmente in dark mode) durante l'effetto di "rimbalzo"
-     * dello scroll. Fornisce un colore di sfondo solido che copre l'area,
-     * agendo come fallback nel caso in cui lo pseudo-elemento ::before
-     * non copra l'intera viewport istantaneamente.
-     */
+    /* FIX: Aggiunto colore di sfondo al body. Questo previene la barra nera su mobile
+       agendo come fallback nel caso in cui lo pseudo-elemento ::before non copra
+       immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
     background-color: var(--background);
 }
 
@@ -114,13 +109,17 @@ body {
  * La soluzione più robusta è usare uno pseudo-elemento (`::before`) con `position: fixed`.
  * Questo elemento si estende a tutta la viewport e si posiziona dietro a tutto il contenuto (`z-index: -1`),
  * simulando un background fisso in modo compatibile e performante.
+ * ---
+ * FIX DARK MODE: Lo pseudo-elemento viene esteso di 200px oltre la parte superiore della
+ * viewport (top: -200px) e la sua altezza viene aumentata di conseguenza. Questo elimina
+ * la barra nera che poteva apparire su mobile durante l'overscroll (effetto "rimbalzo").
  */
 body::before {
     content: '';
     position: fixed;
-    top: 0;
+    top: -200px; /* Alzato di 200px per coprire l'area di overscroll */
     left: 0;
-    height: 100vh;
+    height: calc(100vh + 200px); /* Aumentata l'altezza per compensare lo spostamento */
     width: 100vw;
     z-index: -1;
     background-image: url('bodylight.jpg');

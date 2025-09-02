@@ -15,9 +15,6 @@
  * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
  * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
  * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
- * --- NUOVE MODIFICHE IMPLEMENTATE IN QUESTA VERSIONE ---
- * NUOVA MODIFICA (FIX): Lo scroll all'inizio della pagina durante il cambio di sezione è stato inserito in un `requestAnimationFrame`
- * per garantirne l'esecuzione dopo il rendering della pagina, risolvendo il problema di mancate esecuzioni occasionali.
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {
@@ -800,13 +797,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // NUOVA MODIFICA (FIX): Utilizzo di `requestAnimationFrame` per lo scroll.
-        // Questo assicura che lo scroll avvenga dopo che il browser ha avuto il tempo
-        // di aggiornare la visualizzazione (rendere la nuova sezione visibile),
-        // risolvendo il problema dello scroll che a volte non funzionava.
-        requestAnimationFrame(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        // FIX: Forzato lo scroll immediato a (0,0) per risolvere il bug
+        // per cui la pagina a volte non tornava in cima alla sezione.
+        // L'uso di 'smooth' può essere interrotto da altri processi di rendering.
+        window.scrollTo(0, 0);
 
         if (targetId === 'health') {
             resetWellbeingCheckinUI();
