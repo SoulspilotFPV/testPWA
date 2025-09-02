@@ -779,13 +779,20 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     font-weight: 700;
 }
 
+/** * --- MODIFICA RICHIESTA DALL'UTENTE ---
+ * Ho sostituito l'emoji del fuoco (🔥) con un punto sottile e colorato.
+ * Questa soluzione è più pulita, moderna e meno invadente, come richiesto.
+ */
 .calendar-day.has-data::after {
-    content: '🔥';
+    content: '';
     position: absolute;
-    bottom: 2px;
+    bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 10px;
+    width: 5px;
+    height: 5px;
+    background-color: var(--primary);
+    border-radius: 50%;
 }
 
 .calendar-day.selected {
@@ -1479,9 +1486,14 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     gap: 8px;
 }
 
+/** * --- MODIFICA RICHIESTA DALL'UTENTE ---
+ * Ho cambiato il colore del testo per i filtri non attivi in tema scuro.
+ * Usando la variabile --text (un grigio chiaro), il contrasto con lo sfondo
+ * migliora notevolmente, rendendo il testo perfettamente leggibile.
+ */
 .dark-theme .filter-btn {
     background: rgba(209, 196, 233, 0.2);
-    color: var(--text-primary);
+    color: var(--text); /* Cambiato da var(--text-primary) per un contrasto maggiore */
 }
 
 .filter-btn.active {
