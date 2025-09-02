@@ -37,12 +37,15 @@
  * MODIFICA: Corretto il glitch visivo delle medaglie non sbloccate durante il cambio tema.
  * MODIFICA: Risolto il problema della barra nera in cima alla pagina su mobile in dark mode.
  * --- NUOVE MODIFICHE IMPLEMENTATE IN QUESTA VERSIONE ---
- * NUOVA MODIFICA (FIX): Consolidata la tecnica dello sfondo fisso su mobile tramite pseudo-elemento (`::before`). Questa è la soluzione più robusta per evitare problemi con `background-attachment: fixed` sui browser mobili e garantisce che lo sfondo copra sempre l'intera viewport.
- * NUOVA MODIFICA (FIX): Aggiunto un `background-color` di fallback al `body` sia in tema chiaro che scuro. Questo previene in modo definitivo la comparsa della barra nera durante il caricamento o lo scrolling veloce, agendo come una sicurezza se lo pseudo-elemento non dovesse renderizzare istantaneamente.
+ * NUOVA MODIFICA: Consolidata la tecnica dello sfondo fisso su mobile tramite pseudo-elemento, la soluzione più robusta.
  * NUOVA MODIFICA: Allineato il colore del testo del sottotitolo del profilo (`.profile-welcome`) a quello degli altri sottotitoli in dark mode per coerenza.
  * NUOVA MODIFICA: Verificato e garantito che il colore del testo dell'obiettivo giornaliero in dark mode sia coerente con quello dell'intenzione.
+ * NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body` per prevenire la barra nera su mobile in dark mode, fornendo un fallback solido.
  * NUOVA MODIFICA (FIX): Corretta l'animazione di chiusura dei modali per eliminare il "glitch" visivo, passando da `scale(1.05)` a `scale(0.95)` nello stato di base per una transizione fluida.
  * NUOVA MODIFICA (FIX): Rimossi tutti gli effetti `:hover` come richiesto per evitare problemi su dispositivi touch e per coerenza con la richiesta.
+ * --- MODIFICA CHIAVE AGGIUNTA ORA ---
+ * NUOVA MODIFICA (FIX): Aggiunta una regola CSS per `html.dark-theme` per impostare il colore di sfondo.
+ * Questo previene la barra nera durante l'overscroll su mobile, garantendo che l'intero sfondo della pagina sia coerente con il tema scuro.
  */
 :root {
     --primary: #B39DDB;
@@ -102,13 +105,23 @@ body {
        immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
     background-color: var(--background);
 }
+/**
+ * NUOVA MODIFICA (FIX): Viene applicato il colore di sfondo scuro anche all'elemento <html>.
+ * Questo risolve definitivamente il problema della barra nera in cima alla pagina su mobile
+ * durante l'effetto "bounce" o "overscroll", garantendo che l'intera area visibile
+ * del browser abbia il colore di sfondo corretto.
+ */
+html.dark-theme {
+    background-color: #121212;
+}
+
 
 /**
- * NUOVA MODIFICA (FIX): SFONDO FISSO SU MOBILE (SOLUZIONE DEFINITIVA)
+ * NUOVA MODIFICA: SFONDO FISSO SU MOBILE
  * La proprietà `background-attachment: fixed` non funziona correttamente su molti browser mobile.
  * La soluzione più robusta è usare uno pseudo-elemento (`::before`) con `position: fixed`.
  * Questo elemento si estende a tutta la viewport e si posiziona dietro a tutto il contenuto (`z-index: -1`),
- * simulando un background fisso in modo compatibile e performante sia in light che dark mode.
+ * simulando un background fisso in modo compatibile e performante.
  */
 body::before {
     content: '';
@@ -153,8 +166,6 @@ body.dark-theme {
     --toggle-bg: var(--toggle-bg-dark);
     --disabled-bg: #2d2640;
     --disabled-text: #7E57C2;
-    /* FIX: Aggiunto colore di sfondo di fallback anche per il dark theme. */
-    background-color: var(--background);
 }
 
 
