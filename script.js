@@ -15,6 +15,9 @@
  * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
  * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
  * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
+ * --- NUOVE MODIFICHE IMPLEMENTATE ---
+ * NUOVA MODIFICA: Invertita la posizione della sesta (Contento) e settima (Calmo) emoji nel check-in del benessere. La modifica è stata effettuata nel file HTML.
+ * NUOVA MODIFICA: Verificata l'implementazione dello scroll automatico per il form di registrazione su mobile (modifica in style.css).
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {

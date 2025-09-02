@@ -43,6 +43,8 @@
  * NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body` per prevenire la barra nera su mobile in dark mode, fornendo un fallback solido.
  * NUOVA MODIFICA (FIX): Corretta l'animazione di chiusura dei modali per eliminare il "glitch" visivo, passando da `scale(1.05)` a `scale(0.95)` nello stato di base per una transizione fluida.
  * NUOVA MODIFICA (FIX): Rimossi tutti gli effetti `:hover` come richiesto per evitare problemi su dispositivi touch e per coerenza con la richiesta.
+ * NUOVA MODIFICA: Garantita la comparsa della barra di scorrimento sul form di autenticazione in caso di overflow su schermi piccoli.
+ * NUOVA MODIFICA: Invertite le emoji nel check-in del benessere (modifica in index.html).
  */
 :root {
     --primary: #B39DDB;
@@ -186,6 +188,9 @@ body.dark-theme {
     padding: 30px 25px;
     border: 1px solid rgba(179, 157, 219, 0.2);
     max-height: 95vh;
+    /* MODIFICA: La proprietà overflow-y: auto garantisce che la barra di scorrimento appaia
+       automaticamente quando il contenuto del form supera l'altezza del contenitore,
+       risolvendo il problema su schermi piccoli. */
     overflow-y: auto;
 }
 
