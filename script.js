@@ -797,6 +797,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        /*
+         * SOLUZIONE: PROBLEMA DI SCORRIMENTO
+         * La riga seguente assicura che la pagina torni all'inizio (top: 0)
+         * ogni volta che si cambia sezione (es. passando a 'Salute').
+         * Questo risolve il problema per cui la pagina a volte non scorreva verso l'alto.
+         * L'opzione `behavior: 'smooth'` garantisce uno scorrimento fluido.
+         */
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if (targetId === 'health') {

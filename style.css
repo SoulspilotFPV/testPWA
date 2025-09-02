@@ -94,12 +94,18 @@
 html {
     height: 100%;
 }
+
+/**
+ * SOLUZIONE: BARRA NERA IN DARK MODE (MOBILE)
+ * Il problema della barra nera durante l'overscroll su mobile in dark mode
+ * è risolto applicando un colore di sfondo (`background-color`) direttamente all'elemento <body>.
+ * Questo agisce come fallback, garantendo che ci sia sempre un colore di sfondo
+ * (in questo caso, `var(--background)`, che cambia tra tema chiaro e scuro)
+ * anche se lo pseudo-elemento `::before` (con l'immagine di sfondo) ha un ritardo nel rendering.
+ */
 body {
     min-height: 100%;
     position: relative;
-    /* FIX: Aggiunto colore di sfondo al body. Questo previene la barra nera su mobile
-       agendo come fallback nel caso in cui lo pseudo-elemento ::before non copra
-       immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
     background-color: var(--background);
 }
 
