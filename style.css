@@ -1,6 +1,6 @@
 /**
  * File: style.css
- * --- NOTE SULLE ULTIME MODIFICHE ---
+ * --- NOTE SULLE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Risolto il problema di visualizzazione del cerchio di selezione dell'emoji aumentando il padding del contenitore.
  * MODIFICA: Cambiato il colore del testo dell'intenzione giornaliera in bianco nel tema scuro per una migliore leggibilità.
  * MODIFICA: Ridisegnata completamente la visualizzazione dello storico per un layout più pulito e integrato.
@@ -8,7 +8,6 @@
  * MODIFICA: Aggiunti stili per il nuovo banner combinato (#combined-checkin-card).
  * MODIFICA: Assicurata la responsività del nuovo banner su dispositivi mobili.
  * MODIFICA: Aggiunto uno stile 'selected' per l'emoji dell'umore cliccata.
- * MODIFICA: Implementato un workaround per rendere lo sfondo fisso su tutti i dispositivi mobili.
  * MODIFICA: Corretto e unificato il colore dei filtri delle meditazioni in tema chiaro.
  * MODIFICA: Lo sfondo dell'input per la modifica del nome ora è coerente con il tema (chiaro/scuro).
  * MODIFICA: La palette viola scuro (#7E57C2) è stata applicata a tutti gli elementi testuali e di accento nel tema scuro, come da richiesta.
@@ -17,7 +16,6 @@
  * MODIFICA: Aggiunta scala numerica e linee guida al grafico del report per migliorarne la leggibilità.
  * MODIFICA: Il suggerimento per lo scroll delle emoji è ora nascosto su desktop.
  * MODIFICA: Corretto il colore hover del pulsante "Annulla" nel tema scuro.
- * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * MODIFICA: Scurito il colore del testo primario per migliorare il contrasto e l'accessibilità.
  * MODIFICA: Impostato il colore di sfondo dell'onboarding su #D3bbff come richiesto.
  * MODIFICA: Aggiunto un border-radius al logo nella schermata di caricamento per un aspetto smussato.
@@ -28,24 +26,24 @@
  * MODIFICA: Ridisegnata la sezione di Onboarding per una migliore centratura e leggibilità.
  * MODIFICA: Aggiornato lo stile del pulsante "Genera Report" per coerenza con l'app.
  * MODIFICA: Rimossi gli stili dell'onboarding e aggiunti nuovi stili per la pagina di autenticazione (#auth-section).
- * --- ULTIME MODIFICHE ---
  * MODIFICA: Aggiunto il colore di sfondo #D3BBFF alla pagina di login/registrazione.
- * MODIFICA: Rimosso `background-attachment: fixed` per migliorare la compatibilità dello sfondo fisso sui dispositivi mobili.
  * MODIFICA: Aggiunti stili per il nuovo sistema di medaglie e per il popup di sblocco.
  * MODIFICA: Riscritta l'animazione di apertura/chiusura di tutti i modali per risolvere il bug della "contrazione" e migliorare la fluidità.
- * --- MODIFICHE RICHIESTE DALL'UTENTE (Implementate in questa versione) ---
  * MODIFICA: Aggiunti stili per il feedback visivo (icona di spunta e animazioni) quando un utente salva un dato.
  * MODIFICA: Aggiunta un'animazione per la comparsa di un nuovo obiettivo o intenzione dopo essere stati impostati.
  * MODIFICA: Riscritti gli stili per il modale "Impostazioni Account" per una maggiore coerenza visiva con il resto dell'app.
  * MODIFICA: Aggiunta una media query `@media (hover: hover)` per applicare gli effetti :hover solo su dispositivi non-touch,
  * risolvendo il problema dello "sticky hover" (es. sui filtri delle meditazioni) dopo un tap su mobile.
- * NUOVA MODIFICA: Corretto il glitch visivo delle medaglie non sbloccate durante il cambio tema.
- * NUOVA MODIFICA: Risolto il problema della barra nera in cima alla pagina su mobile in dark mode.
+ * MODIFICA: Corretto il glitch visivo delle medaglie non sbloccate durante il cambio tema.
+ * MODIFICA: Risolto il problema della barra nera in cima alla pagina su mobile in dark mode.
+ * --- NUOVE MODIFICHE IMPLEMENTATE IN QUESTA VERSIONE ---
+ * NUOVA MODIFICA: Consolidata la tecnica dello sfondo fisso su mobile tramite pseudo-elemento, la soluzione più robusta.
+ * NUOVA MODIFICA: Allineato il colore del testo del sottotitolo del profilo (`.profile-welcome`) a quello degli altri sottotitoli in dark mode per coerenza.
+ * NUOVA MODIFICA: Verificato e garantito che il colore del testo dell'obiettivo giornaliero in dark mode sia coerente con quello dell'intenzione.
  */
 :root {
     --primary: #B39DDB;
     --primary-light: #D1C4E9;
-    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --primary-dark: #5E35B1;
     --primary-darker: #5E35B1;
     --background: #F5F5F5;
@@ -68,7 +66,6 @@
     --journey-3: #FFAB91;
     --streak-gradient: linear-gradient(135deg, #D1C4E9, #B39DDB);
     --streak-height: 120px;
-    /* MODIFICA: Colore scurito per migliorare il contrasto del testo */
     --text-primary-light: #5E35B1;
     --text-primary-dark: #7E57C2;
     --text-primary: var(--text-primary-light);
@@ -79,7 +76,6 @@
     --toggle-bg-dark: #2d2d2d;
     --toggle-slider-gradient: linear-gradient(135deg, #ff8a80, #ea80fc, #8c9eff, #80d8ff);
     --filter-bg-light: #E9E4F0;
-    /* --- NUOVA MODIFICA UTENTE: Colori per elementi disabilitati --- */
     --disabled-bg: #E9E4F0;
     --disabled-text: #9575CD;
 }
@@ -100,6 +96,14 @@ body {
     position: relative;
     background-color: var(--background);
 }
+
+/**
+ * NUOVA MODIFICA: SFONDO FISSO SU MOBILE
+ * La proprietà `background-attachment: fixed` non funziona correttamente su molti browser mobile.
+ * La soluzione più robusta è usare uno pseudo-elemento (`::before`) con `position: fixed`.
+ * Questo elemento si estende a tutta la viewport e si posiziona dietro a tutto il contenuto (`z-index: -1`),
+ * simulando un background fisso in modo compatibile e performante.
+ */
 body::before {
     content: '';
     position: fixed;
@@ -108,14 +112,11 @@ body::before {
     height: 100vh;
     width: 100vw;
     z-index: -1;
-    /* MODIFICA: Corretto il percorso dell'immagine di sfondo per il tema chiaro. */
     background-image: url('bodylight.jpg');
     background-size: cover;
     background-position: center center;
-    background-attachment: fixed;
 }
 body.dark-theme::before {
-    /* MODIFICA: Corretto il percorso dell'immagine di sfondo per il tema scuro. */
     background-image: url('bodydark.jpg');
 }
 
@@ -144,16 +145,12 @@ body.dark-theme {
     --text-primary: var(--text-primary-dark);
     --button-bg: var(--button-bg-dark);
     --toggle-bg: var(--toggle-bg-dark);
-    /* --- NUOVA MODIFICA UTENTE: Colori per elementi disabilitati in tema scuro --- */
     --disabled-bg: #2d2640;
     --disabled-text: #7E57C2;
 }
 
-/* --- MODIFICA: Rimossi tutti gli stili per l'onboarding --- */
 
-/* --- MODIFICA: Stili per la pagina di autenticazione --- */
 #auth-section {
-    /* MODIFICA: Cambiata la strategia di posizionamento in 'fixed' per bloccare lo sfondo, impedire lo scroll della pagina e garantire la centratura. */
     position: fixed;
     top: 0;
     left: 0;
@@ -164,7 +161,6 @@ body.dark-theme {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* MODIFICA: Lo scroll ora è sulla sezione per gestire schermi piccoli, mantenendo il banner centrato. */
     padding: 20px;
     overflow-y: auto;
     background-color: #D3BBFF;
@@ -188,16 +184,12 @@ body.dark-theme {
     margin-bottom: 25px;
 }
 
-/* MODIFICA: Stile del logo rimosso poiché l'elemento è stato eliminato dall'HTML. */
-
 .auth-title {
     text-align: center;
     font-size: 1.4rem;
     color: var(--text-primary);
     margin-bottom: 20px;
 }
-/* --- FINE STILI AUTH --- */
-
 
 .container {
     max-width: 100%;
@@ -211,8 +203,6 @@ body.dark-theme {
     padding: 20px 15px 120px;
     animation: fadeIn 0.4s ease-out;
 }
-
-/* Rimossa la regola duplicata per #auth-section padding */
 
 .section.active {
     display: block;
@@ -470,7 +460,6 @@ input[type="range"]::-webkit-slider-thumb {
     border: 2px solid var(--primary);
 }
 
-/* --- MODIFICA UTENTE: Stile per la levetta dello slider disabilitato --- */
 input[type="range"]:disabled::-webkit-slider-thumb {
     background: var(--disabled-bg);
     border-color: var(--disabled-text);
@@ -516,7 +505,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     color: var(--text-light);
 }
 
-/* --- MODIFICA: Stile unificato per tutti i modali per risolvere il bug della contrazione --- */
 .player-modal,
 .history-modal,
 .profile-edit-modal,
@@ -534,7 +522,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    /* Transizione migliorata per evitare glitch */
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
     transform: scale(1.05);
 }
@@ -546,7 +533,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 .medal-unlock-modal.active {
     opacity: 1;
     visibility: visible;
-    /* Transizione di attivazione */
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: scale(1);
 }
@@ -1063,7 +1049,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     transform: scale(0.98);
 }
 
-/* --- MODIFICA UTENTE: Stile per i pulsanti disabilitati (es. gratitudine, sonno) --- */
 .gratitude-btn:disabled {
     background: var(--disabled-bg);
     color: var(--disabled-text);
@@ -1120,8 +1105,10 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     color: var(--text-light);
     font-size: 1rem;
 }
+
+/* NUOVA MODIFICA: Colore del sottotitolo del profilo allineato in dark mode */
 .dark-theme .profile-welcome {
-    color: var(--primary);
+    color: var(--text-light);
 }
 
 
@@ -1142,7 +1129,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     background: rgba(209, 196, 233, 0.2);
 }
 
-/* --- MODIFICA UTENTE: Stile delle icone del profilo uniformato a quello delle Impostazioni Account --- */
 .profile-icon {
     font-size: 1.2rem;
     color: var(--primary);
@@ -1245,9 +1231,9 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     font-size: 1rem;
     color: var(--text);
 }
-/* --- MODIFICA UTENTE: Colore del testo per obiettivo giornaliero in dark mode --- */
+
+/* NUOVA MODIFICA: Colore del testo dell'obiettivo in dark mode allineato a quello dell'intenzione */
 .dark-theme .goal-text {
-    /* Cambiato da --primary-dark a --text per una migliore leggibilità */
     color: var(--text);
 }
 .dark-theme .goal-text.completed {
@@ -1421,7 +1407,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     margin-top: 10px;
 }
 
-/* --- MODIFICA UTENTE: Stile per il pulsante di registrazione disabilitato --- */
 .login-btn.register:disabled {
     background: var(--disabled-bg);
     color: var(--disabled-text);
@@ -1976,7 +1961,6 @@ input:checked + .toggle-slider:before {
     color: var(--error) !important;
 }
 
-/* NUOVA MODIFICA UTENTE: Colore icona logout coerente con il testo */
 .logout-btn .profile-icon {
     color: var(--error) !important;
 }
@@ -2289,7 +2273,6 @@ input:checked + .toggle-slider:before {
     left: 0;
     right: 0;
     bottom: 0;
-    /* MODIFICA: Colore di sfondo del caricamento aggiornato come da richiesta. */
     background: #D3bbff;
     display: flex;
     justify-content: center;
@@ -2347,7 +2330,6 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* NUOVA MODIFICA: Stili per il modale delle Impostazioni Account, resi coerenti */
 .account-settings-container {
     background: var(--card-bg);
     width: 90%;
@@ -2405,7 +2387,6 @@ input:checked + .toggle-slider:before {
     color: var(--error);
 }
 
-/* --- Sistema di Medaglie --- */
 .medals-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -2436,9 +2417,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.4s ease;
     filter: blur(2px);
     opacity: 0.7;
-    /* NUOVA MODIFICA: Aggiunto per forzare l'accelerazione hardware (GPU).
-       Questo risolve il glitch di rendering sulle medaglie bloccate durante il cambio
-       di tema (light/dark) senza impattare la performance. */
     transform: translateZ(0);
 }
 
@@ -2468,8 +2446,6 @@ input:checked + .toggle-slider:before {
 .dark-theme .medal.unlocked .medal-name {
     color: var(--text);
 }
-
-/* --- NUOVI STILI: Popup Sblocco Medaglia --- */
 
 .medal-unlock-container {
     background: var(--card-bg);
@@ -2535,7 +2511,6 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-/* --- NUOVI STILI: Feedback Visivo sui Pulsanti e Contenuti --- */
 .btn-success-feedback {
     background: var(--success) !important;
     transition: background-color 0.3s ease;
@@ -2567,8 +2542,6 @@ input:checked + .toggle-slider:before {
     }
 }
 
-/* NUOVA MODIFICA: Risolve il problema dello "sticky hover" su dispositivi touch.
-   Applica gli effetti :hover solo a dispositivi che possono effettivamente passare il mouse sopra un elemento. */
 @media (hover: hover) {
     .card:hover {
         transform: translateY(-3px);

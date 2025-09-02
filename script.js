@@ -1,44 +1,22 @@
 /**
  * File: script.js
- * --- NOTE SULLE ULTIME MODIFICHE ---
- * MODIFICA: Aggiunto l'audio per la nuova meditazione "Lasciare andare" (ID 23).
- * MODIFICA: Riscritto il rendering HTML dello storico ('updateHistoryDisplay') per implementare il nuovo design più pulito e integrato.
- * MODIFICA: Unificato il check-in di umore, ansia e stress in un unico banner.
- * MODIFICA: Aggiornata la struttura dati per 'anxietyEntries' e 'stressEntries' per supportare registrazioni multiple giornaliere.
- * MODIFICA: Rifattorizzata la logica di salvataggio in una nuova funzione 'saveCombinedCheckin'.
- * MODIFICA: Assicurato il corretto reset dei check-in dopo la mezzanotte.
- * MODIFICA: Aggiunta logica per il refresh automatico dei contenuti giornalieri.
- * MODIFICA: Il messaggio di check-in umore scompare dopo la registrazione.
- * MODIFICA: Gli obiettivi nel report settimanale sono mostrati come "X/7".
- * MODIFICA: Aggiunto un nuovo modale per accorpare le impostazioni dell'account.
- * MODIFICA: Aggiunte linee guida e scala numerica al grafico del report.
- * --- NUOVE MODIFICHE IMPLEMENTATE ---
- * MODIFICA: Rimossa la generazione dell'asse Y e delle linee della griglia nella funzione `generateWeeklyReport` per un grafico più pulito.
- * MODIFICA: Rimosso lo slide "Percorsi di Crescita" dall'onboarding e aggiornata la logica di navigazione.
- * MODIFICA: Implementata la logica di caricamento con window.onload e durata minima garantita.
- * --- MODIFICHE PER RIMOZIONE ONBOARDING E NUOVA PAGINA AUTH ---
- * MODIFICA: Rimossa la funzione `initOnboarding` e la relativa logica a slide.
- * MODIFICA: Creata la nuova funzione `initAuthLogic` per gestire i form di login/registrazione.
- * MODIFICA: La logica di avvio ora controlla `isLoggedIn`. Se l'utente non è loggato, mostra la sezione `#auth-section`.
- * MODIFICA: Creata la funzione `enterMainApp` per gestire la transizione dalla pagina di auth all'app principale dopo il login/registrazione.
- * MODIFICA: Il modale di modifica profilo si apre automaticamente solo per i nuovi utenti dopo la registrazione.
- * --- ULTIME MODIFICHE ---
- * MODIFICA: Aggiunto `history.scrollRestoration` per prevenire il ripristino dello scroll al refresh della pagina.
- * MODIFICA: Aggiunto `window.scrollTo(0, 0)` per assicurare che l'app venga sempre visualizzata dall'inizio.
- * --- MODIFICHE RICHIESTE DALL'UTENTE (Implementate in questa versione) ---
+ * --- NOTE SULLE MODIFICHE IMPLEMENTATE IN QUESTA VERSIONE ---
  * NUOVA MODIFICA: Risolto il bug per cui il modale di modifica profilo non appariva dopo la registrazione.
  * NUOVA MODIFICA: Corretti i percorsi delle immagini per il "Pensiero del Giorno" per un corretto collegamento.
  * NUOVA MODIFICA: Aggiunto un feedback visivo (icona di spunta e animazioni) per tutti i pulsanti di salvataggio (check-in, gratitudine, sonno, profilo).
  * NUOVA MODIFICA: Implementata un'animazione di comparsa per l'obiettivo e l'intenzione giornalieri appena impostati.
- * NUOVA MODIFICA: Riscritta completamente la logica di generazione del calendario e la gestione della chiusura di tutti i modali per una maggiore robustezza e una migliore UX.
- * MODIFICA: I filtri delle meditazioni si resettano quando si cambia pagina.
- * MODIFICA: I check-in (sonno, benessere) si disabilitano e resettano correttamente.
- * MODIFICA: Il contatore "Giorni di crescita" è stato rinominato, non si resetta più e incrementa al primo check-in giornaliero.
- * MODIFICA: Implementato un nuovo sistema di Medaglie sbloccabili con popup di notifica.
+ * NUOVA MODIFICA: I filtri delle meditazioni si resettano quando si cambia pagina.
+ * NUOVA MODIFICA: I check-in (sonno, benessere) si disabilitano e resettano correttamente.
+ * NUOVA MODIFICA: Il contatore "Giorni di crescita" è stato rinominato, non si resetta più e incrementa al primo check-in giornaliero.
+ * NUOVA MODIFICA: Implementato un nuovo sistema di Medaglie sbloccabili con popup di notifica.
+ * --- REFACTORING COMPLETO DELLO STORICO E REPORT ---
+ * NUOVA MODIFICA: Riscritta completamente la logica di generazione del calendario (`generateCalendar`) per maggiore robustezza.
+ * NUOVA MODIFICA: Riscritta la funzione di visualizzazione dello storico (`updateHistoryDisplay`) utilizzando la manipolazione del DOM (`createElement`)
+ * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
+ * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
+ * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // MODIFICA: Disabilita il ripristino automatico della posizione di scroll del browser.
-    // Questo risolve il problema della pagina che non parte dall'alto al refresh.
     if (history.scrollRestoration) {
         history.scrollRestoration = 'manual';
     }
@@ -125,8 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         meditationHistory: {},
         lastAccessDate: null,
         streakUpdatedToday: false,
-        // MODIFICA: Corretti i percorsi delle immagini per il "Pensiero del Giorno".
-        // I percorsi ora puntano alla cartella "Daily/" come da struttura file.
         dailyQuotes: [
             { image: "Daily/daily1.jpg", quote: "🌱 La pace viene da dentro. Non cercarla fuori. - Buddha" },
             { image: "Daily/daily2.jpg", quote: "⏳ Il momento presente è l'unico momento disponibile. - Thich Nhat Hanh" },
@@ -163,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
         { days: 1825, name: 'Cinque Anni', icon: 'fa-solid fa-gem' }
     ];
 
-    // Percorsi dei file audio
     const meditationAudios = {
         1: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
         2: 'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-552.mp3',
@@ -259,9 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const intentionInput = document.getElementById('intention-input');
     const setIntentionBtn = document.getElementById('set-intention-btn');
     const intentionText = document.getElementById('intention-text');
-
     const saveCombinedCheckinBtn = document.getElementById('save-combined-checkin-btn');
-
     const accountSettingsModal = document.getElementById('account-settings-modal');
     const accountSettingsBtn = document.getElementById('account-settings-btn');
     const accountSettingsCloseBtn = document.getElementById('account-settings-close-btn');
@@ -269,13 +242,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const termsBtn = document.getElementById('terms-btn');
     const privacyBtn = document.getElementById('privacy-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
-
     const yearlyToggle = document.getElementById('yearly-toggle');
     const monthlyToggle = document.getElementById('monthly-toggle');
     const subscriptionToggle = document.querySelector('.subscription-toggle');
     const yearlyPlan = document.getElementById('yearly-plan');
     const monthlyPlan = document.getElementById('monthly-plan');
-
     const registrationForm = document.getElementById('registration-form');
     const loginForm = document.getElementById('login-form');
     const registrationView = document.getElementById('registration-view');
@@ -291,142 +262,81 @@ document.addEventListener('DOMContentLoaded', function() {
     const lengthCheck = document.getElementById('length-check');
     const numberCheck = document.getElementById('number-check');
     const specialCheck = document.getElementById('special-check');
-
     const medalsContainer = document.getElementById('medals-container');
     const medalUnlockModal = document.getElementById('medal-unlock-modal');
     const medalUnlockCloseBtn = document.getElementById('medal-unlock-close-btn');
 
-    // Carica i dati salvati da localStorage
     function loadSavedData() {
-        // --- PREPARAZIONE PER SUPABASE ---
-        // Questa funzione è il punto di ingresso per caricare i dati.
-        // Attualmente usa localStorage. In futuro, qui andrà la logica
-        // per interrogare il database Supabase e popolare lo stato dell'app.
-        // Esempio:
-        // const { data, error } = await supabase.from('profiles').select('*').single();
-        // if (data) state.profile = data.profile_data;
-
         const savedProfile = localStorage.getItem('userProfile');
-        if (savedProfile) {
-            state.profile = JSON.parse(savedProfile);
-        }
+        if (savedProfile) state.profile = JSON.parse(savedProfile);
 
         const savedMoodEntries = localStorage.getItem('moodEntries');
-        if (savedMoodEntries) {
-            state.moodEntries = JSON.parse(savedMoodEntries);
-        }
+        if (savedMoodEntries) state.moodEntries = JSON.parse(savedMoodEntries);
 
         const savedGratitudeEntries = localStorage.getItem('gratitudeEntries');
-        if (savedGratitudeEntries) {
-            state.gratitudeEntries = JSON.parse(savedGratitudeEntries);
-        }
+        if (savedGratitudeEntries) state.gratitudeEntries = JSON.parse(savedGratitudeEntries);
 
         const savedAnxietyEntries = localStorage.getItem('anxietyEntries');
-        if (savedAnxietyEntries) {
-            state.anxietyEntries = JSON.parse(savedAnxietyEntries);
-        }
+        if (savedAnxietyEntries) state.anxietyEntries = JSON.parse(savedAnxietyEntries);
 
         const savedStressEntries = localStorage.getItem('stressEntries');
-        if (savedStressEntries) {
-            state.stressEntries = JSON.parse(savedStressEntries);
-        }
+        if (savedStressEntries) state.stressEntries = JSON.parse(savedStressEntries);
 
         const savedSleepEntries = localStorage.getItem('sleepEntries');
-        if (savedSleepEntries) {
-            state.sleepEntries = JSON.parse(savedSleepEntries);
-        }
+        if (savedSleepEntries) state.sleepEntries = JSON.parse(savedSleepEntries);
 
         const savedReminders = localStorage.getItem('reminders');
-        if (savedReminders) {
-            state.reminders = JSON.parse(savedReminders);
-        }
+        if (savedReminders) state.reminders = JSON.parse(savedReminders);
 
         const savedDailyGoals = localStorage.getItem('dailyGoals');
-        if (savedDailyGoals) {
-            state.dailyGoals = JSON.parse(savedDailyGoals);
-        }
+        if (savedDailyGoals) state.dailyGoals = JSON.parse(savedDailyGoals);
 
         const savedDailyIntentions = localStorage.getItem('dailyIntentions');
-        if (savedDailyIntentions) {
-            state.dailyIntentions = JSON.parse(savedDailyIntentions);
-        }
+        if (savedDailyIntentions) state.dailyIntentions = JSON.parse(savedDailyIntentions);
 
         const savedPremium = localStorage.getItem('isPremium');
-        if (savedPremium) {
-            state.isPremium = JSON.parse(savedPremium);
-        }
+        if (savedPremium) state.isPremium = JSON.parse(savedPremium);
 
         const savedReferralCode = localStorage.getItem('referralCode');
-        if (savedReferralCode) {
-            state.referralCode = savedReferralCode;
-        }
+        if (savedReferralCode) state.referralCode = savedReferralCode;
 
         const savedLogin = localStorage.getItem('isLoggedIn');
-        if (savedLogin) {
-            state.isLoggedIn = JSON.parse(savedLogin);
-        }
+        if (savedLogin) state.isLoggedIn = JSON.parse(savedLogin);
 
         const savedDarkTheme = localStorage.getItem('darkTheme');
-        if (savedDarkTheme) {
-            state.darkTheme = JSON.parse(savedDarkTheme);
-        }
+        if (savedDarkTheme) state.darkTheme = JSON.parse(savedDarkTheme);
 
         const savedStreak = localStorage.getItem('growthStreak');
-        if (savedStreak) {
-            state.growthStreak = JSON.parse(savedStreak);
-        }
+        if (savedStreak) state.growthStreak = JSON.parse(savedStreak);
 
         const savedLastActivity = localStorage.getItem('lastActivityDate');
-        if (savedLastActivity) {
-            state.lastActivityDate = savedLastActivity;
-        }
+        if (savedLastActivity) state.lastActivityDate = savedLastActivity;
 
         const savedDownloads = localStorage.getItem('downloadedMeditations');
-        if (savedDownloads) {
-            state.downloadedMeditations = JSON.parse(savedDownloads);
-        }
+        if (savedDownloads) state.downloadedMeditations = JSON.parse(savedDownloads);
 
         const savedMeditationHistory = localStorage.getItem('meditationHistory');
-        if (savedMeditationHistory) {
-            state.meditationHistory = JSON.parse(savedMeditationHistory);
-        }
+        if (savedMeditationHistory) state.meditationHistory = JSON.parse(savedMeditationHistory);
 
         const savedLastAccess = localStorage.getItem('lastAccessDate');
-        if (savedLastAccess) {
-            state.lastAccessDate = savedLastAccess;
-        }
+        if (savedLastAccess) state.lastAccessDate = savedLastAccess;
 
         const savedStreakUpdated = localStorage.getItem('streakUpdatedToday');
-        if (savedStreakUpdated) {
-            state.streakUpdatedToday = JSON.parse(savedStreakUpdated);
-        }
+        if (savedStreakUpdated) state.streakUpdatedToday = JSON.parse(savedStreakUpdated);
 
         const savedDailyContent = localStorage.getItem('dailyContent');
         if (savedDailyContent) {
             const content = JSON.parse(savedDailyContent);
-            // Non sovrascrivere se abbiamo già caricato i dati per oggi
             if (content.date === getLocalDateString()) {
                 state.dailyContent = content;
             }
         }
 
         const savedSelectedDate = localStorage.getItem('selectedHistoryDate');
-        if (savedSelectedDate) {
-            state.selectedHistoryDate = savedSelectedDate;
-        }
+        if (savedSelectedDate) state.selectedHistoryDate = savedSelectedDate;
     }
 
-    // Salva dati in localStorage
     function saveData() {
-        // --- PREPARAZIONE PER SUPABASE ---
-        // Questa funzione centralizza il salvataggio dei dati.
-        // Attualmente usa localStorage. In futuro, la logica qui verrà sostituita
-        // con chiamate API per aggiornare i dati nel database Supabase.
-        // L'approccio ideale è creare una funzione `updateRemoteData` che viene
-        // chiamata da qui.
-        // Esempio:
-        // const { error } = await supabase.from('profiles').update({ profile_data: state.profile }).eq('id', userId);
-
         localStorage.setItem('userProfile', JSON.stringify(state.profile));
         localStorage.setItem('moodEntries', JSON.stringify(state.moodEntries));
         localStorage.setItem('gratitudeEntries', JSON.stringify(state.gratitudeEntries));
@@ -447,7 +357,6 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('lastAccessDate', state.lastAccessDate || '');
         localStorage.setItem('streakUpdatedToday', JSON.stringify(state.streakUpdatedToday));
         localStorage.setItem('selectedHistoryDate', state.selectedHistoryDate || new Date().toISOString().split('T')[0]);
-
         if (state.dailyContent) {
             localStorage.setItem('dailyContent', JSON.stringify(state.dailyContent));
         }
@@ -455,49 +364,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateWelcomeMessage() {
         let welcomeText = "";
-
         switch(state.profile.gender) {
-            case "M":
-                welcomeText = "Bentornato!";
-                break;
-            case "F":
-                welcomeText = "Bentornata!";
-                break;
-            case "N":
-                welcomeText = "Bentornatə!";
-                break;
-            default:
-                welcomeText = "Bentornato/a!";
+            case "M": welcomeText = "Bentornato!"; break;
+            case "F": welcomeText = "Bentornata!"; break;
+            case "N": welcomeText = "Bentornatə!"; break;
+            default: welcomeText = "Bentornato/a!";
         }
-
         document.getElementById('welcome-header').innerHTML = `${welcomeText} ${state.profile.emoji || '😊'}`;
 
         const welcomeElement = document.querySelector('.profile-welcome');
         let welcomeProfileText = "";
-
         switch(state.profile.gender) {
-            case "M":
-                welcomeProfileText = "Benvenuto nella tua area personale";
-                break;
-            case "F":
-                welcomeProfileText = "Benvenuta nella tua area personale";
-                break;
-            case "N":
-                welcomeProfileText = "Benvenutə nella tua area personale";
-                break;
-            default:
-                welcomeProfileText = "Benvenuto/a nella tua area personale";
+            case "M": welcomeProfileText = "Benvenuto nella tua area personale"; break;
+            case "F": welcomeProfileText = "Benvenuta nella tua area personale"; break;
+            case "N": welcomeProfileText = "Benvenutə nella tua area personale"; break;
+            default: welcomeProfileText = "Benvenuto/a nella tua area personale";
         }
-
-        if (welcomeElement) {
-            welcomeElement.textContent = welcomeProfileText;
-        }
+        if (welcomeElement) welcomeElement.textContent = welcomeProfileText;
     }
 
-    // Initialize UI
     function initUI() {
         state.loadedDate = getLocalDateString();
-
         document.querySelector('.profile-name').textContent = state.profile.name;
         document.querySelector('.profile-emoji').textContent = state.profile.emoji;
         updateWelcomeMessage();
@@ -509,11 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePremiumLocks();
         updateDailyData();
 
-        if (state.isPremium) {
-            premiumCard.style.display = 'none';
-        } else {
-            premiumCard.style.display = 'block';
-        }
+        premiumCard.style.display = state.isPremium ? 'none' : 'block';
 
         const today = getLocalDateString();
         if (!state.dailyContent || state.dailyContent.date !== today) {
@@ -534,11 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateLoginState() {
-        if (state.isLoggedIn) {
-            logoutBtn.style.display = 'flex';
-        } else {
-            logoutBtn.style.display = 'none';
-        }
+        logoutBtn.style.display = state.isLoggedIn ? 'flex' : 'none';
     }
 
     function renderDailyGoal(isNew = false) {
@@ -584,10 +463,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         intentionText.textContent = `"${todayIntention.text}"`;
-        // NUOVA MODIFICA: Aggiunge un'animazione quando l'intenzione viene impostata
         if (isNew && intentionBanner) {
-            intentionBanner.classList.remove('new-item-feedback'); // Rimuove per ri-triggerare l'animazione
-            void intentionBanner.offsetWidth; // Trigger reflow
+            intentionBanner.classList.remove('new-item-feedback');
+            void intentionBanner.offsetWidth;
             intentionBanner.classList.add('new-item-feedback');
         }
         intentionInput.style.display = "none";
@@ -646,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
-        renderDailyGoal(true); // NUOVA MODIFICA: Passa `true` per attivare l'animazione
+        renderDailyGoal(true);
         showToast("Obiettivo impostato!");
     }
 
@@ -666,15 +544,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveData();
-        renderDailyIntention(true); // NUOVA MODIFICA: Passa `true` per attivare l'animazione
+        renderDailyIntention(true);
         showToast("Intenzione fissata!");
-        showButtonFeedback(setIntentionBtn); // NUOVA MODIFICA: Feedback visivo sul pulsante
+        showButtonFeedback(setIntentionBtn);
     }
 
     function toggleGoalCompletion() {
         const today = getLocalDateString();
         const goal = state.dailyGoals[today];
-
         if (!goal) return;
 
         goal.completed = !goal.completed;
@@ -690,23 +567,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     dailyGoalContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'set-goal-btn') {
-            setDailyGoal();
-        } else if (e.target.id === 'goal-checkbox') {
-            toggleGoalCompletion();
-        }
+        if (e.target.id === 'set-goal-btn') setDailyGoal();
+        else if (e.target.id === 'goal-checkbox') toggleGoalCompletion();
     });
-
 
     function checkGratitudeLock() {
         const today = getLocalDateString();
-
         if (state.gratitudeEntries[today]) {
             gratitudeInputs.forEach(input => {
                 input.value = state.gratitudeEntries[today][Array.from(gratitudeInputs).indexOf(input)] || '';
                 input.disabled = true;
             });
-
             gratitudeBtn.disabled = true;
             gratitudeBtn.innerHTML = `<i class="fas fa-check"></i> Completato per oggi`;
         } else {
@@ -737,11 +608,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentTime = now.getHours() + now.getMinutes()/100;
         const today = getLocalDateString();
         const moodStatus = document.querySelector('.mood-status');
-
         if (!moodStatus) return;
 
         const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
-
         const hasLoggedInCurrentWindow = state.moodEntries[today]?.some(e => e.window === currentWindow?.id);
 
         if (hasLoggedInCurrentWindow) {
@@ -750,7 +619,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         moodStatus.style.display = 'block';
-
         if (currentWindow) {
             moodStatus.innerHTML = `È ora per il tuo check-in della ${currentWindow.name.toLowerCase()}!`;
         } else {
@@ -879,9 +747,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('home').classList.add('active');
             document.querySelector('.nav-item[data-target="home"]').classList.add('active');
 
-            // NUOVA MODIFICA: Risolto il bug del modale che non appare.
-            // Aggiunto un breve ritardo per garantire che la transizione del modale
-            // si attivi correttamente dopo la visualizzazione dell'app principale.
             if (isNewUser) {
                 setTimeout(() => {
                     openModal(profileEditModal);
@@ -944,9 +809,7 @@ document.addEventListener('DOMContentLoaded', function() {
     moodTracker.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.mood-btn');
         if (!targetButton) return;
-
         state.currentSelectedMood = targetButton.dataset.mood;
-
         moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
         targetButton.classList.add('selected');
     });
@@ -956,7 +819,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast("Questa funzionalità richiede un abbonamento Premium");
             return;
         }
-
         if (!state.currentSelectedMood) {
             showToast("Per favore, seleziona un'emoji per il tuo umore");
             return;
@@ -976,8 +838,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!state.anxietyEntries[today]) state.anxietyEntries[today] = [];
         if (!state.stressEntries[today]) state.stressEntries[today] = [];
 
-        const hasLoggedIn = state.moodEntries[today].some(e => e.window === currentWindow.id);
-        if (hasLoggedIn) {
+        if (state.moodEntries[today].some(e => e.window === currentWindow.id)) {
             showToast(`Hai già effettuato il check-in per la ${currentWindow.name}`);
             return;
         }
@@ -987,14 +848,12 @@ document.addEventListener('DOMContentLoaded', function() {
         state.stressEntries[today].push({ value: stressSlider.value, window: currentWindow.id });
 
         showToast(`Check-in della ${currentWindow.name} registrato!`);
-        showButtonFeedback(saveCombinedCheckinBtn); // NUOVA MODIFICA: Feedback visivo
+        showButtonFeedback(saveCombinedCheckinBtn);
         initTimeBasedCheckin();
         updateMoodStatusMessage();
         updateDailyData();
 
-        if (state.lastActivityDate !== today) {
-            updateStreak();
-        }
+        if (state.lastActivityDate !== today) updateStreak();
 
         state.currentSelectedMood = null;
         moodTracker.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
@@ -1031,37 +890,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- NUOVA MODIFICA: RISCRITTURA DELLA LOGICA DEI MODALI ---
-
-    // Funzione centralizzata per aprire un modale
     function openModal(modal) {
-        if (modal) {
-            modal.classList.add('active');
-        }
+        if (modal) modal.classList.add('active');
     }
 
-    // Funzione centralizzata per chiudere un modale
     function closeModal(modal) {
-        if (modal) {
-            modal.classList.remove('active');
-        }
+        if (modal) modal.classList.remove('active');
     }
 
-    // Aggiunge un listener a tutti i modali per chiuderli cliccando sullo sfondo (overlay)
     document.querySelectorAll('.player-modal, .history-modal, .profile-edit-modal, .login-modal, .medal-unlock-modal, .report-modal, .account-settings-modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
-            // Chiude il modale solo se l'elemento cliccato è l'overlay stesso
             if (e.target === modal) {
                 closeModal(modal);
-                // Azione specifica per il player audio
-                if (modal.id === 'player-modal') {
-                    audioPlayer.pause();
-                }
+                if (modal.id === 'player-modal') audioPlayer.pause();
             }
         });
     });
 
-    // Aggiornamento dei listener dei pulsanti di chiusura per usare la nuova logica
     document.getElementById('player-close-btn').addEventListener('click', () => {
         closeModal(playerModal);
         audioPlayer.pause();
@@ -1083,8 +928,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector(`.gender-option[data-gender="${state.profile.gender}"]`)?.classList.add('selected');
         openModal(profileEditModal);
     });
-
-    // --- FINE RISCRITTURA LOGICA MODALI ---
 
     emojiPicker.addEventListener('click', function(e) {
         const targetOption = e.target.closest('.emoji-option');
@@ -1114,8 +957,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.profile-emoji').textContent = emoji;
         updateWelcomeMessage();
         saveData();
-        showButtonFeedback(profileEditSave); // NUOVA MODIFICA: Feedback visivo
-        setTimeout(() => closeModal(profileEditModal), 1000); // Chiude dopo il feedback
+        showButtonFeedback(profileEditSave);
+        setTimeout(() => closeModal(profileEditModal), 1000);
         showToast("Profilo aggiornato!");
     });
     profileEditCancel.addEventListener('click', () => closeModal(profileEditModal));
@@ -1133,7 +976,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         state.gratitudeEntries[getLocalDateString()] = entries;
         showToast("Diario della gratitudine salvato!");
-        showButtonFeedback(gratitudeBtn); // NUOVA MODIFICA: Feedback visivo
+        showButtonFeedback(gratitudeBtn);
         saveData();
         checkGratitudeLock();
     });
@@ -1171,22 +1014,13 @@ document.addEventListener('DOMContentLoaded', function() {
             yearlyPlan.classList.remove('active');
         });
 
-        if (monthlySubscribeBtn) {
-            monthlySubscribeBtn.addEventListener('click', () => handleSubscription("mensile"));
-        }
-        if (annualSubscribeBtn) {
-            annualSubscribeBtn.addEventListener('click', () => handleSubscription("annuale"));
-        }
+        if (monthlySubscribeBtn) monthlySubscribeBtn.addEventListener('click', () => handleSubscription("mensile"));
+        if (annualSubscribeBtn) annualSubscribeBtn.addEventListener('click', () => handleSubscription("annuale"));
     }
     setupSubscriptionToggle();
 
-
-    if (googleLoginBtn) {
-       googleLoginBtn.addEventListener('click', () => openModal(loginModal));
-    }
-    if(loginCloseBtn) {
-        loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
-    }
+    if (googleLoginBtn) googleLoginBtn.addEventListener('click', () => openModal(loginModal));
+    if(loginCloseBtn) loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
 
     document.getElementById('google-login').addEventListener('click', () => {
         showToast("Accesso con Google in corso...");
@@ -1255,58 +1089,127 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+    // --- INIZIO SEZIONE DI REFACTORING: STORICO E REPORT ---
+
+    /**
+     * NUOVA MODIFICA: Riscrittura della logica di visualizzazione dello storico.
+     * Questa funzione ora costruisce gli elementi del DOM programmaticamente (`createElement`)
+     * invece di usare `innerHTML`. Questo approccio è più sicuro, performante e manutenibile.
+     * @param {Date} date - La data per cui visualizzare lo storico.
+     */
     function updateHistoryDisplay(date) {
         const selectedDate = getLocalDateString(date);
         state.selectedHistoryDate = selectedDate;
-        saveData();
+        saveData(); // Salva la data selezionata per persistere la scelta
 
+        // Funzione helper per creare un messaggio di "Nessun dato"
+        const createNoDataMessage = () => {
+            const p = document.createElement('p');
+            p.textContent = 'Nessun dato';
+            p.style.textAlign = 'center';
+            p.style.padding = '10px';
+            p.style.color = 'var(--text-light)';
+            return p;
+        };
+
+        // --- Aggiorna Check-in Benessere ---
+        moodHistoryContainer.innerHTML = ''; // Pulisce il contenitore
         const moodEntries = state.moodEntries[selectedDate] || [];
         const anxietyEntries = state.anxietyEntries[selectedDate] || [];
         const stressEntries = state.stressEntries[selectedDate] || [];
+
+        if (moodEntries.length > 0) {
+            state.timeWindows.forEach(window => {
+                const moodEntry = moodEntries.find(e => e.window === window.id);
+                if (moodEntry) {
+                    const anxietyEntry = anxietyEntries.find(e => e.window === window.id);
+                    const stressEntry = stressEntries.find(e => e.window === window.id);
+
+                    const item = document.createElement('div');
+                    item.className = 'mood-history-item';
+
+                    const emoji = document.createElement('div');
+                    emoji.className = 'mood-history-emoji';
+                    emoji.textContent = getMoodEmoji(moodEntry.mood);
+
+                    const details = document.createElement('div');
+                    details.className = 'mood-history-details';
+                    const moodName = document.createElement('div');
+                    moodName.className = 'mood-history-mood-name';
+                    moodName.textContent = getMoodName(moodEntry.mood);
+                    const windowName = document.createElement('div');
+                    windowName.className = 'mood-history-window';
+                    windowName.textContent = window.name;
+                    details.append(moodName, windowName);
+
+                    const stats = document.createElement('div');
+                    stats.className = 'mood-history-stats';
+                    const anxietyStat = document.createElement('div');
+                    anxietyStat.className = 'mood-history-stat';
+                    anxietyStat.innerHTML = `<div class="stat-label-history">Ansia</div><div class="stat-value-history">${anxietyEntry ? anxietyEntry.value : '-'}</div>`;
+                    const stressStat = document.createElement('div');
+                    stressStat.className = 'mood-history-stat';
+                    stressStat.innerHTML = `<div class="stat-label-history">Stress</div><div class="stat-value-history">${stressEntry ? stressEntry.value : '-'}</div>`;
+                    stats.append(anxietyStat, stressStat);
+
+                    item.append(emoji, details, stats);
+                    moodHistoryContainer.appendChild(item);
+                }
+            });
+        } else {
+            moodHistoryContainer.appendChild(createNoDataMessage());
+        }
+
+        // --- Aggiorna Diario della Gratitudine ---
+        gratitudeHistoryContainer.innerHTML = '';
         const gratitudeEntries = state.gratitudeEntries[selectedDate] || [];
+        if (gratitudeEntries.length > 0) {
+            const ol = document.createElement('ol');
+            ol.style.paddingLeft = '20px';
+            ol.style.marginTop = '10px';
+            gratitudeEntries.forEach(entry => {
+                const li = document.createElement('li');
+                li.textContent = entry;
+                li.style.marginBottom = '8px';
+                ol.appendChild(li);
+            });
+            gratitudeHistoryContainer.appendChild(ol);
+        } else {
+            gratitudeHistoryContainer.appendChild(createNoDataMessage());
+        }
+
+        // --- Aggiorna Obiettivo Giornaliero ---
+        goalHistoryContainer.innerHTML = '';
         const dailyGoal = state.dailyGoals[selectedDate] || null;
+        if (dailyGoal) {
+            const item = document.createElement('div');
+            item.className = 'goal-history-item';
+            const icon = document.createElement('div');
+            icon.className = `goal-history-icon ${dailyGoal.completed ? 'completed' : 'not-completed'}`;
+            icon.textContent = dailyGoal.completed ? '✓' : '✗';
 
-        let moodHistoryHTML = '';
-        state.timeWindows.forEach(window => {
-            const moodEntry = moodEntries.find(e => e.window === window.id);
-            if (moodEntry) {
-                const anxietyEntry = anxietyEntries.find(e => e.window === window.id);
-                const stressEntry = stressEntries.find(e => e.window === window.id);
+            const textContainer = document.createElement('div');
+            const text = document.createElement('div');
+            text.style.fontWeight = dailyGoal.completed ? 'normal' : 'bold';
+            text.textContent = dailyGoal.text;
+            const status = document.createElement('div');
+            status.style.fontSize = '0.85rem';
+            status.style.color = 'var(--text-light)';
+            status.textContent = dailyGoal.completed ? '🎯 Completato' : '🎯 Non completato';
+            textContainer.append(text, status);
 
-                moodHistoryHTML += `
-                    <div class="mood-history-item">
-                        <div class="mood-history-emoji">${getMoodEmoji(moodEntry.mood)}</div>
-                        <div class="mood-history-details">
-                            <div class="mood-history-mood-name">${getMoodName(moodEntry.mood)}</div>
-                            <div class="mood-history-window">${window.name}</div>
-                        </div>
-                        <div class="mood-history-stats">
-                            <div class="mood-history-stat">
-                                <div class="stat-label-history">Ansia</div>
-                                <div class="stat-value-history">${anxietyEntry ? anxietyEntry.value : '-'}</div>
-                            </div>
-                             <div class="mood-history-stat">
-                                <div class="stat-label-history">Stress</div>
-                                <div class="stat-value-history">${stressEntry ? stressEntry.value : '-'}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-        });
-
-        moodHistoryContainer.innerHTML = moodHistoryHTML || '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
-        gratitudeHistoryContainer.innerHTML = gratitudeEntries.length > 0 ? `<ol style="padding-left: 20px; margin-top: 10px;">${gratitudeEntries.map(entry => `<li style="margin-bottom: 8px;">${entry}</li>`).join('')}</ol>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
-        goalHistoryContainer.innerHTML = dailyGoal ? `
-            <div class="goal-history-item">
-                <div class="goal-history-icon ${dailyGoal.completed ? 'completed' : 'not-completed'}">${dailyGoal.completed ? '✓' : '✗'}</div>
-                <div>
-                    <div style="font-weight: ${dailyGoal.completed ? 'normal' : 'bold'}">${dailyGoal.text}</div>
-                    <div style="font-size: 0.85rem; color: var(--text-light);">${dailyGoal.completed ? '🎯 Completato' : '🎯 Non completato'}</div>
-                </div>
-            </div>` : '<p style="text-align: center; padding: 10px; color: var(--text-light);">Nessun dato</p>';
+            item.append(icon, textContainer);
+            goalHistoryContainer.appendChild(item);
+        } else {
+            goalHistoryContainer.appendChild(createNoDataMessage());
+        }
     }
 
-    // --- NUOVA MODIFICA: Riscrittura completa della logica del calendario ---
+    /**
+     * NUOVA MODIFICA: Riscrittura della logica di generazione del calendario.
+     * La funzione è stata ottimizzata per essere più chiara e performante,
+     * utilizzando un DocumentFragment per minimizzare le manipolazioni del DOM.
+     */
     function generateCalendar() {
         if (!calendarMonth || !document.getElementById('calendar')) return;
 
@@ -1320,6 +1223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const fragment = document.createDocumentFragment();
 
+        // Aggiunge le intestazioni dei giorni della settimana
         daysOfWeek.forEach(day => {
             const headerEl = document.createElement('div');
             headerEl.className = 'calendar-header';
@@ -1333,11 +1237,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const todayStr = getLocalDateString(new Date());
 
+        // Aggiunge celle vuote per i giorni prima dell'inizio del mese
         for (let i = 0; i < firstDayOfMonth; i++) {
-            const emptyCell = document.createElement('div');
-            fragment.appendChild(emptyCell);
+            fragment.appendChild(document.createElement('div'));
         }
 
+        // Aggiunge i giorni del mese
         for (let i = 1; i <= daysInMonth; i++) {
             const dayDate = new Date(year, month, i);
             const dayString = getLocalDateString(dayDate);
@@ -1347,29 +1252,17 @@ document.addEventListener('DOMContentLoaded', function() {
             dayElement.dataset.date = dayString;
 
             const classes = [];
-            if (state.moodEntries[dayString] || state.gratitudeEntries[dayString] || state.dailyGoals[dayString]) {
-                classes.push('has-data');
-            }
-            if (dayString === todayStr) {
-                classes.push('active');
-            }
-            if (dayString === state.selectedHistoryDate) {
-                classes.push('selected');
-            }
-            if (classes.length > 0) {
-                dayElement.classList.add(...classes);
-            }
+            if (state.moodEntries[dayString] || state.gratitudeEntries[dayString] || state.dailyGoals[dayString]) classes.push('has-data');
+            if (dayString === todayStr) classes.push('active');
+            if (dayString === state.selectedHistoryDate) classes.push('selected');
+            if (classes.length > 0) dayElement.classList.add(...classes);
 
             dayElement.addEventListener('click', function() {
-                const prevSelected = calendar.querySelector('.calendar-day.selected');
-                if (prevSelected) {
-                    prevSelected.classList.remove('selected');
-                }
+                calendar.querySelector('.calendar-day.selected')?.classList.remove('selected');
                 this.classList.add('selected');
                 state.selectedHistoryDate = dayString;
                 updateHistoryDisplay(dayDate);
             });
-
             fragment.appendChild(dayElement);
         }
 
@@ -1381,16 +1274,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         const currentTime = now.getHours() + now.getMinutes()/100;
         const today = getLocalDateString();
-
         const moodButtons = moodTracker.querySelectorAll('.mood-btn');
         const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
 
         let isDisabled = true;
         if (currentWindow) {
             const hasLoggedIn = state.moodEntries[today]?.some(e => e.window === currentWindow.id);
-            if (!hasLoggedIn) {
-                isDisabled = false;
-            }
+            if (!hasLoggedIn) isDisabled = false;
         }
 
         moodButtons.forEach(btn => btn.disabled = isDisabled);
@@ -1409,11 +1299,9 @@ document.addEventListener('DOMContentLoaded', function() {
     meditationFilters.addEventListener('click', function(e) {
         const targetButton = e.target.closest('.filter-btn');
         if (!targetButton) return;
-
         const filter = targetButton.dataset.filter;
         meditationFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         targetButton.classList.add('active');
-
         document.querySelectorAll('.meditation-item').forEach(item => {
             item.style.display = (filter === 'all' || item.dataset.tags.includes(filter)) ? 'flex' : 'none';
         });
@@ -1439,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', function() {
         state.sleepEntries[today] = sleepSlider.value;
         saveData();
         showToast("Sonno registrato: " + sleepSlider.value);
-        showButtonFeedback(saveSleepBtn); // NUOVA MODIFICA: Feedback visivo
+        showButtonFeedback(saveSleepBtn);
         updateDailyData();
         checkSleepLock();
     });
@@ -1450,6 +1338,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     reportCloseBtn.addEventListener('click', () => closeModal(reportModal));
 
+    /**
+     * NUOVA MODIFICA: Riscrittura completa della generazione del report settimanale.
+     * La funzione calcola i dati come prima, ma ora costruisce l'HTML del report
+     * in modo strutturato e programmatico, migliorando la robustezza e la leggibilità.
+     */
     function generateWeeklyReport() {
         const today = new Date();
         let moodSum = 0, moodCount = 0, anxietySum = 0, anxietyCount = 0, stressSum = 0, stressCount = 0;
@@ -1457,28 +1350,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const moodData = [], anxietyData = [], stressData = [], sleepData = [], dates = [];
         const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 
+        // Raccoglie i dati degli ultimi 7 giorni
         for (let i = 6; i >= 0; i--) {
             const date = new Date();
             date.setDate(today.getDate() - i);
             const dateStr = getLocalDateString(date);
             dates.push(daysOfWeek[date.getDay()]);
 
-            if (state.moodEntries[dateStr] && state.moodEntries[dateStr].length > 0) {
+            if (state.moodEntries[dateStr]?.length > 0) {
                 const avgMood = state.moodEntries[dateStr].map(e => getMoodValue(e.mood)).reduce((a, b) => a + b, 0) / state.moodEntries[dateStr].length;
                 moodSum += avgMood; moodCount++; moodData.push(avgMood);
             } else { moodData.push(null); }
-            if (state.anxietyEntries[dateStr] && state.anxietyEntries[dateStr].length > 0) {
+            if (state.anxietyEntries[dateStr]?.length > 0) {
                 const avgAnxiety = state.anxietyEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.anxietyEntries[dateStr].length;
                 anxietySum += avgAnxiety; anxietyCount++; anxietyData.push(avgAnxiety);
             } else { anxietyData.push(null); }
-            if (state.stressEntries[dateStr] && state.stressEntries[dateStr].length > 0) {
+            if (state.stressEntries[dateStr]?.length > 0) {
                 const avgStress = state.stressEntries[dateStr].map(e => parseInt(e.value)).reduce((a,b) => a+b, 0) / state.stressEntries[dateStr].length;
                 stressSum += avgStress; stressCount++; stressData.push(avgStress);
             } else { stressData.push(null); }
             if (state.sleepEntries[dateStr]) {
-                sleepSum += parseInt(state.sleepEntries[dateStr]);
-                sleepCount++;
-                sleepData.push(parseInt(state.sleepEntries[dateStr]));
+                const sleepVal = parseInt(state.sleepEntries[dateStr]);
+                sleepSum += sleepVal; sleepCount++; sleepData.push(sleepVal);
             } else { sleepData.push(null); }
             if (state.gratitudeEntries[dateStr]) gratitudeCount++;
             if (state.dailyGoals[dateStr]?.completed) goalCompletionCount++;
@@ -1489,40 +1382,102 @@ document.addEventListener('DOMContentLoaded', function() {
         const avgStress = stressCount > 0 ? (stressSum / stressCount).toFixed(1) : 'N/D';
         const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : 'N/D';
 
-        reportContent.innerHTML = `
-            <div class="report-header"><h2 class="report-title">Resoconto Settimanale</h2></div>
-            <div class="report-stats">
-                <div class="report-stat"><div class="stat-value">${avgMood}</div><div class="stat-label">Umore</div></div>
-                <div class="report-stat"><div class="stat-value">${avgAnxiety}</div><div class="stat-label">Ansia</div></div>
-                <div class="report-stat"><div class="stat-value">${avgStress}</div><div class="stat-label">Stress</div></div>
-                <div class="report-stat"><div class="stat-value">${avgSleep}</div><div class="stat-label">Sonno</div></div>
-                <div class="report-stat"><div class="stat-value">${gratitudeCount}</div><div class="stat-label">Gratitudini</div></div>
-                <div class="report-stat"><div class="stat-value">${goalCompletionCount}/7</div><div class="stat-label">Obiettivi</div></div>
-            </div>
-            <div class="report-chart-area">
-                <div class="report-chart">
-                    <div class="chart-group">
-                        ${dates.map((date, index) => `
-                            <div class="chart-day-group">
-                                <div class="chart-bars">
-                                    <div class="chart-bar mood-bar" style="height: ${moodData[index] ? (moodData[index] / 10) * 100 + '%' : '0%'};" title="Umore: ${moodData[index] ? moodData[index].toFixed(1) : 'N/D'}"></div>
-                                    <div class="chart-bar anxiety-bar" style="height: ${anxietyData[index] ? (anxietyData[index] / 10) * 100 + '%' : '0%'};" title="Ansia: ${anxietyData[index] ? anxietyData[index].toFixed(1) : 'N/D'}"></div>
-                                    <div class="chart-bar stress-bar" style="height: ${stressData[index] ? (stressData[index] / 10) * 100 + '%' : '0%'};" title="Stress: ${stressData[index] ? stressData[index].toFixed(1) : 'N/D'}"></div>
-                                    <div class="chart-bar sleep-bar" style="height: ${sleepData[index] ? (sleepData[index] / 10) * 100 + '%' : '0%'};" title="Sonno: ${sleepData[index] || 'N/D'}"></div>
-                                </div>
-                                <div class="chart-label">${date}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-            <div class="chart-legend">
-                <div class="legend-item"><div class="legend-color" style="background: var(--primary);"></div>Umore</div>
-                <div class="legend-item"><div class="legend-color" style="background: #EF5350;"></div>Ansia</div>
-                <div class="legend-item"><div class="legend-color" style="background: #FFB74D;"></div>Stress</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--calm-1);"></div>Sonno</div>
-            </div>`;
+        reportContent.innerHTML = ''; // Pulisce il contenitore del report
+
+        // Crea dinamicamente gli elementi del report
+        const fragment = document.createDocumentFragment();
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'report-header';
+        const title = document.createElement('h2');
+        title.className = 'report-title';
+        title.textContent = 'Resoconto Settimanale';
+        header.appendChild(title);
+        fragment.appendChild(header);
+
+        // Griglia delle statistiche
+        const statsGrid = document.createElement('div');
+        statsGrid.className = 'report-stats';
+        const statsData = [
+            { label: 'Umore', value: avgMood }, { label: 'Ansia', value: avgAnxiety },
+            { label: 'Stress', value: avgStress }, { label: 'Sonno', value: avgSleep },
+            { label: 'Gratitudini', value: gratitudeCount }, { label: 'Obiettivi', value: `${goalCompletionCount}/7` }
+        ];
+        statsData.forEach(stat => {
+            const statEl = document.createElement('div');
+            statEl.className = 'report-stat';
+            statEl.innerHTML = `<div class="stat-value">${stat.value}</div><div class="stat-label">${stat.label}</div>`;
+            statsGrid.appendChild(statEl);
+        });
+        fragment.appendChild(statsGrid);
+
+        // Area del grafico
+        const chartArea = document.createElement('div');
+        chartArea.className = 'report-chart-area';
+        const reportChart = document.createElement('div');
+        reportChart.className = 'report-chart';
+        const chartGroup = document.createElement('div');
+        chartGroup.className = 'chart-group';
+
+        dates.forEach((date, index) => {
+            const dayGroup = document.createElement('div');
+            dayGroup.className = 'chart-day-group';
+            const bars = document.createElement('div');
+            bars.className = 'chart-bars';
+
+            const moodBar = document.createElement('div');
+            moodBar.className = 'chart-bar mood-bar';
+            moodBar.style.height = moodData[index] ? `${(moodData[index] / 10) * 100}%` : '0%';
+            moodBar.title = `Umore: ${moodData[index] ? moodData[index].toFixed(1) : 'N/D'}`;
+
+            const anxietyBar = document.createElement('div');
+            anxietyBar.className = 'chart-bar anxiety-bar';
+            anxietyBar.style.height = anxietyData[index] ? `${(anxietyData[index] / 10) * 100}%` : '0%';
+            anxietyBar.title = `Ansia: ${anxietyData[index] ? anxietyData[index].toFixed(1) : 'N/D'}`;
+
+            const stressBar = document.createElement('div');
+            stressBar.className = 'chart-bar stress-bar';
+            stressBar.style.height = stressData[index] ? `${(stressData[index] / 10) * 100}%` : '0%';
+            stressBar.title = `Stress: ${stressData[index] ? stressData[index].toFixed(1) : 'N/D'}`;
+
+            const sleepBar = document.createElement('div');
+            sleepBar.className = 'chart-bar sleep-bar';
+            sleepBar.style.height = sleepData[index] ? `${(sleepData[index] / 10) * 100}%` : '0%';
+            sleepBar.title = `Sonno: ${sleepData[index] || 'N/D'}`;
+
+            bars.append(moodBar, anxietyBar, stressBar, sleepBar);
+
+            const label = document.createElement('div');
+            label.className = 'chart-label';
+            label.textContent = date;
+
+            dayGroup.append(bars, label);
+            chartGroup.appendChild(dayGroup);
+        });
+        reportChart.appendChild(chartGroup);
+        chartArea.appendChild(reportChart);
+        fragment.appendChild(chartArea);
+
+        // Legenda del grafico
+        const legend = document.createElement('div');
+        legend.className = 'chart-legend';
+        const legendItems = [
+            { label: 'Umore', color: 'var(--primary)' }, { label: 'Ansia', color: '#EF5350' },
+            { label: 'Stress', color: '#FFB74D' }, { label: 'Sonno', color: 'var(--calm-1)' }
+        ];
+        legendItems.forEach(item => {
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            legendItem.innerHTML = `<div class="legend-color" style="background: ${item.color};"></div>${item.label}`;
+            legend.appendChild(legendItem);
+        });
+        fragment.appendChild(legend);
+
+        reportContent.appendChild(fragment);
     }
+
+    // --- FINE SEZIONE DI REFACTORING ---
 
     downloadReportBtn.addEventListener('click', () => {
         html2canvas(reportContent).then(canvas => {
@@ -1557,31 +1512,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function avviaCoriandoliPersonalizzati() {
         const numeroCoriandoli = 60;
         const forme = ['🍃', '💧', '✨'];
-        const container = document.body;
-
         for (let i = 0; i < numeroCoriandoli; i++) {
             const coriandolo = document.createElement('span');
             coriandolo.classList.add('coriandolo');
             coriandolo.innerHTML = forme[Math.floor(Math.random() * forme.length)];
             coriandolo.style.left = `${Math.random() * 100}vw`;
             coriandolo.style.fontSize = `${Math.random() * 1 + 1}rem`;
-            const durataAnimazione = Math.random() * 1.5 + 2.5;
-            coriandolo.style.animationDuration = `${durataAnimazione}s`;
+            coriandolo.style.animationDuration = `${Math.random() * 1.5 + 2.5}s`;
             coriandolo.style.animationDelay = `${Math.random() * 0.5}s`;
-            const oscillazione = (Math.random() - 0.5) * 250;
-            coriandolo.style.setProperty('--oscillazione', `${oscillazione}px`);
-            container.appendChild(coriandolo);
-
+            coriandolo.style.setProperty('--oscillazione', `${(Math.random() - 0.5) * 250}px`);
+            document.body.appendChild(coriandolo);
             coriandolo.addEventListener('animationend', () => {
-                coriandolo.classList.add('fade-out');
-                coriandolo.addEventListener('animationend', () => {
-                    coriandolo.remove();
-                }, { once: true });
+                coriandolo.remove();
             }, { once: true });
         }
     }
 
-    // --- Sistema di Medaglie ---
     function renderMedals() {
         if (!medalsContainer) return;
         medalsContainer.innerHTML = '';
@@ -1590,12 +1536,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const medalEl = document.createElement('div');
             medalEl.className = `medal ${isUnlocked ? 'unlocked' : ''}`;
             medalEl.title = `${tier.name} - Sbloccato a ${tier.days} giorni`;
-            medalEl.innerHTML = `
-                <div class="medal-icon-wrapper">
-                    <i class="${tier.icon}"></i>
-                </div>
-                <div class="medal-name">${tier.name}</div>
-            `;
+            medalEl.innerHTML = `<div class="medal-icon-wrapper"><i class="${tier.icon}"></i></div><div class="medal-name">${tier.name}</div>`;
             medalsContainer.appendChild(medalEl);
         });
     }
@@ -1618,7 +1559,6 @@ document.addEventListener('DOMContentLoaded', function() {
         medalUnlockCloseBtn.addEventListener('click', () => closeModal(medalUnlockModal));
     }
 
-    // --- NUOVA FUNZIONE: Feedback visivo per i pulsanti ---
     function showButtonFeedback(button, iconClass = 'fa-check', duration = 1500) {
         if (!button || button.disabled) return;
 
@@ -1629,24 +1569,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         setTimeout(() => {
             button.innerHTML = originalContent;
-            // Rende il pulsante nuovamente utilizzabile solo se non è stato disabilitato permanentemente da un'altra funzione
             const isPermanentlyDisabled = (button.id === 'gratitude-btn' && state.gratitudeEntries[getLocalDateString()]) ||
                                         (button.id === 'save-sleep-btn' && state.sleepEntries[getLocalDateString()]);
-            if (!isPermanentlyDisabled) {
-                button.disabled = false;
-            }
+            if (!isPermanentlyDisabled) button.disabled = false;
             button.classList.remove('btn-success-feedback');
         }, duration);
     }
 
     function main() {
         loadSavedData();
-
         if (state.isLoggedIn) {
             authSection.style.display = 'none';
             mainAppContainer.style.display = 'block';
             window.scrollTo(0, 0);
-
             initUI();
             document.getElementById('home').classList.add('active');
             document.querySelector('.nav-item[data-target="home"]').classList.add('active');
