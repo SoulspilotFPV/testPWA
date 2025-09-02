@@ -43,6 +43,9 @@
  * NUOVA MODIFICA (FIX): Aggiunto `background-color` al `body` per prevenire la barra nera su mobile in dark mode, fornendo un fallback solido.
  * NUOVA MODIFICA (FIX): Corretta l'animazione di chiusura dei modali per eliminare il "glitch" visivo, passando da `scale(1.05)` a `scale(0.95)` nello stato di base per una transizione fluida.
  * NUOVA MODIFICA (FIX): Rimossi tutti gli effetti `:hover` come richiesto per evitare problemi su dispositivi touch e per coerenza con la richiesta.
+ * --- FIX DEFINITIVO PER SFONDO DARK MODE ---
+ * FIX: Aggiunto `background-color: var(--background)` all'elemento `html` per risolvere in modo definitivo il problema della barra nera su mobile in dark mode durante l'overscroll.
+ * Questo assicura che l'intero documento, non solo il body, abbia il colore di sfondo corretto, eliminando qualsiasi "flash" del colore di default del browser.
  */
 :root {
     --primary: #B39DDB;
@@ -93,13 +96,17 @@
 
 html {
     height: 100%;
+    /* MODIFICA: FIX DEFINITIVO SFONDO DARK MODE.
+       Applicando il colore di sfondo anche all'elemento radice `html`,
+       si previene la visualizzazione di barre del colore di default del browser
+       (es. nero o bianco) durante l'effetto "bounce" dello scroll su mobile,
+       garantendo coerenza visiva in ogni situazione. */
+    background-color: var(--background);
 }
+
 body {
     min-height: 100%;
     position: relative;
-    /* FIX: Aggiunto colore di sfondo al body. Questo previene la barra nera su mobile
-       agendo come fallback nel caso in cui lo pseudo-elemento ::before non copra
-       immediatamente l'intera viewport durante lo scroll o il ridimensionamento. */
     background-color: var(--background);
 }
 

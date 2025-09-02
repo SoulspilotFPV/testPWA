@@ -15,9 +15,8 @@
  * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
  * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
  * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
- * --- CORREZIONI FINALI ---
- * NUOVA MODIFICA (FIX): Aggiunto `window.scrollTo({ top: 0, behavior: 'smooth' })` alla logica di navigazione per assicurare
- * che la pagina torni sempre in cima quando si cambia sezione, risolvendo il problema segnalato per la sezione "Salute".
+ * --- FIX IMPLEMENTATI IN QUESTA VERSIONE ---
+ * FIX: Modificato lo scroll al cambio di sezione da 'smooth' a istantaneo per risolvere il bug per cui la pagina a volte non tornava in cima.
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {
@@ -800,8 +799,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // FIX: Assicura che la pagina torni in cima ad ogni cambio di sezione.
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // MODIFICA: Sostituito lo scroll 'smooth' con uno scroll istantaneo.
+        // Questo garantisce che la pagina torni immediatamente in cima al cambio di sezione,
+        // risolvendo il problema per cui a volte lo scroll non veniva eseguito.
+        window.scrollTo(0, 0);
 
         if (targetId === 'health') {
             resetWellbeingCheckinUI();
