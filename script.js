@@ -15,6 +15,9 @@
  * invece di `innerHTML` per migliorare performance, sicurezza e manutenibilità del codice.
  * NUOVA MODIFICA: Riscritta la funzione di generazione del report (`generateWeeklyReport`) utilizzando la manipolazione del DOM,
  * garantendo che la creazione del grafico e delle statistiche sia più affidabile e leggibile.
+ * --- CORREZIONI FINALI ---
+ * NUOVA MODIFICA (FIX): Aggiunto `window.scrollTo({ top: 0, behavior: 'smooth' })` alla logica di navigazione per assicurare
+ * che la pagina torni sempre in cima quando si cambia sezione, risolvendo il problema segnalato per la sezione "Salute".
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {
@@ -797,13 +800,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        /*
-         * SOLUZIONE: PROBLEMA DI SCORRIMENTO
-         * La riga seguente assicura che la pagina torni all'inizio (top: 0)
-         * ogni volta che si cambia sezione (es. passando a 'Salute').
-         * Questo risolve il problema per cui la pagina a volte non scorreva verso l'alto.
-         * L'opzione `behavior: 'smooth'` garantisce uno scorrimento fluido.
-         */
+        // FIX: Assicura che la pagina torni in cima ad ogni cambio di sezione.
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if (targetId === 'health') {
