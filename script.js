@@ -18,6 +18,13 @@
  * --- NUOVE MODIFICHE IMPLEMENTATE ---
  * NUOVA MODIFICA: Invertita la posizione della sesta (Contento) e settima (Calmo) emoji nel check-in del benessere. La modifica è stata effettuata nel file HTML.
  * NUOVA MODIFICA: Verificata l'implementazione dello scroll automatico per il form di registrazione su mobile (modifica in style.css).
+ * NUOVA MODIFICA (FIX): Centralizzata la logica di feedback dei pulsanti nella funzione `showButtonFeedback` per uniformare l'animazione di salvataggio
+ * e lo stato finale (disabilitato/grigio) su tutti i pulsanti della sezione Salute, risolvendo un conflitto di aggiornamento dell'interfaccia.
+ * --- NUOVE MODIFICHE RICHIESTE DALL'UTENTE ---
+ * NUOVA MODIFICA: Implementate funzioni `showButtonLoading` e `hideButtonLoading` per aggiungere un feedback di caricamento ai pulsanti di registrazione, accesso e pagamento.
+ * NUOVA MODIFICA: Uniformata la logica dei pulsanti della sezione Salute: ora mostrano tutti "Salvato" dopo il salvataggio, come richiesto.
+ * NUOVA MODIFICA: Modificato `handleSubscription` per accettare l'elemento pulsante e mostrare lo stato di caricamento.
+ * NUOVA MODIFICA: Aggiornati i listener degli eventi per registrazione, accesso e pagamenti per utilizzare la nuova logica di caricamento.
  */
 document.addEventListener('DOMContentLoaded', function() {
     if (history.scrollRestoration) {
@@ -574,6 +581,10 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (e.target.id === 'goal-checkbox') toggleGoalCompletion();
     });
 
+    /**
+     * NUOVA MODIFICA: La logica di blocco è stata uniformata.
+     * Ora, quando un dato è già salvato per il giorno, il pulsante mostra "Salvato".
+     */
     function checkGratitudeLock() {
         const today = getLocalDateString();
         if (state.gratitudeEntries[today]) {
@@ -582,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.disabled = true;
             });
             gratitudeBtn.disabled = true;
-            gratitudeBtn.innerHTML = `<i class="fas fa-check"></i> Completato per oggi`;
+            gratitudeBtn.textContent = "Salvato";
         } else {
              gratitudeInputs.forEach(input => {
                 input.value = '';
@@ -666,6 +677,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.addEventListener('visibilitychange', checkDateAndReload);
 
+    /**
+     * NUOVA MODIFICA: Funzioni per gestire lo stato di caricamento dei pulsanti.
+     */
+    function showButtonLoading(button) {
+        if (!button) return;
+        button.dataset.originalContent = button.innerHTML;
+        button.innerHTML = '<div class="btn-loading-spinner"></div>';
+        button.disabled = true;
+    }
+
+    function hideButtonLoading(button) {
+        if (!button || !button.dataset.originalContent) return;
+        button.innerHTML = button.dataset.originalContent;
+        button.disabled = false;
+    }
+
     function initAuthLogic() {
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -704,9 +731,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast("La password non rispetta i criteri di sicurezza.");
                 return;
             }
-            showToast("Registrazione in corso...");
+
+            // NUOVA MODIFICA: Aggiunto stato di caricamento
+            const button = e.submitter;
+            showButtonLoading(button);
 
             setTimeout(() => {
+                hideButtonLoading(button);
                 state.isLoggedIn = true;
                 state.termsAcceptedAt = new Date().toISOString();
                 saveData();
@@ -716,8 +747,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            showToast("Accesso in corso...");
+
+            // NUOVA MODIFICA: Aggiunto stato di caricamento
+            const button = e.submitter;
+            showButtonLoading(button);
+
             setTimeout(() => {
+                hideButtonLoading(button);
                 state.isLoggedIn = true;
                 saveData();
                 enterMainApp(false);
@@ -855,8 +891,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         showToast(`Check-in della ${currentWindow.name} registrato!`);
         showButtonFeedback(saveCombinedCheckinBtn);
-        initTimeBasedCheckin();
-        updateMoodStatusMessage();
         updateDailyData();
 
         if (state.lastActivityDate !== today) updateStreak();
@@ -984,12 +1018,18 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast("Diario della gratitudine salvato!");
         showButtonFeedback(gratitudeBtn);
         saveData();
-        checkGratitudeLock();
     });
 
-    function handleSubscription(plan) {
+    /**
+     * NUOVA MODIFICA: La funzione ora accetta l'elemento `button` per mostrare
+     * lo stato di caricamento durante l'elaborazione del pagamento.
+     */
+    function handleSubscription(plan, button) {
         showToast("Stiamo elaborando il tuo pagamento...");
+        showButtonLoading(button);
+
         setTimeout(() => {
+            hideButtonLoading(button);
             const isSuccess = true;
             if (isSuccess) {
                 state.isPremium = true;
@@ -1020,10 +1060,12 @@ document.addEventListener('DOMContentLoaded', function() {
             yearlyPlan.classList.remove('active');
         });
 
-        if (monthlySubscribeBtn) monthlySubscribeBtn.addEventListener('click', () => handleSubscription("mensile"));
-        if (annualSubscribeBtn) annualSubscribeBtn.addEventListener('click', () => handleSubscription("annuale"));
+        // NUOVA MODIFICA: Passa l'elemento del pulsante a handleSubscription
+        if (monthlySubscribeBtn) monthlySubscribeBtn.addEventListener('click', (e) => handleSubscription("mensile", e.currentTarget));
+        if (annualSubscribeBtn) annualSubscribeBtn.addEventListener('click', (e) => handleSubscription("annuale", e.currentTarget));
     }
     setupSubscriptionToggle();
+
 
     if (googleLoginBtn) googleLoginBtn.addEventListener('click', () => openModal(loginModal));
     if(loginCloseBtn) loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
@@ -1276,6 +1318,10 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHistoryDisplay(new Date(state.selectedHistoryDate + 'T00:00:00'));
     }
 
+    /**
+     * NUOVA MODIFICA: Logica uniformata per i pulsanti della sezione Salute.
+     * Se un check-in è già stato fatto, il pulsante mostrerà "Salvato".
+     */
     function initTimeBasedCheckin() {
         const now = new Date();
         const currentTime = now.getHours() + now.getMinutes()/100;
@@ -1284,15 +1330,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentWindow = state.timeWindows.find(w => currentTime >= w.start && currentTime <= w.end);
 
         let isDisabled = true;
+        let buttonText = "Salva Check-in";
         if (currentWindow) {
             const hasLoggedIn = state.moodEntries[today]?.some(e => e.window === currentWindow.id);
-            if (!hasLoggedIn) isDisabled = false;
+            if (!hasLoggedIn) {
+                isDisabled = false;
+            } else {
+                buttonText = "Salvato";
+            }
         }
 
         moodButtons.forEach(btn => btn.disabled = isDisabled);
         anxietySlider.disabled = isDisabled;
         stressSlider.disabled = isDisabled;
         saveCombinedCheckinBtn.disabled = isDisabled;
+        saveCombinedCheckinBtn.textContent = buttonText;
     }
 
     setInterval(() => {
@@ -1335,7 +1387,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast("Sonno registrato: " + sleepSlider.value);
         showButtonFeedback(saveSleepBtn);
         updateDailyData();
-        checkSleepLock();
     });
 
     generateReportBtn.addEventListener('click', () => {
@@ -1565,6 +1616,15 @@ document.addEventListener('DOMContentLoaded', function() {
         medalUnlockCloseBtn.addEventListener('click', () => closeModal(medalUnlockModal));
     }
 
+    /**
+     * --- NUOVA MODIFICA (FIX) ---
+     * Questa funzione è stata centralizzata per gestire il feedback visivo di tutti i pulsanti di salvataggio.
+     * 1. Mostra un'animazione con spunta e sfondo verde.
+     * 2. Dopo un timeout, rimuove lo stato di feedback.
+     * 3. Chiama la funzione appropriata (es. checkGratitudeLock) per impostare lo stato finale del pulsante
+     * (es. disabilitato con testo "Completato").
+     * Questo risolve il bug per cui lo stato finale veniva sovrascritto prematuramente.
+     */
     function showButtonFeedback(button, iconClass = 'fa-check', duration = 1500) {
         if (!button || button.disabled) return;
 
@@ -1574,11 +1634,22 @@ document.addEventListener('DOMContentLoaded', function() {
         button.classList.add('btn-success-feedback');
 
         setTimeout(() => {
-            button.innerHTML = originalContent;
-            const isPermanentlyDisabled = (button.id === 'gratitude-btn' && state.gratitudeEntries[getLocalDateString()]) ||
-                                        (button.id === 'save-sleep-btn' && state.sleepEntries[getLocalDateString()]);
-            if (!isPermanentlyDisabled) button.disabled = false;
             button.classList.remove('btn-success-feedback');
+
+            // In base all'ID del pulsante, chiama la funzione di aggiornamento UI corretta
+            // per impostare lo stato finale (es. disabilitato e con testo aggiornato).
+            if (button.id === 'gratitude-btn') {
+                checkGratitudeLock();
+            } else if (button.id === 'save-sleep-btn') {
+                checkSleepLock();
+            } else if (button.id === 'save-combined-checkin-btn') {
+                initTimeBasedCheckin();
+                updateMoodStatusMessage();
+            } else {
+                // Comportamento di default per pulsanti con feedback temporaneo (es. Modifica Profilo)
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
         }, duration);
     }
 
