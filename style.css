@@ -48,6 +48,8 @@
  * --- NUOVE MODIFICHE RICHIESTE DALL'UTENTE ---
  * NUOVA MODIFICA: Aggiunti stili per lo spinner di caricamento dei pulsanti.
  * NUOVA MODIFICA: Modificato il colore dell'icona di spunta nel feedback di salvataggio in bianco.
+ * --- NUOVE MODIFICHE RICHIESTE DALL'UTENTE (v2) ---
+ * NUOVA MODIFICA (FIX): Migliorata la gestione del layout per l'obiettivo giornaliero su mobile per evitare che testi lunghi distorcano l'interfaccia.
  */
 :root {
     --primary: #B39DDB;
@@ -1244,6 +1246,7 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    flex-shrink: 0; /* Evita che l'icona si restringa */
 }
 
 .goal-checkbox.checked {
@@ -1256,6 +1259,8 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     flex: 1;
     font-size: 1rem;
     color: var(--text);
+    word-break: break-word; /* Permette al testo lungo di andare a capo correttamente */
+    min-width: 0; /* Assicura che il flex item possa restringersi se necessario */
 }
 
 /* NUOVA MODIFICA: Colore del testo dell'obiettivo in dark mode allineato a quello dell'intenzione */
@@ -1273,6 +1278,8 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-shrink: 0; /* Evita che lo stato si restringa */
+    padding-left: 8px; /* Aggiunge spaziatura di sicurezza dal testo */
 }
 
 .goal-history-item {
@@ -1291,6 +1298,7 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0; /* Aggiunto per coerenza e robustezza */
 }
 
 .goal-history-icon.completed {
